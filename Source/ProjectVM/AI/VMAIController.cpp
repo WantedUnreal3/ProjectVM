@@ -6,6 +6,9 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
+#include "Macro/VMAIMarco.h"
 
 #pragma region 특수_맴버_함수
 
@@ -61,6 +64,9 @@ void AVMAIController::RunAI()
 	// 사용할 블랙보드 지정.
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
+		// 시작 시 좌표를 Blackboard의 HomePos에 저장.
+		BlackboardPtr->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
+
 		// 블랙보드 설정에 잘 진행됐으면, 행동트리 실행.
 		bool RunResult = RunBehaviorTree(BTAsset);
 

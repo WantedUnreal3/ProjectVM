@@ -46,3 +46,27 @@ void AVMEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 }
 
 #pragma endregion
+
+#pragma region IVMAIEnemyBaseInterface
+
+float AVMEnemyBase::GetAIPatrolRadius()
+{
+	return 500.0f;
+}
+
+float AVMEnemyBase::GetAIDetectRange()
+{
+	return 500.0f;
+}
+
+float AVMEnemyBase::GetAIAttackRange()
+{
+	return 50.0f;
+}
+
+float AVMEnemyBase::GetAITurnSpeed()
+{
+	return 2.0f;
+}
+
+#pragma endregion

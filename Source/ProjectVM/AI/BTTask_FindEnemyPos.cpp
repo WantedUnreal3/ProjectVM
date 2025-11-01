@@ -10,6 +10,8 @@
 
 #include "Macro/VMAIMarco.h"
 
+#include "GameFramework/Character.h"
+
 #pragma region 특수_맴버_함수
 
 UBTTask_FindEnemyPos::UBTTask_FindEnemyPos()
@@ -42,13 +44,12 @@ EBTNodeResult::Type UBTTask_FindEnemyPos::ExecuteTask(UBehaviorTreeComponent& Ow
 
     // 폰이 생성된 초기 위치 가져오기.
     FVector OriginPos = OwnerComp.GetBlackboardComponent()->GetValueAsVector(BBKEY_HOMEPOS);
-
-    // 내비게이션 시스템을 활용해 랜덤으로 위치 선택.
-    FNavLocation NextPatrolPos;
-    if (NavSystem->GetRandomPointInNavigableRadius(OriginPos, 500.0f, NextPatrolPos))
+    // 캐릭터의 위치를 다음 위치로 잡음.
+    ACharacter* Character = Cast<ACharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BBKEY_TARGET));
+    if (Character != nullptr)
     {
-        // 랜덤 위치가 선택되면, 블랙보드에 선택된 위치 저장.
-        OwnerComp.GetBlackboardComponent()->SetValueAsVector(BBKEY_PATROLPOS, NextPatrolPos.Location);
+        FVector NextPatrolPos = Character->GetActorLocation();
+        OwnerComp.GetBlackboardComponent()->SetValueAsVector(BBKEY_PATROLPOS, NextPatrolPos);
         return EBTNodeResult::Succeeded;
     }
 

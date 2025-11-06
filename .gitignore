@@ -55,3 +55,4 @@ Plugins/*/Saved/
 
 # Ignore Visual Studio cache and settings
 .vs/
+.dvc/

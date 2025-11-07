@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "CoreMinimal.h"
 #include "GameEnums.generated.h"
 
@@ -10,10 +10,10 @@ enum class EKeyType : uint8
 	ESC	UMETA(DisplayName = "ESC"),
 };
 
-//ÀÔ·Â¸ÅÇÎ ÄÁÅØ½ºÆ® ¿­°ÅÇü
+//ì…ë ¥ë§¤í•‘ ì»¨í…ìŠ¤íŠ¸ ì—´ê±°í˜•
 UENUM(BlueprintType)
 enum class EInputMode : uint8
 {
-	Default		UMETA(DisplayName = "Default"),		// ±âº»
-	Dialogue	UMETA(DisplayName = "Dialogue")		// ´ëÈ­
+	Default		UMETA(DisplayName = "Default"),		// ê¸°ë³¸
+	Dialogue	UMETA(DisplayName = "Dialogue")		// ëŒ€í™”
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -14,21 +14,21 @@ class PROJECTVM_API UVMLoadManager : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 public:
-	// µ¥ÀÌÅÍ Å×ÀÌºí¿¡¼­ Æ¯Á¤ ÇàÀ» °¡Á®¿À´Â ÇÔ¼ö
+	// ë°ì´í„° í…Œì´ë¸”ì—ì„œ íŠ¹ì • í–‰ì„ ê°€ì ¸ì˜¤ëŠ” í•¨ìˆ˜
 	struct FVMNPCTalkData* GetNPCTalkRow(FName RowName);
 	struct FVMNPCData* GetNPCDataRow(FName RowName);
 	struct FVMQuestData* GetQuestDataRow(FName RowName);
 
-	//Ã¹ Row¸¦ Å°·Î ÇÏ°í ±¸Á¶Ã¼¸¦ °ªÀ¸·Î ÇÏ´Â ¸Ê ¹İÈ¯ ÇÔ¼ö
+	//ì²« Rowë¥¼ í‚¤ë¡œ í•˜ê³  êµ¬ì¡°ì²´ë¥¼ ê°’ìœ¼ë¡œ í•˜ëŠ” ë§µ ë°˜í™˜ í•¨ìˆ˜
 	//TMap<FName, FVMQuestData> GetAllQuestDataAsMap();
 
 private:
-	// Å×ÀÌºí Row·Î µ¥ÀÌÅÍ °¡Á®¿À±â ÅÛÇÃ¸´ ÇÔ¼ö
-	// UDataTable *& Table ·Î ¿øº»°ª °»½Å
+	// í…Œì´ë¸” Rowë¡œ ë°ì´í„° ê°€ì ¸ì˜¤ê¸° í…œí”Œë¦¿ í•¨ìˆ˜
+	// UDataTable *& Table ë¡œ ì›ë³¸ê°’ ê°±ì‹ 
 	template<typename T>
 	T* GetTableRow(UDataTable*& Table, const TCHAR* TablePath, FName RowName, const TCHAR* TableName)
 	{
-		// Å×ÀÌºíÀÌ ·ÎµåµÇÁö ¾ÊÀº °æ¿ì ·Îµå ½Ãµµ
+		// í…Œì´ë¸”ì´ ë¡œë“œë˜ì§€ ì•Šì€ ê²½ìš° ë¡œë“œ ì‹œë„
 		if (Table == nullptr)
 		{
 			Table = LoadObject<UDataTable>(nullptr, TablePath);
@@ -43,7 +43,7 @@ private:
 			}
 		}
 
-		//RowName¿¡ ÇØ´çÇÏ´Â µ¥ÀÌÅÍ Ã£±â
+		//RowNameì— í•´ë‹¹í•˜ëŠ” ë°ì´í„° ì°¾ê¸°
 		T* RowData = Table->FindRow<T>(RowName, TableName);
 
 		if (RowData == nullptr)
@@ -55,12 +55,12 @@ private:
 		return RowData;
 	}
 
-	////¸ğµç µ¥ÀÌÅÍ ·ÎµåÇØ¼­ ¸ÊÀ¸·Î ¹İÈ¯ÇÏ´Â ÅÛÇÃ¸´ ÇÔ¼ö
+	////ëª¨ë“  ë°ì´í„° ë¡œë“œí•´ì„œ ë§µìœ¼ë¡œ ë°˜í™˜í•˜ëŠ” í…œí”Œë¦¿ í•¨ìˆ˜
 	//template<typename T>
 	//TMap<FName, T> GetTableMap(UDataTable*& Table, const TCHAR* TablePath, const TCHAR* TableName)
 	//{
 	//	TMap<FName, T> Result;
-	//	// Å×ÀÌºíÀÌ ·ÎµåµÇÁö ¾ÊÀº °æ¿ì ·Îµå ½Ãµµ
+	//	// í…Œì´ë¸”ì´ ë¡œë“œë˜ì§€ ì•Šì€ ê²½ìš° ë¡œë“œ ì‹œë„
 	//	if (Table == nullptr)
 	//	{
 	//		Table = LoadObject<UDataTable>(nullptr, TablePath);
@@ -75,7 +75,7 @@ private:
 	//		}
 	//	}
 
-	//	// ¸ğµç Row °¡Á®¿À±â
+	//	// ëª¨ë“  Row ê°€ì ¸ì˜¤ê¸°
 	//	static const FString ContextString(TEXT("GetTableMap"));
 	//	for (const auto& Pair : Table->GetRowMap())
 	//	{
@@ -84,7 +84,7 @@ private:
 
 	//		if (RowData)
 	//		{
-	//			Result.Add(RowName, *RowData); // ±¸Á¶Ã¼ º¹»ç
+	//			Result.Add(RowName, *RowData); // êµ¬ì¡°ì²´ ë³µì‚¬
 
 
 	//		}
@@ -99,7 +99,7 @@ private:
 	class UDataTable* NPCDataTable;
 	class UDataTable* QuestDataTable;
 
-	//µ¥ÀÌÅÍ	Å×ÀÌºí °æ·Î
+	//ë°ì´í„°	í…Œì´ë¸” ê²½ë¡œ
 	FString NPCTalkTablePath = TEXT("/Game/Project/GameData/VMNPCTalkDataTable.VMNPCTalkDataTable");
 	FString NPCDataTablePath = TEXT("/Game/Project/GameData/VMNPCDataTable.VMNPCDataTable");
 	FString QuestDataTablePath = TEXT("/Game/Project/GameData/VMQuestDataTable.VMQuestDataTable");

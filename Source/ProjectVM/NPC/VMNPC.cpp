@@ -1,4 +1,4 @@
-
+ï»¿
 #include "NPC/VMNPC.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
@@ -12,25 +12,25 @@
 #include "UI/Dialogue/VMNPCDialogue.h"
 #include "UI/VMBillboardComponent.h"
 #include "UI/Dialogue/VMDialogueOption.h"
-#include "VMNPCEnums.h"
+#include "NPC/VMNPCEnums.h"
 
 // Sets default values
 AVMNPC::AVMNPC()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	//ÃÊ±â °ª ¼³Á¤
+	//ì´ˆê¸° ê°’ ì„¤ì •
 	NPCType = ENPCType::Bob;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	// ½ºÄÌ·¹Å» ¸Ş½Ã ¼³Á¤
+	// ìŠ¤ì¼ˆë ˆíƒˆ ë©”ì‹œ ì„¤ì •
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> NPCMesh(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
 	if (NPCMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(NPCMesh.Object);
 
-		// ¸Ş½Ã À§Ä¡ ¹× È¸Àü º¸Á¤ (¾ğ¸®¾ó Ä³¸¯ÅÍÀÇ ¸Ş½Ã ±âº» ¿ÀÇÁ¼Â)
+		// ë©”ì‹œ ìœ„ì¹˜ ë° íšŒì „ ë³´ì • (ì–¸ë¦¬ì–¼ ìºë¦­í„°ì˜ ë©”ì‹œ ê¸°ë³¸ ì˜¤í”„ì…‹)
 		GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -96.0f));
 		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	}
@@ -55,7 +55,7 @@ AVMNPC::AVMNPC()
 		InteractKey->SetWidgetClass(InterectWidgetRef.Class);
 	}
 
-	//´ëÈ­ À§Á¬ Å¬·¡½º ·Îµå
+	//ëŒ€í™” ìœ„ì ¯ í´ë˜ìŠ¤ ë¡œë“œ
 	static ConstructorHelpers::FClassFinder<UVMNPCDialogue> NPCDialogueRef(TEXT("/Game/Project/UI/WBP_VMNPCDialogue.WBP_VMNPCDialogue_C"));
 
 	if (NPCDialogueRef.Succeeded())
@@ -78,24 +78,23 @@ void AVMNPC::BeginPlay()
 	FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
 	if (LoadedData)
 	{
-		NPCData = *LoadedData; // Æ÷ÀÎÅÍ ¡æ °ª º¹»ç
+		NPCData = *LoadedData; // í¬ì¸í„° â†’ ê°’ ë³µì‚¬
 	}
 
 	InteractKeyBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapBegin);
 	InteractKeyBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapEnd);
 	InteractKey->SetVisibility(false);
 
-	//´ëÈ­ À§Á¬ »ı¼º
+	//ëŒ€í™” ìœ„ì ¯ ìƒì„±
 	if (VMNPCDialogueClass != nullptr)
 	{
 		UE_LOG(LogTemp, Log, TEXT("QuestNPC2"));
 		VMNPCDialogue = CreateWidget<UVMNPCDialogue>(GetWorld(), VMNPCDialogueClass);
 		if (VMNPCDialogue != nullptr)
 		{
-			//AddDialogueOptions(TEXT("´ëÈ­ÇÏ±â"), ENPCOption::Talk);
-			//AddDialogueOptions(TEXT("Äù½ºÆ®¹Ş±â"), ENPCOption::Quest);
-			//AddDialogueOptions(TEXT("³ª°¡±â"), ENPCOption::Exit);
-
+			AddDialogueOption(ENPCOption::Talk);
+			AddDialogueOption(ENPCOption::Quest);
+			AddDialogueOption(ENPCOption::Exit);
 			UE_LOG(LogTemp, Log, TEXT("QuestNPC3"));
 			VMNPCDialogue->AddToViewport();
 			VMNPCDialogue->SetVisibility(ESlateVisibility::Hidden);
@@ -105,7 +104,7 @@ void AVMNPC::BeginPlay()
 			FString EnumName = StaticEnum<ENPCType>()->GetNameStringByValue((int64)NPCType);
 
 
-			//´ëÈ­ µ¥ÀÌÅÍ TArray¿¡ ÀúÀå
+			//ëŒ€í™” ë°ì´í„° TArrayì— ì €ì¥
 			int32 TalkIndex = 0;
 			FVMNPCTalkData* VMNPCTalk;
 			do
@@ -125,15 +124,14 @@ void AVMNPC::BeginPlay()
 	}
 }
 
-void AVMNPC::AddDialogueOptions(FString NewOptionText, ENPCOption NewNPCOption)
+void AVMNPC::AddDialogueOption(ENPCOption NewNPCOption)
 {
 	if (VMNPCDialogue != nullptr)
 	{
 		UVMDialogueOption* NewOption = NewObject<UVMDialogueOption>(this);
 		NewOption->OptionType = NewNPCOption;
-		NewOption->OptionText = NewOptionText;
+		NewOption->OptionText = StaticEnum<ENPCOption>()->GetDisplayNameTextByValue((int64)NewNPCOption).ToString();
 		NewOption->OwnerNPC = this;
-
 		VMNPCDialogue->DialogueOptionList->AddItem(NewOption);
 	}
 }
@@ -154,24 +152,24 @@ void AVMNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AVMNPC::OnInteractTriggerOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (ATestLab_ProjectVMCharacter* Player = Cast<ATestLab_ProjectVMCharacter>(OtherActor))
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("Overlapped with Player: %s"), *Player->GetName());
-	//	InteractKey->SetVisibility(true);
-	//	Player->SetInteractNPC(this);
-	//}
+	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Overlapped with Player: %s"), *Player->GetName());
+		InteractKey->SetVisibility(true);
+		Player->SetInteractNPC(this);
+	}
 }
 
 void AVMNPC::OnInteractTriggerOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//¸¸¾à NPC°¡ ºÙ¾îÀÖ¾î¼­ ¿©·¯ NPC°¡ È°¼ºÈ­ µÈ »óÅÂ¶ó¸é ÇÏ³ª¸¸ ¼±ÅÃµÈ´Ù. ¹Ù·Î ¿·À¸·Î ÀÌµ¿ÇÏ¸é nullptr·Î ¼³Á¤ÇÏ±â ¶§¹®¿¡ ´Ù¸¥ NPC°¡ ½ÇÇàµÇÁö´Â ¾Ê´Â´Ù.
-	//ÀÏ´Ü NPC¸¦ ºÙ¾î¼­ ¸¸µéÁö´Â ¾ÊÀ» ¿¹Á¤ÀÌ¸£¸ğ ÀÌ·¸°Ô Ã³¸®ÇÑ´Ù.
-	//if (ATestLab_ProjectVMCharacter* Player = Cast<ATestLab_ProjectVMCharacter>(OtherActor))
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("Exit with Player: %s"), *Player->GetName());
-	//	InteractKey->SetVisibility(false);
-	//	Player->SetInteractNPC(nullptr);
-	//}
+	//ë§Œì•½ NPCê°€ ë¶™ì–´ìˆì–´ì„œ ì—¬ëŸ¬ NPCê°€ í™œì„±í™” ëœ ìƒíƒœë¼ë©´ í•˜ë‚˜ë§Œ ì„ íƒëœë‹¤. ë°”ë¡œ ì˜†ìœ¼ë¡œ ì´ë™í•˜ë©´ nullptrë¡œ ì„¤ì •í•˜ê¸° ë•Œë¬¸ì— ë‹¤ë¥¸ NPCê°€ ì‹¤í–‰ë˜ì§€ëŠ” ì•ŠëŠ”ë‹¤.
+	//ì¼ë‹¨ NPCë¥¼ ë¶™ì–´ì„œ ë§Œë“¤ì§€ëŠ” ì•Šì„ ì˜ˆì •ì´ë¥´ëª¨ ì´ë ‡ê²Œ ì²˜ë¦¬í•œë‹¤.
+	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Exit with Player: %s"), *Player->GetName());
+		InteractKey->SetVisibility(false);
+		Player->SetInteractNPC(nullptr);
+	}
 }
 
 void AVMNPC::Interact()
@@ -256,11 +254,11 @@ void AVMNPC::EndDialogue()
 		ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 		if (PlayerCharacter != nullptr)
 		{
-			//ATestLab_ProjectVMCharacter* TestLabCharacter = Cast<ATestLab_ProjectVMCharacter>(PlayerCharacter);
-			//if (TestLabCharacter != nullptr)
-			//{
-			//	TestLabCharacter->ChangeInputMode(EInputMode::Default);
-			//}
+			AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(PlayerCharacter);
+			if (Player != nullptr)
+			{
+				Player->ChangeInputMode(EInputMode::Default);
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,7 +17,7 @@ class PROJECTVM_API UVMDialogueOptionWidget : public UUserWidget, public IUserOb
 	GENERATED_BODY()
 	
 public:
-	// ºí·çÇÁ¸°Æ®¿¡¼­ ¹ÙÀÎµù
+	// ë¸”ë£¨í”„ë¦°íŠ¸ì—ì„œ ë°”ì¸ë”©
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* OptionTextBlock;
 
@@ -26,10 +26,10 @@ public:
 
 
 
-	//À§Á¬ÀÌ Ã³À½ »ı¼ºµÉ ¶§ µü ÇÑ ¹ø È£ÃâµÊ
+	//ìœ„ì ¯ì´ ì²˜ìŒ ìƒì„±ë  ë•Œ ë”± í•œ ë²ˆ í˜¸ì¶œë¨
 	virtual void NativeConstruct() override;
 
-	//¸®½ºÆ®ºä°¡ µ¥ÀÌÅÍ¸¦ ¿¬°áÇÒ ¶§ ¸¶´Ù È£ÃâµÊ
+	//ë¦¬ìŠ¤íŠ¸ë·°ê°€ ë°ì´í„°ë¥¼ ì—°ê²°í•  ë•Œ ë§ˆë‹¤ í˜¸ì¶œë¨
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
 

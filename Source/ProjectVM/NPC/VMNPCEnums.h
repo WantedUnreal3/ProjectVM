@@ -1,25 +1,25 @@
-#pragma once
+ï»¿#pragma once
 #include "CoreMinimal.h"
 #include "VMNPCEnums.generated.h"
 
-//NPC Á¾·ù
+//NPC ì¢…ë¥˜
 UENUM(BlueprintType)
 enum class ENPCType : uint8
 {
-    None  UMETA(DisplayName = "¾øÀ½"),               // ±âº»°ª
-    Bob   UMETA(DisplayName = "¸¶À» ÁÖ¹Î ¹ä"),        // ¸¶À» ÁÖ¹Î Bob
-    Sue   UMETA(DisplayName = "»óÁ¡ ÁÖÀÎ ¼ö"),        // »óÁ¡ ÁÖÀÎ Sue
-    Tom   UMETA(DisplayName = "Äù½ºÆ® Á¦°ø Åè"),      // Äù½ºÆ® Á¦°ø NPC Tom
-    Anna  UMETA(DisplayName = "°æºñ ¾È³ª"),           // °æºñ Anna
-    Joe   UMETA(DisplayName = "´ëÀåÀåÀÌ Á¶")          // ´ëÀåÀåÀÌ Joe
+    None  UMETA(DisplayName = "ì—†ìŒ"),               // ê¸°ë³¸ê°’
+    Bob   UMETA(DisplayName = "ë§ˆì„ ì£¼ë¯¼ ë°¥"),        // ë§ˆì„ ì£¼ë¯¼ Bob
+    Sue   UMETA(DisplayName = "ìƒì  ì£¼ì¸ ìˆ˜"),        // ìƒì  ì£¼ì¸ Sue
+    Tom   UMETA(DisplayName = "í€˜ìŠ¤íŠ¸ ì œê³µ í†°"),      // í€˜ìŠ¤íŠ¸ ì œê³µ NPC Tom
+    Anna  UMETA(DisplayName = "ê²½ë¹„ ì•ˆë‚˜"),           // ê²½ë¹„ Anna
+    Joe   UMETA(DisplayName = "ëŒ€ì¥ì¥ì´ ì¡°")          // ëŒ€ì¥ì¥ì´ Joe
 };
 
-//NPC ´ëÈ­ ¿É¼Ç
+//NPC ëŒ€í™” ì˜µì…˜
 UENUM(BlueprintType)
 enum class ENPCOption : uint8
 {
-    Talk    UMETA(DisplayName = "´ëÈ­ÇÏ±â"),
-    Quest   UMETA(DisplayName = "Äù½ºÆ® ¹Ş±â"),
-    Shop    UMETA(DisplayName = "»óÁ¡"),
-    Exit    UMETA(DisplayName = "³ª°¡±â")
+    Talk    UMETA(DisplayName = "ëŒ€í™”í•˜ê¸°"),
+    Quest   UMETA(DisplayName = "í€˜ìŠ¤íŠ¸ ë°›ê¸°"),
+    Shop    UMETA(DisplayName = "ìƒì "),
+    Exit    UMETA(DisplayName = "ë‚˜ê°€ê¸°")
 };

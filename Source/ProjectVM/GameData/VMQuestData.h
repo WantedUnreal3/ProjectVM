@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
@@ -26,43 +26,43 @@ public:
 	}
 
 public:
-	// Äù½ºÆ® Á¦°øÀÚ (NPC µî)
+	// í€˜ìŠ¤íŠ¸ ì œê³µì (NPC ë“±)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FName QuestGiver;
 
-	// ¼±Çà Äù½ºÆ® ID
+	// ì„ í–‰ í€˜ìŠ¤íŠ¸ ID
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FName NextQuestId;
 
-	// Äù½ºÆ® Ä«Å×°í¸® (¸ŞÀÎ, ¼­ºê, Æ©Åä¸®¾ó µî)
+	// í€˜ìŠ¤íŠ¸ ì¹´í…Œê³ ë¦¬ (ë©”ì¸, ì„œë¸Œ, íŠœí† ë¦¬ì–¼ ë“±)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FName QuestCategory;
 
-	// Äù½ºÆ® Á¦¸ñ
+	// í€˜ìŠ¤íŠ¸ ì œëª©
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FText QuestTitle;
 
-	// Äù½ºÆ® ¿ä¾à ¼³¸í
+	// í€˜ìŠ¤íŠ¸ ìš”ì•½ ì„¤ëª…
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FText QuestSummary;
 
-	// Äù½ºÆ® Å¸ÀÔ (¼öÁı, Ã³Ä¡, ¹è´Ş µî)
+	// í€˜ìŠ¤íŠ¸ íƒ€ì… (ìˆ˜ì§‘, ì²˜ì¹˜, ë°°ë‹¬ ë“±)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FName QuestType;
 
-	// ¸ñÇ¥ ´ë»ó (¸ó½ºÅÍ, ¾ÆÀÌÅÛ ÀÌ¸§ µî)
+	// ëª©í‘œ ëŒ€ìƒ (ëª¬ìŠ¤í„°, ì•„ì´í…œ ì´ë¦„ ë“±)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FName QuestTarget;
 
-	// ¸ñÇ¥ °³¼ö
+	// ëª©í‘œ ê°œìˆ˜
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	int32 TargetCount = 0;
 
-	// º¸»ó ¾ÆÀÌÅÛ
+	// ë³´ìƒ ì•„ì´í…œ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	FName Reward;
 
-	// º¸»ó °³¼ö
+	// ë³´ìƒ ê°œìˆ˜
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	int32 RewardCount = 0;
 };

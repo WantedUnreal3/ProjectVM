@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -54,8 +54,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//´ëÈ­ ´ÙÀÌ¾ó·Î±×¿¡ ¾ÆÀÌÅÛ Ãß°¡ÇÏ´Â ÇÔ¼ö
-	void AddDialogueOptions(FString NewOptionText, ENPCOption NewNPCOption);
+	//ëŒ€í™” ë‹¤ì´ì–¼ë¡œê·¸ì— ì•„ì´í…œ ì¶”ê°€í•˜ëŠ” í•¨ìˆ˜
+	void AddDialogueOption(ENPCOption NewNPCOption);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
@@ -76,11 +76,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* InteractKeyBoxComponent;
 
-	//´ëÈ­ À§Á¬
+	//ëŒ€í™” ìœ„ì ¯
 	class UVMNPCDialogue* VMNPCDialogue;
 	TSubclassOf<class UVMNPCDialogue> VMNPCDialogueClass;
 
-	//´ëÈ­ µ¥ÀÌÅÍ Æ÷ÀÎÅÍ·Î ÀúÀå
+	//ëŒ€í™” ë°ì´í„° í¬ì¸í„°ë¡œ ì €ì¥
 	TArray<struct FVMNPCTalkData*> DialogueTexts;
 	int32 CurrentDialogueIndex = 0;
 };

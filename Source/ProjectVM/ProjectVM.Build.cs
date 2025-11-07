@@ -17,5 +17,8 @@ public class ProjectVM : ModuleRules
 
 		// 새로운 모듈 추가
 		PublicDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem"});
+
+		// 모듈 추가 (작업자: 이상윤)
+        PublicDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore" });
     }
 }

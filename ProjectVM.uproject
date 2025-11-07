@@ -9,7 +9,10 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"AIModule"
+				"AIModule",
+				"Engine",
+				"CoreUObject",
+				"UMG"
 			]
 		}
 	],

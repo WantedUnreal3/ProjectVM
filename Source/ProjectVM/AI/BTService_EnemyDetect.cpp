@@ -61,7 +61,7 @@ void UBTService_EnemyDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 	FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(Detect), false, PawnPtr);
 
 	// 플레이어가 여러 명이 있다는 가정 하에 Multi로 오버랩 감지.
-	bool bResult = World->OverlapMultiByChannel(OverlapResults, CurrentLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(DetectRadius), CollisionQueryParams);
+	bool bResult = World->OverlapMultiByChannel(OverlapResults, CurrentLocation, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(DetectRadius), CollisionQueryParams);
 
 	// 2. 왜 overlap이면 반응을 안하는게 맞나.
 

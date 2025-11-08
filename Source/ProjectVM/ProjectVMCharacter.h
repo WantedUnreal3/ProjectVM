@@ -68,6 +68,14 @@ class AProjectVMCharacter : public ACharacter
 
 	AActor* FindClosestEnemy();
 #pragma endregion 
+
+#pragma region Ally_Section
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SpawnAllyAction;
+
+	void SpawnAllyActor();
+#pragma endregion
+
 public:
 	UFUNCTION()
 	FORCEINLINE void SetCurrentHP(float InCurrentHp) { CurrentHp = InCurrentHp; }

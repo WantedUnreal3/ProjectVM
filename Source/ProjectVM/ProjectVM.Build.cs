@@ -16,6 +16,6 @@ public class ProjectVM : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
 		// 새로운 모듈 추가
-		PublicDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem"});
+		PublicDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem", "Niagara"});
     }
 }

@@ -40,11 +40,11 @@ public:
 #pragma region 맴버_변수
 protected:
 	// Blackboard 애셋.
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Asset)
 	TObjectPtr<class UBlackboardData> BBAsset;
 
 	// Behaviour Tree 애셋.
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Asset)
 	TObjectPtr<class UBehaviorTree> BTAsset;
 #pragma endregion
 };

@@ -63,4 +63,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
 	TObjectPtr<class UAnimMontage> DeadMontage;
+
+
+	// Stat
+	FORCEINLINE float	GetCurrentHp()					{ return CurrentHp; }
+	FORCEINLINE void	SetCurrentHp(float InCurrentHp) { CurrentHp = InCurrentHp; }
+
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float CurrentHp;
 };

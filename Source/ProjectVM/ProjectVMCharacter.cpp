@@ -15,6 +15,7 @@
 
 #include "Projectile/VMStraightProjectile.h"
 #include "Projectile/VMHomingProjectile.h"
+#include "AI/Allies/VMAllyBase.h"
 #include "AI/VMEnemyBase.h"
 #include "EngineUtils.h"
 
@@ -71,6 +72,20 @@ AProjectVMCharacter::AProjectVMCharacter()
 	SetCurrentHP(100.0f);
 #pragma endregion 
 
+#pragma region Mesh설정
+	/*ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonSerath/Characters/Heroes/Serath/Meshes/Serath.Serath'"));
+	if (SkeletonMeshRef.Object)
+	{
+		GetMesh()->SetSkeletalMesh(SkeletonMeshRef.Object);
+	}
+
+	ConstructorHelpers::FClassFinder<UAnimInstance> AnimRef(TEXT("/Script/Engine.AnimBlueprint'/Game/ParagonSerath/Characters/Heroes/Serath/Serath_AnimBlueprint.Serath_AnimBlueprint_C'"));
+	if (AnimRef.Class)
+	{
+		GetMesh()->SetAnimClass(AnimRef.Class);
+	}*/
+#pragma endregion 
+
 #pragma region InputActionSection
 	ConstructorHelpers::FObjectFinder<UInputAction> LeftRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_LeftButton.IA_LeftButton'"));
 	if (LeftRef.Object)
@@ -84,6 +99,12 @@ AProjectVMCharacter::AProjectVMCharacter()
 		RightMouseAction = RightRef.Object;
 	}
 #pragma endregion 
+
+	ConstructorHelpers::FObjectFinder<UInputAction> SpawnAllyActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_SpawnAlly.IA_SpawnAlly'"));
+	if (SpawnAllyActionRef.Object)
+	{
+		SpawnAllyAction = SpawnAllyActionRef.Object;
+	}
 }
 
 void AProjectVMCharacter::BeginPlay()
@@ -124,6 +145,9 @@ void AProjectVMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		
 		// RightAttack
 		EnhancedInputComponent->BindAction(RightMouseAction, ETriggerEvent::Triggered, this, &AProjectVMCharacter::RightAttack);
+
+		// SpawnAlly
+		EnhancedInputComponent->BindAction(SpawnAllyAction, ETriggerEvent::Triggered, this, &AProjectVMCharacter::SpawnAllyActor);
 	}
 	else
 	{
@@ -228,4 +252,30 @@ AActor* AProjectVMCharacter::FindClosestEnemy()
 	}
 
 	return ClosestEnemy;
+}
+
+void AProjectVMCharacter::SpawnAllyActor()
+{
+	UE_LOG(LogTemp, Log, TEXT("SpawnAllyActor"));
+	// 1. SpawnActor 알아보기.
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// 스폰 위치와 회전 지정
+		FVector SpawnLocation = GetActorLocation() + FVector(100, 0, 0);
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		// 스폰 파라미터 설정
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		// 실제 스폰
+		AVMAllyBase* AllySpawnedActor = World->SpawnActor<AVMAllyBase>(AVMAllyBase::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		if (AllySpawnedActor)
+		{
+			AllySpawnedActor->SetOwnerTarget(this);
+			UE_LOG(LogTemp, Warning, TEXT("스폰 성공!"));
+		}
+	}
 }

@@ -14,7 +14,7 @@
 
 AVMAIController::AVMAIController()
 {
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/Project/AI/BB_VMEnemyBase.BB_VMEnemyBase'"));
+	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/Project/AI/BB_VMAlly.BB_VMAlly'"));
 	ensureAlways(BBAssetRef.Object);
 
 	// Blackboard 에셋 연결
@@ -23,7 +23,7 @@ AVMAIController::AVMAIController()
 		BBAsset = BBAssetRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTAssetRef(TEXT("/Script/AIModule.BehaviorTree'/Game/Project/AI/BT_VMEnemyBase.BT_VMEnemyBase'"));
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTAssetRef(TEXT("/Script/AIModule.BehaviorTree'/Game/Project/AI/BT_VMAlly.BT_VMAlly'"));
 	ensureAlways(BTAssetRef.Object);
 
 	// Behavior Tree 에셋 연결

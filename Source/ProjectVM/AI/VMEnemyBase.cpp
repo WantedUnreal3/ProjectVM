@@ -10,6 +10,8 @@
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimSequence.h"
 
+#include "Components/CapsuleComponent.h"
+
 
 
 #pragma region 특수_맴버_함수
@@ -32,6 +34,8 @@ AVMEnemyBase::AVMEnemyBase()
 
 	// 스켈레탈 메시
 	// Todo :기본 매시 사용중 -> 나중에 변경 필요.
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("VMCAPSULE"));
 
 #pragma region 스켈레탈메시
 	ConstructorHelpers::FObjectFinder<USkeletalMesh>SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple'"));
@@ -92,6 +96,10 @@ AVMEnemyBase::AVMEnemyBase()
 		DeadMontage = DeadMontageRef.Object;
 	}
 #pragma endregion
+
+
+	// Stat
+	CurrentHp = 100.0f;
 }
 
 #pragma endregion
@@ -101,7 +109,6 @@ AVMEnemyBase::AVMEnemyBase()
 void AVMEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -141,6 +148,27 @@ float AVMEnemyBase::GetAIAttackRange()
 float AVMEnemyBase::GetAITurnSpeed()
 {
 	return 2.0f;
+}
+
+float AVMEnemyBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ParentDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::TakeDamage %f %f"), ParentDamage, Damage);
+
+	float RecentCurrentHp = CurrentHp;
+	RecentCurrentHp = FMath::Clamp<float>(RecentCurrentHp - Damage, 0, RecentCurrentHp);
+	SetCurrentHp(RecentCurrentHp);
+
+	if (RecentCurrentHp < KINDA_SMALL_NUMBER)
+	{
+		// Dead
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// TODO
+
+	return Damage;
 }
 
 #pragma endregion

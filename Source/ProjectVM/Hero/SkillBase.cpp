@@ -2,9 +2,10 @@
 
 
 #include "Hero/SkillBase.h"
+#include "Hero/VMCharacterHeroBase.h"
 #include "Hero/HeroStat.h"
 
-void USkillBase::ActivateSkill(FHeroStat& CurStat)
+void USkillBase::ActivateSkill(AVMCharacterHeroBase* Owner, FHeroStat& CurStat)
 {
 	CurStat.ManaPoint -= ManaCost;
 	RemainingCooldown = Cooldown;

@@ -13,7 +13,14 @@ UCLASS()
 class PROJECTVM_API AAlpha : public AVMCharacterHeroBase
 {
 	GENERATED_BODY()
+
+public:
+	AAlpha();
 	
 protected:
 	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class USkeletalMeshComponent> HairMesh;
 };

@@ -16,4 +16,7 @@ class PROJECTVM_API AVMRPGGameMode : public AGameModeBase
 	
 public:
 	AVMRPGGameMode();
+
+	//모든 액터 BeginPlay 호출 후 실행되는 함수
+	void StartPlay() override;
 };

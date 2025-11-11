@@ -32,8 +32,6 @@ public:
 	//리스트뷰가 데이터를 연결할 때 마다 호출됨
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
-
-
 private:
 	UFUNCTION()
 	void OnOptionButtonClicked();

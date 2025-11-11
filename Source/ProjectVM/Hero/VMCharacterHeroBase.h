@@ -35,6 +35,8 @@ protected:
 	//대화 넘기기
 	void NextTalk(const FInputActionValue& Value);
 
+	void DebuggingTest(const FInputActionValue& Value);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> CameraBoom;
@@ -64,6 +66,10 @@ protected:
 	//E 상호작용
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> InteractAction;
+
+	//P 디버깅용 테스트 키 입력 (이상윤)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> DebuggingAction;
 
 	//NPC 다이얼 로그 넘기기 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

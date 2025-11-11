@@ -16,6 +16,7 @@
 #include "Hero/VMHeroSkillComponent.h"
 
 #include "NPC/VMNPC.h"
+#include "Quest/VMQuestManager.h"
 
 AVMCharacterHeroBase::AVMCharacterHeroBase()
 {
@@ -94,6 +95,12 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 		InteractAction = InteractActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> DebuggingTestRef(TEXT("/Game/Project/Input/Actions/IA_Debugging.IA_Debugging"));
+	if (DebuggingTestRef.Succeeded())
+	{
+		DebuggingAction = DebuggingTestRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> NextTalkActionRef(TEXT("/Game/Project/Input/Actions/IA_NextTalk.IA_NextTalk"));
 	if (NextTalkActionRef.Succeeded())
 	{
@@ -167,6 +174,7 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Look);
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(LeftMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BasicSkill);
+	EnhancedInputComponent->BindAction(DebuggingAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::DebuggingTest);
 
 	//다이얼로그
 	EnhancedInputComponent->BindAction(NextTalkAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::NextTalk);
@@ -236,4 +244,12 @@ void AVMCharacterHeroBase::NextTalk(const FInputActionValue& Value)
 	{
 		UE_LOG(LogTemp, Log, TEXT("input A, cannot interact"));
 	}
+}
+
+void AVMCharacterHeroBase::DebuggingTest(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Input Test Key"));
+
+	//FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
+	GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(EMonsterName::Warrior);
 }

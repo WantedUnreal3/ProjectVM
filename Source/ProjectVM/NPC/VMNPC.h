@@ -45,6 +45,10 @@ public:
 
 	UFUNCTION()
 	void StartQuest();
+
+	UFUNCTION()
+	void QuestCompleted();
+
 	UFUNCTION()
 	void StartDailyTalk();
 	UFUNCTION()
@@ -57,7 +61,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	//다이얼로그에 들어갈 옵션 정하는 함수
-	virtual void SelectDialogueOption();
+	//virtual void SelectDialogueOption();
 
 	//다이얼로그에 옵션 추가하는 함수
 	void AddDialogueOption(ENPCOption NewNPCOption);
@@ -82,7 +86,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* InteractKeyBoxComponent;
-	
+
 	//대화 위젯
 	//class UVMNPCDialogueScreen* VMNPCDialogue;
 	//TSubclassOf<class UVMNPCDialogueScreen> VMNPCDialogueClass;
@@ -94,5 +98,6 @@ protected:
 	//일상 대화 총 갯수 
 	static constexpr int32 DailyTalkCount = 5;
 
-	TQueue<const struct FVMQuestData*> Quests;
+	TQueue<const struct FVMQuestData*> AvailableQuests; //수락 가능한 퀘스트
+	TQueue< struct FVMQuestData> CompletedQuests; //완료된 퀘스트
 };

@@ -94,44 +94,6 @@ void AVMNPC::BeginPlay()
 	InteractKeyBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapEnd);
 	InteractKey->SetVisibility(false);
 
-	//AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
-	//if (!PC)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("PlayerController not found!"));
-	//	return;
-	//}
-	//UUserWidget* ScreenWidget = PC->GetScreen(EScreenUIType::DialogueScreen);
-	//if (!ScreenWidget)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Dialogue screen not found in PlayerController!"));
-	//	return;
-	//}
-	//UVMNPCDialogueScreen* DialogueScreen = Cast<UVMNPCDialogueScreen>(ScreenWidget);
-	//if (!DialogueScreen)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Dialogue screen cast failed!"));
-	//	return;
-	//}
-	//UE_LOG(LogTemp, Warning, TEXT("Getttt"));
-	//VMNPCDialogue = DialogueScreen;
-
-	//if (VMNPCDialogueClass != nullptr)
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("QuestNPC2"));
-	//	VMNPCDialogue = CreateWidget<UVMNPCDialogueScreen>(GetWorld(), VMNPCDialogueClass);
-	//	if (VMNPCDialogue != nullptr)
-	//	{
-	//		UE_LOG(LogTemp, Log, TEXT("QuestNPC3"));
-	//		VMNPCDialogue->AddToViewport();
-	//		VMNPCDialogue->SetVisibility(ESlateVisibility::Hidden);
-
-	//		VMNPCDialogue->SetNPCName(NPCData.GetNPCName());
-
-	//		//FString EnumName = StaticEnum<ENPCType>()->GetNameStringByValue((int64)NPCType);
-	//		//DialogueSetting(FString::Printf(TEXT("%s-%s"), *NPCId.ToString(), *NPCData.GetStartTalkId().ToString()));
-	//	}
-	//}
-
 	//퀘스트 매니저 구독
 	UVMQuestManager* QuestManager = GetGameInstance()->GetSubsystem<UVMQuestManager>();
 	if (QuestManager != nullptr)
@@ -140,35 +102,49 @@ void AVMNPC::BeginPlay()
 			{
 				if (QuestData.QuestGiver == NPCId)
 				{
-					Quests.Enqueue(&QuestData);
+					AvailableQuests.Enqueue(&QuestData);
 				}
-			});
+			}
+		);
+
+		QuestManager->OnQuestCompleted.AddLambda([this](const FVMQuestData& QuestData)
+			{
+				if (QuestData.QuestGiver == NPCId)
+				{
+					CompletedQuests.Enqueue(QuestData); // 값 복사 하지 않으면 휘발됨. 
+				}
+			}
+		);
 	}
 }
 
-void AVMNPC::SelectDialogueOption()
-{
-	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC == nullptr)
-	{
-		return;
-	}
-	UVMNPCDialogueScreen* Dialogue = Cast<UVMNPCDialogueScreen>(PC->GetScreen(EScreenUIType::DialogueScreen));
-	if (Dialogue == nullptr)
-	{
-		return;
-	}
-
-	Dialogue->DialogueOptionList->ClearListItems();
-
-	AddDialogueOption(ENPCOption::Talk);
-	if (!Quests.IsEmpty())
-	{
-		AddDialogueOption(ENPCOption::Quest);
-	}
-	AddDialogueOption(ENPCOption::Exit);
-
-}
+//void AVMNPC::SelectDialogueOption()
+//{
+//	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
+//	if (PC == nullptr)
+//	{
+//		return;
+//	}
+//	UVMNPCDialogueScreen* Dialogue = Cast<UVMNPCDialogueScreen>(PC->GetScreen(EScreenUIType::DialogueScreen));
+//	if (Dialogue == nullptr)
+//	{
+//		return;
+//	}
+//
+//	Dialogue->DialogueOptionList->ClearListItems();
+//
+//	AddDialogueOption(ENPCOption::Talk);
+//	if (!AvailableQuests.IsEmpty())
+//	{
+//		AddDialogueOption(ENPCOption::Quest);
+//	}
+//	if (!CompletedQuests.IsEmpty())
+//	{
+//		AddDialogueOption(ENPCOption::QuestClear);
+//	}
+//	AddDialogueOption(ENPCOption::Exit);
+//
+//}
 
 
 
@@ -266,9 +242,13 @@ void AVMNPC::Interact()
 	Dialogue->SetNPCName(NPCData.GetNPCName());
 	Dialogue->DialogueOptionList->ClearListItems();
 	AddDialogueOption(ENPCOption::Talk);
-	if (!Quests.IsEmpty())
+	if (!AvailableQuests.IsEmpty())
 	{
 		AddDialogueOption(ENPCOption::Quest);
+	}
+	if (!CompletedQuests.IsEmpty())
+	{
+		AddDialogueOption(ENPCOption::QuestClear);
 	}
 	AddDialogueOption(ENPCOption::Exit);
 
@@ -339,7 +319,7 @@ void AVMNPC::StartQuest()
 	FInputModeGameOnly InputMode;
 	PC->SetInputMode(InputMode);
 
-	const FVMQuestData* QuestData = *Quests.Peek();
+	const FVMQuestData* QuestData = *AvailableQuests.Peek();
 	TalkSetting(QuestData->QuestId.ToString());
 
 	//다이얼로그 옵션 초기화
@@ -379,7 +359,7 @@ void AVMNPC::StartDailyTalk()
 
 	Dialogue->DialogueOptionList->ClearListItems();
 	AddDialogueOption(ENPCOption::Talk);
-	if (!Quests.IsEmpty())
+	if (!AvailableQuests.IsEmpty())
 	{
 		AddDialogueOption(ENPCOption::Quest);
 	}
@@ -423,30 +403,33 @@ void AVMNPC::EndDialogue()
 	}
 }
 
+void AVMNPC::QuestCompleted()
+{
+	FVMQuestData QuestData;
+	if (CompletedQuests.Dequeue(QuestData))
+	{
+
+		EndDialogue();
+
+		GetGameInstance()->GetSubsystem<UVMQuestManager>()->ClearQuest(QuestData);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("큐가 비어있습니다."));
+	}
+}
+
 void AVMNPC::AcceptQuest()
 {
 	UE_LOG(LogTemp, Log, TEXT("Accept Quest"));
-	
-	const FVMQuestData* QuestData = nullptr;
-	Quests.Dequeue(QuestData);
+	const FVMQuestData* Test = *AvailableQuests.Peek();
+	UE_LOG(LogTemp, Log, TEXT("bb%s"), *(Test->QuestGiver).ToString());
 
+	const FVMQuestData* QuestData = nullptr;
+	AvailableQuests.Dequeue(QuestData);
 
 	EndDialogue();
 
-	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC == nullptr)
-	{
-		return;
-	}
-
-	UVMGameScreen* GameScreen = Cast<UVMGameScreen>(PC->GetScreen(EScreenUIType::GameScreen));
-	if (GameScreen == nullptr)
-	{
-		return;
-	}
-
-	UVMQuestDataObject* NewQuestDataObject = NewObject<UVMQuestDataObject>(this);
-	NewQuestDataObject->QuestData = *QuestData;
-	GameScreen->GmaeScreenQuestTracker->QuestTrackerListView->AddItem(NewQuestDataObject);
+	GetGameInstance()->GetSubsystem<UVMQuestManager>()->AcceptQuest(*QuestData);
 }
 

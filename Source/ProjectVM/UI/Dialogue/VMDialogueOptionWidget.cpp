@@ -46,6 +46,8 @@ void UVMDialogueOptionWidget::OnOptionButtonClicked()
 	case ENPCOption::Quest:
 		Option->OwnerNPC->StartQuest();
 		break;
+	case ENPCOption::QuestClear:
+		Option->OwnerNPC->QuestCompleted();
 	case ENPCOption::Exit:
 		Option->OwnerNPC->EndDialogue();
 		break;

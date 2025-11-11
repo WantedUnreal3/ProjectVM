@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,7 +16,7 @@ class PROJECTVM_API UVMQuestTrackerWidget : public UUserWidget, public IUserObje
 	GENERATED_BODY()
 	
 public:
-	// ºí·çÇÁ¸°Æ®¿¡¼­ ¹ÙÀÎµù
+	// ë¸”ë£¨í”„ë¦°íŠ¸ì—ì„œ ë°”ì¸ë”©
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* QuestName;
 	UPROPERTY(meta = (BindWidget))
@@ -25,16 +25,14 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UCheckBox* QuestCheckBox;
 
-	//¸®½ºÆ®ºä°¡ µ¥ÀÌÅÍ¸¦ ¿¬°áÇÒ ¶§ ¸¶´Ù È£ÃâµÊ
+	//ë¦¬ìŠ¤íŠ¸ë·°ê°€ ë°ì´í„°ë¥¼ ì—°ê²°í•  ë•Œ ë§ˆë‹¤ í˜¸ì¶œë¨
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
-
+	UFUNCTION()
+	void UpdateUI();
 
 private:
 
 	UPROPERTY()
 	class UVMQuestDataObject* QuestDataObject;
-
-	UPROPERTY()
-	int32 CurrentCount = 0;
 };

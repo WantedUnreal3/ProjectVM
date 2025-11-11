@@ -14,7 +14,7 @@ public:
 	FVMQuestData()
 		: QuestId(NAME_None)
 		, QuestGiver(NAME_None)
-		, NextQuestId(NAME_None)
+		, NextQuestId(TEXT(""))
 		, QuestCategory(NAME_None)
 		, QuestTitle(FText::GetEmpty())
 		, QuestSummary(FText::GetEmpty())
@@ -37,7 +37,7 @@ public:
 
 	// 선행 퀘스트 ID
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
-	FName NextQuestId;
+	FString NextQuestId;
 
 	// 퀘스트 카테고리 (메인, 서브, 튜토리얼 등)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")

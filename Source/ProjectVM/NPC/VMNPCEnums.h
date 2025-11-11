@@ -18,10 +18,11 @@ enum class ENPCType : uint8
 UENUM(BlueprintType)
 enum class ENPCOption : uint8
 {
-    Talk    UMETA(DisplayName = "대화하기"),
-    Quest   UMETA(DisplayName = "퀘스트 받기"),
-    Shop    UMETA(DisplayName = "상점"),
-    Exit    UMETA(DisplayName = "나가기"),
-    Accept  UMETA(DisplayName = "수락"),
-    Decline UMETA(DisplayName = "거절")
+    Talk        UMETA(DisplayName = "대화하기"),
+    Quest       UMETA(DisplayName = "퀘스트 받기"),
+    QuestClear  UMETA(DisplayName = "퀘스트 완료"),
+    Shop        UMETA(DisplayName = "상점"),
+    Exit        UMETA(DisplayName = "나가기"),
+    Accept      UMETA(DisplayName = "수락"),
+    Decline     UMETA(DisplayName = "거절")
 };

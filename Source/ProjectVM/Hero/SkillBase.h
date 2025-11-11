@@ -9,13 +9,14 @@
 /**
  * 
  */
+
 UCLASS(Abstract)
 class PROJECTVM_API USkillBase : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	virtual void ActivateSkill(struct FHeroStat& CurStat);
+	virtual void ActivateSkill(class AVMCharacterHeroBase* Owner, struct FHeroStat& CurStat);
 	
 	bool IsSkillValid(struct FHeroStat CurStat);
 	void ReduceCooldown(float DeltaTime);

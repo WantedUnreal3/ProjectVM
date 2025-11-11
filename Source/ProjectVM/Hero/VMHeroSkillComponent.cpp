@@ -2,6 +2,7 @@
 
 
 #include "Hero/VMHeroSkillComponent.h"
+#include "Hero/VMCharacterHeroBase.h"
 #include "Hero/SkillBase.h"
 #include "Hero/HeroStat.h"
 
@@ -15,7 +16,8 @@ void UVMHeroSkillComponent::ExecuteBasicSkill(FHeroStat& CurStat)
 	if (BasicSkill == nullptr) return;
 	if (BasicSkill->IsSkillValid(CurStat) == false) return;
 
-	BasicSkill->ActivateSkill(CurStat);
+	AVMCharacterHeroBase* Owner = Cast<AVMCharacterHeroBase>(GetOwner());
+	BasicSkill->ActivateSkill(Owner, CurStat);
 }
 
 void UVMHeroSkillComponent::ExecuteAdvancedSkill(FHeroStat& CurStat)
@@ -23,7 +25,7 @@ void UVMHeroSkillComponent::ExecuteAdvancedSkill(FHeroStat& CurStat)
 	if (AdvancedSkill == nullptr) return;
 	if (AdvancedSkill->IsSkillValid(CurStat) == false) return;
 
-	AdvancedSkill->ActivateSkill(CurStat);
+	//AdvancedSkill->ActivateSkill(CurStat);
 }
 
 void UVMHeroSkillComponent::ExecuteMovementSkill(FHeroStat& CurStat)
@@ -31,7 +33,7 @@ void UVMHeroSkillComponent::ExecuteMovementSkill(FHeroStat& CurStat)
 	if (MovementSkill == nullptr) return;
 	if (MovementSkill->IsSkillValid(CurStat) == false) return;
 
-	MovementSkill->ActivateSkill(CurStat);
+	//MovementSkill->ActivateSkill(CurStat);
 }
 
 void UVMHeroSkillComponent::ExecuteUltimateSkill(FHeroStat& CurStat)
@@ -39,7 +41,7 @@ void UVMHeroSkillComponent::ExecuteUltimateSkill(FHeroStat& CurStat)
 	if (UltimateSkill == nullptr) return;
 	if (UltimateSkill->IsSkillValid(CurStat) == false) return;
 
-	UltimateSkill->ActivateSkill(CurStat);
+	//UltimateSkill->ActivateSkill(CurStat);
 }
 
 void UVMHeroSkillComponent::BindBasicSkill(USkillBase* InSkill)

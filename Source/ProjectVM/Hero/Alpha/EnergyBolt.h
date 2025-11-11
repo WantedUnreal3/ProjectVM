@@ -17,5 +17,5 @@ class PROJECTVM_API UEnergyBolt : public USkillBase
 public:
 	UEnergyBolt(const FObjectInitializer& ObjectInitializer);
 
-	virtual void ActivateSkill(struct FHeroStat& CurStat) override;
+	virtual void ActivateSkill(AVMCharacterHeroBase* Owner, struct FHeroStat& CurStat) override;
 };

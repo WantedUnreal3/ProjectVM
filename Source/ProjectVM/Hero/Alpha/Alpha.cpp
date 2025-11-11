@@ -9,18 +9,20 @@ AAlpha::AAlpha()
 {
 	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
 	HairMesh->SetupAttachment(GetMesh());
-	HairMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	HairMesh->SetCollisionProfileName(TEXT("VMHeroCollision"));
+	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/EchoContent/Characters/Echo/Meshes/Echo.Echo'"));
 	if (CharacterMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HairMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/EchoContent/Characters/Echo/Meshes/Echo_Hair.Echo_Hair'"));
 	if (HairMeshRef.Object)
 	{
 		HairMesh->SetSkeletalMesh(HairMeshRef.Object);
+		HairMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Project/Hero/Alpha/ABP_Alpha.ABP_Alpha_C"));

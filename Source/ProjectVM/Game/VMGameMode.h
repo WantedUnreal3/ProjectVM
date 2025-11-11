@@ -16,6 +16,6 @@ class PROJECTVM_API AVMGameMode : public AGameMode
 	
 public:
 	AVMGameMode();
-
+	
 private:
 };

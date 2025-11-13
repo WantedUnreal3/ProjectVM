@@ -5,7 +5,6 @@
 
 #include "Game/VMPlayer.h"
 #include "Interface/VMStatChangeable.h"
-#include "Interface/LaserAttackInterface.h"
 #include "AI/VMEnemyBase.h"
 #include "Game/VMPlayer.h"
 

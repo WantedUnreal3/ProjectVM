@@ -23,6 +23,8 @@
 
 #include "Components/InputComponent.h"
 
+#include "Macro/VMPhysics.h"
+
 //#include "GameFramework/Controller.h"
 //#include "InputActionValue.h"
 //#include "Components/PawnNoiseEmitterComponent.h"
@@ -46,7 +48,7 @@ AVMPlayer::AVMPlayer()
 
 #pragma region CapsuleCollision
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("VMCAPSULE"));
+	GetCapsuleComponent()->SetCollisionProfileName(VM_HERO_COLLISION);
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -244,6 +246,8 @@ void AVMPlayer::PlayLaserAttackAnim()
 
 void AVMPlayer::LaserAttackHitCheck()
 {
+	UE_LOG(LogTemp, Log, TEXT("AVMPlayer::LaserAttackHitCheck"));
+
 	FHitResult OutHitResult;
 	TArray<FHitResult> HitResults;
 	//TArray<FOverlapResult> OverlapResults;
@@ -257,7 +261,8 @@ void AVMPlayer::LaserAttackHitCheck()
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 
 	//bool Result = GetWorld()->LineTraceMultiByChannel(OverlapResults, Start, End, ECC_GameTraceChannel1, Params);
-	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(AttackRadius), Params);
+
+	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, VM_ENEMY_TARGET_ACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
 	if (Result || HitResults.Num())
 	{
 		for (auto HitResult : HitResults)
@@ -268,7 +273,6 @@ void AVMPlayer::LaserAttackHitCheck()
 			UE_LOG(LogTemp, Log, TEXT("Name: %s"), *HitResult.GetActor()->GetName());
 		}
 	}
-	UE_LOG(LogTemp, Log, TEXT("Empty"));
 
 	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 	float CapsuleHalfHeight = AttackRange * 0.5f;

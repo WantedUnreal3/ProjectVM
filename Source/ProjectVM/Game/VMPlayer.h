@@ -6,12 +6,14 @@
 #include "GameFramework/Character.h"
 
 #include "Interface/VMStatChangeable.h"
+#include "Interface/VMLaserAttackInterface.h"
 
 #include "VMPlayer.generated.h"
 
 UCLASS()
 class PROJECTVM_API AVMPlayer : public ACharacter
 	, public IVMStatChangeable
+	, public IVMLaserAttackInterface
 {
 	GENERATED_BODY()
 
@@ -32,8 +34,6 @@ protected:
 
 	void PlayLaserAttackAnim();
 
-public:
-	void LaserAttackHitCheck();
 #pragma endregion 
 
 #pragma region Input_함수
@@ -171,6 +171,12 @@ private:
 	float AttackSpeed;
 
 #pragma region IVMStatChangeable 필수 구현 함수 임시용
+public:
 	virtual void HealthPointChange(float Amount, AActor* Causer) override;
+#pragma endregion 
+
+#pragma region IVMLaserAttackInterface 필수 구현 함수 임시용
+public:
+	virtual void LaserAttackHitCheck() override;
 #pragma endregion 
 };

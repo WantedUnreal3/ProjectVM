@@ -14,6 +14,8 @@
 
 #include "Engine/DamageEvents.h"
 
+#include "Macro/VMPhysics.h"
+
 
 
 #pragma region 특수_맴버_함수
@@ -36,7 +38,7 @@ AVMEnemyBase::AVMEnemyBase()
 	// 스켈레탈 메시
 	// Todo :기본 매시 사용중 -> 나중에 변경 필요.
 
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("VMCAPSULE"));
+	GetCapsuleComponent()->SetCollisionProfileName(VM_ENEMY_COLLISION);
 
 #pragma region 스켈레탈메시
 	ConstructorHelpers::FObjectFinder<USkeletalMesh>SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple'"));
@@ -202,9 +204,10 @@ void AVMEnemyBase::HealthPointChange(float Amount, AActor* Causer)
 #pragma endregion
 
 
+
 void AVMEnemyBase::LaserAttackHitCheck()
 {
-	UE_LOG(LogTemp, Log, TEXT("LaserAttackHitCheck"));
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::LaserAttackHitCheck"));
 
 	FHitResult OutHitResult;
 	TArray<FHitResult> HitResults;
@@ -219,7 +222,7 @@ void AVMEnemyBase::LaserAttackHitCheck()
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 
 	//bool Result = GetWorld()->LineTraceMultiByChannel(OverlapResults, Start, End, ECC_GameTraceChannel1, Params);
-	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(AttackRadius), Params);
+	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, VM_HERO_TARGET_ACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
 	if (Result || HitResults.Num())
 	{
 		for (auto HitResult : HitResults)

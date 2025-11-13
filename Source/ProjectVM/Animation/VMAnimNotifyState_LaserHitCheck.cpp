@@ -4,8 +4,10 @@
 #include "Animation/VMAnimNotifyState_LaserHitCheck.h"
 
 #include "Game/VMPlayer.h"
-//#include "Interface/VMStatChangeable.h"
+#include "Interface/VMStatChangeable.h"
+#include "Interface/LaserAttackInterface.h"
 #include "AI/VMEnemyBase.h"
+#include "Game/VMPlayer.h"
 
 void UVMAnimNotifyState_LaserHitCheck::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float TotalDuration, const FAnimNotifyEventReference& EventReference)
@@ -28,15 +30,18 @@ void UVMAnimNotifyState_LaserHitCheck::NotifyTick(USkeletalMeshComponent* MeshCo
 		{
 			return;
 		}
-
 		
-		AVMEnemyBase* PlayerPtr = Cast<AVMEnemyBase>(ActorPtr);
-		if (PlayerPtr == nullptr)
+		//AVMEnemyBase* LaserAttackPawnPtr = Cast<AVMEnemyBase>(ActorPtr);
+		//AVMPlayer* LaserAttackPawnPtr = Cast<AVMPlayer>(ActorPtr);
+		UE_LOG(LogTemp, Log, TEXT("Owner class: %s"), *ActorPtr->GetClass()->GetName());
+		IVMLaserAttackInterface* LaserAttackPawnPtr = Cast<IVMLaserAttackInterface>(ActorPtr);
+		if (LaserAttackPawnPtr == nullptr)
 		{
+			UE_LOG(LogTemp, Log, TEXT("너구나"));
 			return;
 		}
 
-		PlayerPtr->LaserAttackHitCheck();
+		LaserAttackPawnPtr->LaserAttackHitCheck();
 	}
 }
 

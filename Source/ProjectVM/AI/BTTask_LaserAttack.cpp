@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "AI/VMEnemyBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Interface/LaserAttackInterface.h"
 
 EBTNodeResult::Type UBTTask_LaserAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {

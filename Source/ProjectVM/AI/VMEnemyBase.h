@@ -7,6 +7,7 @@
 
 #include "Interface/VMAIEnemyBaseInterface.h"
 #include "Interface/VMStatChangeable.h"
+#include "Interface/VMLaserAttackInterface.h"
 
 #include "VMEnemyBase.generated.h"
 
@@ -18,6 +19,7 @@ UCLASS()
 class PROJECTVM_API AVMEnemyBase : public ACharacter
 	, public IVMAIEnemyBaseInterface
 	, public IVMStatChangeable
+	, public IVMLaserAttackInterface
 {
 	GENERATED_BODY()
 
@@ -58,17 +60,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
-#pragma region IVMStatChangeable 인터페이스 필수 구현 함수
-public:
-	virtual void HealthPointChange(float Amount, AActor* Causer) override;
-#pragma endregion
+
 
 #pragma region 임시 공격 테스트용
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> LaserAttackMontage;
-
-	void LaserAttackHitCheck();
 #pragma endregion
 
 #pragma region EnemyStatComponent 임시용
@@ -84,6 +81,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat | Member")
 	float MaxHp;
+#pragma endregion
+
+#pragma region IVMStatChangeable 인터페이스 필수 구현 함수
+public:
+	virtual void HealthPointChange(float Amount, AActor* Causer) override;
+#pragma endregion
+
+#pragma region IVMLaserAttackInterface 필수 구현 함수
+public:
+	virtual void LaserAttackHitCheck() override;
 #pragma endregion
 
 #pragma region PawnSensing

@@ -6,6 +6,11 @@
 #include "Components/CapsuleComponent.h"
 #include "Quest/VMQuestManager.h"
 
+
+#include "Engine/DamageEvents.h"
+
+#include "Interface/VMStatChangeable.h"
+
 #include "Macro/VMPhysics.h"
 
 // Sets default values
@@ -75,5 +80,63 @@ void AVMEnemySpawnBase::InitDefaultAssetSetting()
 		GetMesh()->SetSkeletalMesh(MeshRef.Object);
 	}
 #pragma endregion 
+}
+
+void AVMEnemySpawnBase::NormalAttack()
+{
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemySpawnBase::NormalAttack %s"), *GetName());
+	PlayNormalAttackMontage();
+}
+
+void AVMEnemySpawnBase::NormalAttackCheck()
+{
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemySpawnBase::NormalAttackCheck"));
+
+	FHitResult OutHitResult;
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(LaserAttack), false, this);
+
+
+	float AttackRange_ = GetAIAttackRange();
+	float AttackRadius_ = GetAIAttackRadius();
+	float AttackDamage_ = GetAINormalAttackDamage();
+
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange_;
+
+	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, VM_HERO_TARGET_ACTION, FCollisionShape::MakeSphere(AttackRadius_), Params);
+	if (Result || HitResults.Num())
+	{
+		for (auto HitResult : HitResults)
+		{
+			FDamageEvent DamageEvent;
+			IVMStatChangeable* IVMStatPtr = Cast<IVMStatChangeable>(HitResult.GetActor());
+			if (IVMStatPtr)
+			{
+				IVMStatPtr->HealthPointChange(AttackRange_, this);
+			}
+			UE_LOG(LogTemp, Log, TEXT("Name: %s"), *HitResult.GetActor()->GetName());
+		}
+	}
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange_ * 0.5f;
+	FColor Color = Result ? FColor::Green : FColor::Red;
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius_, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 5.0f);
+}
+
+void AVMEnemySpawnBase::PlayNormalAttackMontage()
+{
+	// 공격 애니메이션을 실행한다.
+	UAnimInstance* AnimInstancePtr = GetMesh()->GetAnimInstance();
+	if (AnimInstancePtr == nullptr)
+	{
+		return;
+	}
+
+	const float AnimPlayRate = GetAIAttackSpeed();
+	AnimInstancePtr->Montage_Play(NormalAttackMontage, 1.0f);
+	
+	UE_LOG(LogTemp, Log, TEXT("PlayNormalAttackMontage 재생"));
 }
 

@@ -7,6 +7,7 @@
 
 #include "Interface/EnemyHealInterface.h"
 #include "Interface/VMStatChangeable.h"
+#include "Interface/VMAIEnemyBaseInterface.h"
 
 #include "Quest/VMQuestManager.h"
 
@@ -18,6 +19,7 @@ UCLASS()
 class PROJECTVM_API AVMEnemySpawnBase : public ACharacter
 	, public IEnemyHealInterface
 	, public IVMStatChangeable
+	, public IVMAIEnemyBaseInterface
 {
 	GENERATED_BODY()
 
@@ -66,6 +68,34 @@ private:
 public:
 	FORCEINLINE EMonsterName GetMonsterType() { return MonsterType; }
 	FORCEINLINE void SetMonsterType(EMonsterName InMonsterType) { MonsterType = InMonsterType; }
-private:
+
+
+	virtual float GetAIMoveSpeed() const { return MoveSpeed; }
+	virtual float GetAIAttackRadius() const { return AttackRadius; }
+	virtual float GetAIAttackSpeed() const { return AttackSpeed; }
+	virtual float GetAIAttackRange() const { return AttackRange; }
+	virtual float GetAITurnSpeed() const { return TurnSpeed; }
+	virtual float GetAINormalAttackDamage() const { return AttackDamage; }
+
+	virtual void NormalAttack() override;
+	virtual void NormalAttackCheck() override;
+	virtual void PlayNormalAttackMontage();
+
+
+	UAnimMontage* GetNormalMontage() const { return NormalAttackMontage;}
+
+protected:
 	EMonsterName MonsterType = EMonsterName::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> NormalAttackMontage;
+
+
+protected:
+	float MoveSpeed = 100.0f;
+	float AttackRadius = 50.0f;
+	float AttackSpeed = 1.0f;
+	float AttackRange = 100.0f;
+	float TurnSpeed = 2.0f;
+	float AttackDamage = 2.0f;
 };

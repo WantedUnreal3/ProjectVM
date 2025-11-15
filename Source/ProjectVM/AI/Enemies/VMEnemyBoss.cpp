@@ -103,9 +103,14 @@ void AVMEnemyBoss::SummonMinion(FVector Pos)
 	FVector SummonLocation = Pos;
 	FTransform SummonTransform(SummonLocation);
 	
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	int32 Index = FMath::RandRange(0, EnemySpawnArray.Num() - 1);
-	AVMEnemySpawnBase* SpawnActor = GetWorld()->SpawnActor<AVMEnemySpawnBase>(EnemySpawnArray[Index], SummonTransform);
+	AVMEnemySpawnBase* SpawnActor = GetWorld()->SpawnActor<AVMEnemySpawnBase>(EnemySpawnArray[2], SummonTransform, Params);
+
+
 
 	if (SpawnActor == nullptr)
 	{

@@ -17,6 +17,14 @@ class PROJECTVM_API AVMEnemyMinionWarrior : public AVMEnemyBase
 public:
 	AVMEnemyMinionWarrior();
 
+	virtual float GetAIMoveSpeed() const { return MoveSpeed; }
+	virtual float GetAIAttackRange() const { return AttackRange; }
+	virtual float GetAITurnSpeed() const { return TurnSpeed; }
 
+private:
+	float MoveSpeed = 200.0f;
+	float AttackSpeed = 1.0f;
+	float AttackRange = 200.0f;
+	float TurnSpeed = 2.0f;
 
 };

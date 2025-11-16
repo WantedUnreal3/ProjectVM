@@ -17,15 +17,20 @@ class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChan
 public:
 	AVMCharacterHeroBase();
 
-	virtual void HealthPointChange(float Amount, AActor* Causer);
+	FORCEINLINE class UVMHeroStatComponent* GetStatComponent() { return Stat; }
+	FORCEINLINE class UVMHeroSkillComponent* GetSkillComponent() { return Skills; }
+	
 	void ChangeInputMode(EInputMode NewMode);
+	virtual void HealthPointChange(float Amount, AActor* Causer) override; // TODO : ApplyDamage로 네이밍 변경 고려
 	void SetInteractNPC(class AVMNPC* NewInteractNPC);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void ApplySpeed(int32 SpeedStat);
 
 	void BasicSkill(const FInputActionValue& Value);
 

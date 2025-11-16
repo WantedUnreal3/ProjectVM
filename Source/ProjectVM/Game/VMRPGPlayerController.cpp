@@ -2,9 +2,13 @@
 
 
 #include "Game/VMRPGPlayerController.h"
+
+#include "Hero/VMCharacterHeroBase.h"
+#include "Hero/VMHeroStatComponent.h"
 #include "UI/Common/VMGameScreen.h"
 #include "UI/Dialogue/VMNPCDialogueScreen.h"
 #include "UI/Shop/VMShopScreen.h"
+#include "UI/Stat/VMHeroStatusWidget.h"
 
 AVMRPGPlayerController::AVMRPGPlayerController()
 {
@@ -31,6 +35,11 @@ AVMRPGPlayerController::AVMRPGPlayerController()
 		VMShopScreenClass = VMShopScreenRef.Class;
 	}
 
+	static ConstructorHelpers::FClassFinder<UVMHeroStatusWidget> VMHeroStatusWidgetRef(TEXT("/Game/Project/UI/Stat/WBP_HeroStatus.WBP_HeroStatus_C"));
+	if (VMHeroStatusWidgetRef.Succeeded())
+	{
+		VMHeroStatusWidgetClass = VMHeroStatusWidgetRef.Class;
+	}
 }
 
 void AVMRPGPlayerController::ShowScreen(EScreenUIType ScreenType)
@@ -101,6 +110,18 @@ void AVMRPGPlayerController::BeginPlay()
 			VMShopScreen->AddToViewport();
 			VMShopScreen->SetVisibility(ESlateVisibility::Hidden);
 			ScreenUIMap.Add(EScreenUIType::ShopScreen, VMShopScreen);
+		}
+	}
+
+	if (VMHeroStatusWidgetClass != nullptr)
+	{
+		VMHeroStatusWidget = CreateWidget<UVMHeroStatusWidget>(this, VMHeroStatusWidgetClass);
+		if (VMHeroStatusWidget != nullptr)
+		{
+			VMHeroStatusWidget->AddToViewport();
+			AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(GetPawn());
+			Hero->GetStatComponent()->OnHealthPointPercentageChanged.AddUObject(VMHeroStatusWidget, &UVMHeroStatusWidget::RefreshHealthPointBar);
+			Hero->GetStatComponent()->OnManaPointPercentageChanged.AddUObject(VMHeroStatusWidget, &UVMHeroStatusWidget::RefreshManaPointBar);
 		}
 	}
 }

@@ -114,8 +114,8 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 void AVMCharacterHeroBase::HealthPointChange(float Amount, AActor* Causer)
 {
 	if (Causer == nullptr || Causer->IsValidLowLevel() == false) return;
-
-	UE_LOG(LogTemp, Log, TEXT("%f, %s HealthPointChange() 적용됨"), Amount, *Causer->GetName());
+	
+	UE_LOG(LogTemp, Log, TEXT("%f, %s에 의한 HealthPointChange() 적용됨"), Amount, *Causer->GetName());
 	Stat->ApplyDamage(Amount);
 }
 
@@ -160,6 +160,8 @@ void AVMCharacterHeroBase::BeginPlay()
 	{
 		InputSystem->AddMappingContext(InputMappingContext, 0);
 	}
+
+	Stat->OnSpeedChanged.AddUObject(this, &AVMCharacterHeroBase::ApplySpeed);
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -202,15 +204,18 @@ void AVMCharacterHeroBase::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AVMCharacterHeroBase::ApplySpeed(int32 SpeedStat)
+{
+	GetCharacterMovement()->MaxAcceleration = 500.f + SpeedStat;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f + SpeedStat;
+}
+
 void AVMCharacterHeroBase::BasicSkill(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Left Mouse Skill !"));
-	
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
-
-	FHeroStat CurStat = Stat->GetStat();
-	Skills->ExecuteBasicSkill(CurStat);
+	
+	Skills->ExecuteBasicSkill(this, Stat);
 }
 
 void AVMCharacterHeroBase::Interact(const FInputActionValue& Value)

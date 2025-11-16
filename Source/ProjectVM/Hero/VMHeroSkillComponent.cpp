@@ -2,6 +2,7 @@
 
 
 #include "Hero/VMHeroSkillComponent.h"
+#include "Hero/VMHeroStatComponent.h"
 #include "Hero/VMCharacterHeroBase.h"
 #include "Hero/SkillBase.h"
 #include "Hero/HeroStat.h"
@@ -11,35 +12,39 @@ UVMHeroSkillComponent::UVMHeroSkillComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UVMHeroSkillComponent::ExecuteBasicSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteBasicSkill(AVMCharacterHeroBase* Owner, UVMHeroStatComponent* StatComp)
 {
-	if (BasicSkill == nullptr) return;
-	if (BasicSkill->IsSkillValid(CurStat) == false) return;
-
-	AVMCharacterHeroBase* Owner = Cast<AVMCharacterHeroBase>(GetOwner());
-	BasicSkill->ActivateSkill(Owner, CurStat);
+	if (BasicSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (BasicSkill->IsSkillValid(StatComp->GetStat()))
+	{
+		BasicSkill->ActivateSkill(Owner, StatComp);
+	}
 }
 
-void UVMHeroSkillComponent::ExecuteAdvancedSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteAdvancedSkill(class UVMHeroStatComponent* StatComp)
 {
 	if (AdvancedSkill == nullptr) return;
-	if (AdvancedSkill->IsSkillValid(CurStat) == false) return;
+	if (AdvancedSkill->IsSkillValid(StatComp->GetStat()) == false) return;
 
 	//AdvancedSkill->ActivateSkill(CurStat);
 }
 
-void UVMHeroSkillComponent::ExecuteMovementSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteMovementSkill(class UVMHeroStatComponent* StatComp)
 {
 	if (MovementSkill == nullptr) return;
-	if (MovementSkill->IsSkillValid(CurStat) == false) return;
+	if (MovementSkill->IsSkillValid(StatComp->GetStat()) == false) return;
 
 	//MovementSkill->ActivateSkill(CurStat);
 }
 
-void UVMHeroSkillComponent::ExecuteUltimateSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteUltimateSkill(class UVMHeroStatComponent* StatComp)
 {
 	if (UltimateSkill == nullptr) return;
-	if (UltimateSkill->IsSkillValid(CurStat) == false) return;
+	if (UltimateSkill->IsSkillValid(StatComp->GetStat()) == false) return;
 
 	//UltimateSkill->ActivateSkill(CurStat);
 }
@@ -67,7 +72,6 @@ void UVMHeroSkillComponent::BindUltimateSkill(USkillBase* InSkill)
 void UVMHeroSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void UVMHeroSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

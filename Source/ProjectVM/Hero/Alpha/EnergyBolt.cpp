@@ -3,6 +3,7 @@
 
 #include "Hero/Alpha/EnergyBolt.h"
 #include "Hero/VMCharacterHeroBase.h"
+#include "Hero/VMHeroStatComponent.h"
 #include "Hero/HeroStat.h"
 #include "Hero/Alpha/VMEnergyBoltProjectile.h"
 #include "Engine/OverlapResult.h"
@@ -14,20 +15,21 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+
 UEnergyBolt::UEnergyBolt(const FObjectInitializer& ObjectInitializer)
 {
 	SkillName = TEXT("EnergyBolt");
 	SkillDesc = TEXT("에너지 볼트를 발사합니다.");
-	ManaCost = 10;
-	Cooldown = 2;
-	RemainingCooldown = 0;
+	ManaCost = 30;
+	Cooldown = 2.0f;
+	RemainingCooldown = 0.0f;
 
 	ProjectileCount = 12;
 }
 
-void UEnergyBolt::ActivateSkill(AVMCharacterHeroBase* InOwner, FHeroStat& CurStat)
+void UEnergyBolt::ActivateSkill(AVMCharacterHeroBase* InOwner, UVMHeroStatComponent* StatComp)
 {
-	Super::ActivateSkill(InOwner, CurStat);
+	Super::ActivateSkill(InOwner, StatComp);
 
 	if (InOwner == nullptr)
 	{
@@ -44,6 +46,7 @@ void UEnergyBolt::ActivateSkill(AVMCharacterHeroBase* InOwner, FHeroStat& CurSta
 		return;
 	}
 
+	FHeroStat CurStat = StatComp->GetStat();
 	ProjectileDamage = 10 + CurStat.AttackPower / 10;
 	
 	FVector Center = Owner->GetActorLocation();

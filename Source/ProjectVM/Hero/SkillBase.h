@@ -16,7 +16,7 @@ class PROJECTVM_API USkillBase : public UObject
 	GENERATED_BODY()
 
 public:
-	virtual void ActivateSkill(class AVMCharacterHeroBase* Owner, struct FHeroStat& CurStat);
+	virtual void ActivateSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);
 	
 	bool IsSkillValid(struct FHeroStat CurStat);
 	void ReduceCooldown(float DeltaTime);

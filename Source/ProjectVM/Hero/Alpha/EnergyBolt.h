@@ -30,4 +30,5 @@ private:
 	FTimerHandle ProjectileTimerHandle;
 	int32 ProjectileCountToSpawn;
 	int32 ProjectileCount;
+	int32 ProjectileDamage;
 };

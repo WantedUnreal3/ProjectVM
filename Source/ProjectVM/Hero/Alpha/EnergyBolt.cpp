@@ -43,6 +43,8 @@ void UEnergyBolt::ActivateSkill(AVMCharacterHeroBase* InOwner, FHeroStat& CurSta
 	{
 		return;
 	}
+
+	ProjectileDamage = 10 + CurStat.AttackPower / 10;
 	
 	FVector Center = Owner->GetActorLocation();
 	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(1000.0f);
@@ -52,10 +54,6 @@ void UEnergyBolt::ActivateSkill(AVMCharacterHeroBase* InOwner, FHeroStat& CurSta
 	
 	FColor DrawDebugColor = FColor::Green;
 	if (HitDetected) DrawDebugColor = FColor::Red;
-
-	DrawDebugSphere(Owner->GetWorld(), Center, 1000.0f, 32, DrawDebugColor, false, 2.f);
-	UE_LOG(LogTemp, Log, TEXT("타겟을 %d 개 찾았습니다."), Overlaps.Num());
-	for (const FOverlapResult& Target : Overlaps) UE_LOG(LogTemp, Log, TEXT("발견한 타겟 : %s"), *Target.GetActor()->GetName());
 
 	for (FOverlapResult& Target : Overlaps)
 	{
@@ -68,6 +66,13 @@ void UEnergyBolt::ActivateSkill(AVMCharacterHeroBase* InOwner, FHeroStat& CurSta
 	}
 
 	StartSpawnProjectile();
+
+#if HERO_SKILL_DEBUG
+	DrawDebugSphere(Owner->GetWorld(), Center, 1000.0f, 32, DrawDebugColor, false, 2.f);
+	UE_LOG(LogTemp, Log, TEXT("타겟을 %d 개 찾았습니다."), Overlaps.Num());
+	for (const FOverlapResult& Target : Overlaps)
+		UE_LOG(LogTemp, Log, TEXT("발견한 타겟 : %s"), *Target.GetActor()->GetName());
+#endif
 }
 
 void UEnergyBolt::StartSpawnProjectile()
@@ -92,7 +97,7 @@ void UEnergyBolt::SpawnProjectile()
 	AVMEnergyBoltProjectile* Projectile = Owner->GetWorld()->SpawnActor<AVMEnergyBoltProjectile>(AVMEnergyBoltProjectile::StaticClass(), Owner->GetActorLocation(), FRotator::ZeroRotator);
 	if (Projectile != nullptr && Projectile->IsValidLowLevel())
 	{
-		Projectile->BindOwnerAndTarget(Owner, Target);
+		Projectile->InitProjectile(Owner, Target, ProjectileDamage);
 		--ProjectileCountToSpawn;
 		++TargetIndex;
 	}

@@ -54,45 +54,25 @@ AVMEnergyBoltProjectile::AVMEnergyBoltProjectile()
 	Progress = 0.0f;
 }
 
-void AVMEnergyBoltProjectile::BindOwnerAndTarget(AActor* InOwner, AActor* InTarget)
+void AVMEnergyBoltProjectile::InitProjectile(AActor* InOwner, AActor* InTarget, int32 InDamage)
 {
 	if (InOwner == nullptr || InOwner->IsValidLowLevel() == false)
 	{
+		Destroy();
 		return;
 	}
 	
 	if (InTarget == nullptr || InTarget->IsValidLowLevel() == false)
 	{
+		Destroy();
 		return;
 	}
 	
 	SetOwner(InOwner);
 	Target = InTarget;
+	Damage = FMath::Max(0, InDamage);
 
-	SplinePath->ClearSplinePoints();
-
-	FVector StartLocation = InOwner->GetActorLocation();
-	FVector EndLocation = InTarget->GetActorLocation();
-
-	FVector CurveLocation = StartLocation + (EndLocation - StartLocation) * FMath::FRandRange(0.1f, 0.3f);
-	float RandomRadius = FMath::FRandRange(100.0f, 200.0f);
-	float RandomTheta = FMath::FRandRange(0.0f, PI);
-
-	FCircle3D Circle(CurveLocation, EndLocation - StartLocation, RandomRadius);
-	CurveLocation = Circle.GetLocation(RandomTheta);
-
-	// DrawDebugCircle(GetWorld(), Circle.Center, Circle.Radius, 32, FColor::Green, false, 3.f, 0, 1.f, Circle.AxisX, Circle.AxisY, true);
-	
-	SplinePath->AddSplinePoint(StartLocation, ESplineCoordinateSpace::World);
-	SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Curve);
-	
-	SplinePath->AddSplinePoint(CurveLocation, ESplineCoordinateSpace::World);
-	SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Curve);
-	
-	SplinePath->AddSplinePoint(EndLocation, ESplineCoordinateSpace::World);
-	SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Linear);
-	
-	SplinePath->UpdateSpline();
+	CreateProjectilePath(InOwner, InTarget);
 }
 
 void AVMEnergyBoltProjectile::HitTarget(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -103,11 +83,17 @@ void AVMEnergyBoltProjectile::HitTarget(UPrimitiveComponent* OverlappedComp, AAc
 
 	if (StatChangeable)
 	{
-		UE_LOG(LogTemp, Log, TEXT("타겟 %s 충돌 !"), *OtherActor->GetName());
-		StatChangeable->HealthPointChange(10.f, this);
+		StatChangeable->HealthPointChange(Damage, Owner);
 	}
 
 	SphereCollision->SetActive(false);
+
+#if HERO_SKILL_DEBUG
+	if (StatChangeable)
+	{
+		UE_LOG(LogTemp, Log, TEXT("타겟 %s 충돌 !"), *OtherActor->GetName());
+	}
+#endif
 }
 
 void AVMEnergyBoltProjectile::BeginPlay()
@@ -135,4 +121,34 @@ void AVMEnergyBoltProjectile::Tick(float DeltaTime)
 	EnergyBoltEffect->SetVariableVec3(TEXT("CollisionPos"), Pos);
 	
 	if (Progress > 3.0f) Destroy();
+}
+
+void AVMEnergyBoltProjectile::CreateProjectilePath(AActor* InOwner, AActor* InTarget)
+{
+	SplinePath->ClearSplinePoints();
+
+	FVector StartLocation = InOwner->GetActorLocation();
+	FVector EndLocation = InTarget->GetActorLocation();
+
+	FVector CurveLocation = StartLocation + (EndLocation - StartLocation) * FMath::FRandRange(0.1f, 0.3f);
+	float RandomRadius = FMath::FRandRange(100.0f, 200.0f);
+	float RandomTheta = FMath::FRandRange(0.0f, PI);
+
+	FCircle3D Circle(CurveLocation, EndLocation - StartLocation, RandomRadius);
+	CurveLocation = Circle.GetLocation(RandomTheta);
+	
+	SplinePath->AddSplinePoint(StartLocation, ESplineCoordinateSpace::World);
+	SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Curve);
+	
+	SplinePath->AddSplinePoint(CurveLocation, ESplineCoordinateSpace::World);
+	SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Curve);
+	
+	SplinePath->AddSplinePoint(EndLocation, ESplineCoordinateSpace::World);
+	SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Linear);
+	
+	SplinePath->UpdateSpline();
+
+#if HERO_SKILL_DEBUG
+	DrawDebugCircle(GetWorld(), Circle.Center, Circle.Radius, 32, FColor::Green, false, 3.f, 0, 1.f, Circle.AxisX, Circle.AxisY, true);
+#endif
 }

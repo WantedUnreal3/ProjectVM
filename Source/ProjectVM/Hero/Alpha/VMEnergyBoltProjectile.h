@@ -14,14 +14,16 @@ class PROJECTVM_API AVMEnergyBoltProjectile : public AActor
 public:	
 	AVMEnergyBoltProjectile();
 
-	void BindOwnerAndTarget(AActor* InOwner, AActor* InTarget);
+	void InitProjectile(AActor* InOwner, AActor* InTarget, int32 InDamage);
 	UFUNCTION()
 	void HitTarget(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
+	
+	void CreateProjectilePath(AActor* InOwner, AActor* InTarget);
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USplineComponent> SplinePath;
@@ -37,4 +39,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	float Progress;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+	int32 Damage;
 };

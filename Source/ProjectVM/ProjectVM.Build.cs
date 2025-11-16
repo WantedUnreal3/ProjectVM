@@ -20,5 +20,7 @@ public class ProjectVM : ModuleRules
 
 		// 모듈 추가 (작업자: 이상윤)
         PublicDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore" });
+        
+        PublicDefinitions.Add("HERO_SKILL_DEBUG=0");
     }
 }

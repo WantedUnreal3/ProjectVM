@@ -1,4 +1,4 @@
-#include "NPC/VMChickenNPC.h"
+ï»¿#include "NPC/VMChickenNPC.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
@@ -8,7 +8,7 @@ AVMChickenNPC::AVMChickenNPC()
 	NPCType = ENPCType::Chicken;
 
 	GetCapsuleComponent()->InitCapsuleSize(80.f, 120.0f);
-	// ½ºÄÌ·¹Å» ¸Þ½Ã ¼³Á¤
+	// ìŠ¤ì¼ˆë ˆíƒˆ ë©”ì‹œ ì„¤ì •
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> NPCMesh(TEXT("/Game/NPCContent/Chicken/Chicken.Chicken"));
 	if (NPCMesh.Succeeded())
 	{
@@ -17,7 +17,7 @@ AVMChickenNPC::AVMChickenNPC()
 		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 		GetMesh()->SetWorldScale3D(FVector(3.0f, 3.0f, 3.0f));
 	}
-	// ABP ¼³Á¤
+	// ABP ì„¤ì •
 	static ConstructorHelpers::FClassFinder<UAnimInstance> NPCAnimBP(TEXT("/Game/Project/NPC/ABP_Chicken.ABP_Chicken_C"));
 	if (NPCAnimBP.Succeeded())
 	{

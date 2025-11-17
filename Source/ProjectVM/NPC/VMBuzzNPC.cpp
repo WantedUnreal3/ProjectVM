@@ -1,4 +1,4 @@
-#include "VMBuzzNPC.h"
+ï»¿#include "VMBuzzNPC.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
@@ -12,7 +12,7 @@ AVMBuzzNPC::AVMBuzzNPC()
 	NPCType = ENPCType::Buzz;
 
 	GetCapsuleComponent()->InitCapsuleSize(150.f, 250.0f);
-	// ½ºÄÌ·¹Å» ¸Þ½Ã ¼³Á¤
+	// ìŠ¤ì¼ˆë ˆíƒˆ ë©”ì‹œ ì„¤ì •
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> NPCMesh(TEXT("/Game/NPCContent/Buzz/Buzz.Buzz"));
 	if (NPCMesh.Succeeded())
 	{
@@ -21,7 +21,7 @@ AVMBuzzNPC::AVMBuzzNPC()
 		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 		GetMesh()->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 	}
-	// ABP ¼³Á¤
+	// ABP ì„¤ì •
 	static ConstructorHelpers::FClassFinder<UAnimInstance> NPCAnimBP(TEXT("/Game/Project/NPC/ABP_Bazz.ABP_Bazz_C"));
 	if (NPCAnimBP.Succeeded())
 	{

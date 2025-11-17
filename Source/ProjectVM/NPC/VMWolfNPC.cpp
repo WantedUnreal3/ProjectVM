@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "VMWolfNPC.h"
@@ -11,16 +11,16 @@ AVMWolfNPC::AVMWolfNPC()
 	NPCType = ENPCType::Bob;
 
 	GetCapsuleComponent()->InitCapsuleSize(80.f, 120.0f);
-	// ½ºÄÌ·¹Å» ¸Þ½Ã ¼³Á¤
+	// ìŠ¤ì¼ˆë ˆíƒˆ ë©”ì‹œ ì„¤ì •
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> NPCMesh(TEXT("/Game/NPCContent/Wolf/Wolf.Wolf"));
 	if (NPCMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(NPCMesh.Object);
 		GetMesh()->SetRelativeLocation(FVector(-15.0f, 0.0f, -120.0f));
 		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-		GetMesh()->SetWorldScale3D(FVector(3.0f, 3.0f, 3.0f));
+		GetMesh()->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 	}
-	// ABP ¼³Á¤
+	// ABP ì„¤ì •
 	static ConstructorHelpers::FClassFinder<UAnimInstance> NPCAnimBP(TEXT("/Game/Project/NPC/ABP_Wolf.ABP_Wolf_C"));
 	if (NPCAnimBP.Succeeded())
 	{

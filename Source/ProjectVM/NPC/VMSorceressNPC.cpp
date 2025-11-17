@@ -1,4 +1,4 @@
-#include "VMSorceressNPC.h"
+ï»¿#include "VMSorceressNPC.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
@@ -8,7 +8,7 @@ AVMSorceressNPC::AVMSorceressNPC()
 	NPCType = ENPCType::Anna;
 
 	GetCapsuleComponent()->InitCapsuleSize(60.f, 120.0f);
-	// ½ºÄÌ·¹Å» ¸Þ½Ã ¼³Á¤
+	// ìŠ¤ì¼ˆë ˆíƒˆ ë©”ì‹œ ì„¤ì •
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> NPCMesh(TEXT("/Game/NPCContent/Sorceress/Sorceress.Sorceress"));
 	if (NPCMesh.Succeeded())
 	{
@@ -17,7 +17,7 @@ AVMSorceressNPC::AVMSorceressNPC()
 		GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 		GetMesh()->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 	}
-	// ABP ¼³Á¤
+	// ABP ì„¤ì •
 	static ConstructorHelpers::FClassFinder<UAnimInstance> NPCAnimBP(TEXT("/Game/Project/NPC/ABP_Sorceress.ABP_Sorceress_C"));
 	if (NPCAnimBP.Succeeded())
 	{

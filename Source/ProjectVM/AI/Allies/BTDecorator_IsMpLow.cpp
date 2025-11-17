@@ -37,5 +37,5 @@ bool UBTDecorator_IsMpLow::CalculateRawConditionValue(UBehaviorTreeComponent& Ow
 	MaxMpValue = BBCompPtr->GetValueAsFloat(TEXT("OwnerMaxMp"));
 
 
-	return (CurrentMpValue / MaxMpValue) <= 0.7f;
+	return (CurrentMpValue / MaxMpValue) < 0.7f;
 }

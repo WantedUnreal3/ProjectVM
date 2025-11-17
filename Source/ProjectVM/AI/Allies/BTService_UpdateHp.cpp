@@ -8,6 +8,9 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Game/VMPlayer.h"
 
+#include "Hero/VMCharacterHeroBase.h"
+#include "Hero/VMHeroStatComponent.h"
+
 UBTService_UpdateHp::UBTService_UpdateHp()
 {
 	NodeName = TEXT("Update Owner's Hp");
@@ -47,14 +50,16 @@ void UBTService_UpdateHp::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 		return;
 	}
 
-	AVMPlayer* OwnerPlayerPtr = Cast<AVMPlayer>(MasterPtr);
+	
+	//AVMPlayer* OwnerPlayerPtr = Cast<AVMPlayer>(MasterPtr);
+	AVMCharacterHeroBase* OwnerPlayerPtr = Cast<AVMCharacterHeroBase>(MasterPtr);
 	if (MasterPtr == nullptr)
 	{
 		return;
 	}
 
-	float CurrentHp = OwnerPlayerPtr->GetCurrentHp();
-	float MaxHp = OwnerPlayerPtr->GetMaxHp();
+	float CurrentHp = OwnerPlayerPtr->GetStatComponent()->GetStat().HealthPoint;
+	float MaxHp = OwnerPlayerPtr->GetStatComponent()->GetDefaultStat().HealthPoint;
 
 	BBComponentPtr->SetValueAsFloat(TEXT("OwnerCurrentHp"), CurrentHp);
 	BBComponentPtr->SetValueAsFloat(TEXT("OwnerMaxHp"), MaxHp);

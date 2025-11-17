@@ -36,5 +36,5 @@ bool UBTDecorator_IsHpLow::CalculateRawConditionValue(UBehaviorTreeComponent& Ow
 	MaxHpValue = BBCompPtr->GetValueAsFloat(TEXT("OwnerMaxHp"));
 
 
-	return (CurrentHpValue / MaxHpValue) <= 0.8f;
+	return (CurrentHpValue / MaxHpValue) < 0.7f;
 }

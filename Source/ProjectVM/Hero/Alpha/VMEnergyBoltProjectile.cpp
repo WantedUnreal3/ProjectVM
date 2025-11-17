@@ -33,22 +33,22 @@ AVMEnergyBoltProjectile::AVMEnergyBoltProjectile()
 	EnergyBoltEffect->SetAutoActivate(true);
 	EnergyBoltEffect->SetAutoDestroy(true);
 
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraSystemAsset(TEXT("/Game/_SplineVFX/NS/NS_Spline_EnergyLoop.NS_Spline_EnergyLoop"));
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraSystemAsset(TEXT("/Game/_SplineVFX/NS/NS_Spline_EnergyLoop_Burning.NS_Spline_EnergyLoop_Burning"));
 	if (NiagaraSystemAsset.Succeeded())
 	{
 		EnergyBoltEffect->SetAsset(NiagaraSystemAsset.Object);
 		
-		EnergyBoltEffect->SetVariableFloat(TEXT("_ColorHue"), 0.5f);
-		EnergyBoltEffect->SetVariableFloat(TEXT("_Size"), 3.0f);
+		EnergyBoltEffect->SetVariableFloat(TEXT("_ColorHue"), 0.1f);
+		EnergyBoltEffect->SetVariableFloat(TEXT("_Size"), 5.0f);
 		EnergyBoltEffect->SetVariableFloat(TEXT("_Speed"), 4.0f);
-		EnergyBoltEffect->SetVariableFloat(TEXT("Count"), 100.0f);
+		EnergyBoltEffect->SetVariableFloat(TEXT("Count"), 200.0f);
 		EnergyBoltEffect->SetVariableFloat(TEXT("Extent"), 10.0f);
 		EnergyBoltEffect->SetVariableFloat(TEXT("Noise"), 99.0f);
 		EnergyBoltEffect->SetVariableFloat(TEXT("Progress"), 1.0f);
 		
-		EnergyBoltEffect->SetVariableBool(TEXT("AddDetail"), false);
+		EnergyBoltEffect->SetVariableBool(TEXT("AddDetail"), true);
 		EnergyBoltEffect->SetVariableBool(TEXT("LightON"), false);
-		EnergyBoltEffect->SetVariableBool(TEXT("withHead"), false);
+		EnergyBoltEffect->SetVariableBool(TEXT("withHead"), true);
 	}
 	
 	Progress = 0.0f;
@@ -131,7 +131,7 @@ void AVMEnergyBoltProjectile::CreateProjectilePath(AActor* InOwner, AActor* InTa
 	FVector EndLocation = InTarget->GetActorLocation();
 
 	FVector CurveLocation = StartLocation + (EndLocation - StartLocation) * FMath::FRandRange(0.1f, 0.3f);
-	float RandomRadius = FMath::FRandRange(100.0f, 200.0f);
+	float RandomRadius = FMath::FRandRange(100.0f, 250.0f);
 	float RandomTheta = FMath::FRandRange(0.0f, PI);
 
 	FCircle3D Circle(CurveLocation, EndLocation - StartLocation, RandomRadius);

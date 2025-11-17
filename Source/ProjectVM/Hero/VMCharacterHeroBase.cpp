@@ -18,6 +18,12 @@
 #include "NPC/VMNPC.h"
 #include "Quest/VMQuestManager.h"
 
+#include "UI/Character/VMCharacterHeroHUD.h"
+#include "Inventory/VMPickup.h"
+#include "Inventory/VMInventoryComponent.h"
+
+
+
 AVMCharacterHeroBase::AVMCharacterHeroBase()
 {
 	bUseControllerRotationPitch = false;
@@ -111,6 +117,24 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 
 	Stat = CreateDefaultSubobject<UVMHeroStatComponent>(TEXT("Stat"));
 	Skills = CreateDefaultSubobject<UVMHeroSkillComponent>(TEXT("Skills"));
+
+
+	// 인벤토리 관련
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ToggleActionRef(TEXT("/Game/Project/Input/Actions/IA_ToggelMenu.IA_ToggelMenu"));
+	if (ToggleActionRef.Succeeded())
+	{
+		UE_LOG(LogTemp, Log, TEXT("QWER 여긴 오니"));
+		ToggleAction = ToggleActionRef.Object;
+	}
+
+
+	PlayerInventory = CreateDefaultSubobject<UVMInventoryComponent>(TEXT("PlayerInventory"));
+
+	InteractionCheckFrequency = 0.1;
+	InteractionCheckDistance = 225.0f;
+
+	BaseEyeHeight = 74.0f;
 }
 
 void AVMCharacterHeroBase::HealthPointChange(float Amount, AActor* Causer)
@@ -162,6 +186,21 @@ void AVMCharacterHeroBase::BeginPlay()
 	{
 		InputSystem->AddMappingContext(InputMappingContext, 0);
 	}
+
+	APlayerController* ControllerPtr = GetWorld()->GetFirstPlayerController();
+	if (ControllerPtr == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Controller is nullptr"));
+		return;
+	}
+	AVMCharacterHeroHUD* HUDPtr = Cast<AVMCharacterHeroHUD>(ControllerPtr->GetHUD());
+	if (HUDPtr == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("AVMCharacterHeroHUD is nullptr"));
+		return;
+	}
+	//HUD = Cast<AVMCharacterHeroHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	HUD = HUDPtr;
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -177,9 +216,19 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(LeftMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BasicSkill);
 	EnhancedInputComponent->BindAction(DebuggingAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::DebuggingTest);
+	
+	
+	EnhancedInputComponent->BindAction(ToggleAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::ToggleMenu);
+	
+	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BeginInteract);
+	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::EndInteract);
 
 	//다이얼로그
 	EnhancedInputComponent->BindAction(NextTalkAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::NextTalk);
+
+	//인벤토리
+
+
 }
 
 void AVMCharacterHeroBase::Move(const FInputActionValue& Value)
@@ -254,6 +303,182 @@ void AVMCharacterHeroBase::DebuggingTest(const FInputActionValue& Value)
 
 	//FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
 	GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(EMonsterName::Warrior);
+}
+
+
+
+// 인벤토리
+void AVMCharacterHeroBase::PerformInteractionCheck()
+{
+	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
+
+	FVector TraceStart{ GetPawnViewLocation() };
+	FVector TraceEnd{ TraceStart + (GetViewRotation().Vector() * InteractionCheckDistance) };
+
+	float LookDirection = FVector::DotProduct(GetActorForwardVector(), GetViewRotation().Vector());
+
+	if (LookDirection > 0)
+	{
+
+		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		FHitResult TraceHit;
+
+		if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+		{
+			if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UVMInteractionInterface::StaticClass()))
+			{
+				const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+
+				if (TraceHit.GetActor() != InteractionData.CurrentInteractable && Distance <= InteractionCheckDistance)
+				{
+					FoundInteractable(TraceHit.GetActor());
+					return;
+				}
+
+				if (TraceHit.GetActor() == InteractionData.CurrentInteractable)
+				{
+					return;
+				}
+			}
+		}
+	}
+
+
+
+	NoInteractableFound();
+}
+
+void AVMCharacterHeroBase::FoundInteractable(AActor* NewInteractable)
+{
+	if (IsInteracting())
+	{
+		EndInteract();
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		TargetInteractable = InteractionData.CurrentInteractable;
+		TargetInteractable->EndFocus();
+	}
+
+	InteractionData.CurrentInteractable = NewInteractable;
+	TargetInteractable = NewInteractable;
+
+	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+
+	TargetInteractable->BeginFocus();
+
+}
+
+void AVMCharacterHeroBase::NoInteractableFound()
+{
+	if (IsInteracting())
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->EndFocus();
+		}
+
+		HUD->HideInteractionWidget();
+
+		// hide interaction widget on the HUD
+		InteractionData.CurrentInteractable = nullptr;
+		TargetInteractable = nullptr;
+	}
+}
+
+
+
+void AVMCharacterHeroBase::BeginInteract()
+{
+	//verify nothing has changed with the interactable state since beginning interaction
+	PerformInteractionCheck();
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->BeginInteract();
+
+			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+			{
+				BeingInteract();
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, &AVMCharacterHeroBase::BeingInteract,
+					TargetInteractable->InteractableData.InteractionDuration, false);
+			}
+		}
+	}
+}
+
+void AVMCharacterHeroBase::EndInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->EndInteract();
+	}
+}
+
+void AVMCharacterHeroBase::BeingInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->BeingInteract(this);
+	}
+}
+
+
+void AVMCharacterHeroBase::UpdateInteractionWidget() const
+{
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+	}
+}
+
+void AVMCharacterHeroBase::DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop)
+{
+	if (PlayerInventory->FindMatchingItem(ItemToDrop))
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.bNoFail = true;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		const FVector SpawnLocation({ GetActorLocation() + (GetActorForwardVector() * 50.0f) });
+
+		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+
+		//const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
+
+		TObjectPtr<AVMPickup> Pickup = GetWorld()->SpawnActor<AVMPickup>(AVMPickup::StaticClass(), SpawnTransform, SpawnParams);
+
+		Pickup->InitializeDrop(ItemToDrop);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item do drop was somehow null!"));
+	}
+}
+
+void AVMCharacterHeroBase::ToggleMenu()
+{
+	UE_LOG(LogTemp, Log, TEXT("QWER "));
+	HUD->ToggleMenu();
 }
 
 

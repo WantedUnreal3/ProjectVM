@@ -6,8 +6,41 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Core/GameEnums.h"
+
 #include "Interface/VMStatChangeable.h"
+#include "Interface/VMInteractionInterface.h"
+
+#include "Inventory/VMInventoryComponent.h"
+#include "UI/Character/VMCharacterHeroHUD.h"
+
+
 #include "VMCharacterHeroBase.generated.h"
+
+
+class UVMEquipment;
+
+// 인벤토리 관련 구조체
+USTRUCT()
+struct FInteractionData
+{
+	GENERATED_USTRUCT_BODY()
+
+	FInteractionData() : CurrentInteractable(nullptr), LastInteractionCheckTime(0.0f)
+	{
+	};
+
+	UPROPERTY()
+	AActor* CurrentInteractable;
+
+	float LastInteractionCheckTime;
+};
+
+
+
+
+
+
+
 
 UCLASS()
 class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChangeable
@@ -20,9 +53,16 @@ public:
 	virtual void HealthPointChange(float Amount, AActor* Causer);
 	void ChangeInputMode(EInputMode NewMode);
 	void SetInteractNPC(class AVMNPC* NewInteractNPC);
+
+	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); };
+	FORCEINLINE UVMInventoryComponent* GetInventory() const { return PlayerInventory; }
+	void UpdateInteractionWidget() const;
+	void DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop);
+
+
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -35,7 +75,22 @@ protected:
 	//대화 넘기기
 	void NextTalk(const FInputActionValue& Value);
 
+
 	void DebuggingTest(const FInputActionValue& Value);
+
+	// 인벤토리 관련 함수
+	void PerformInteractionCheck();
+	void FoundInteractable(AActor* NewInteractable);
+	void NoInteractableFound();
+	void BeginInteract();
+	void EndInteract();
+	void BeingInteract();
+	void ToggleMenu();
+
+	// APawn interface
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
 
 	// 죄송합니다. 손 좀 대겠습니다.
 public:
@@ -93,4 +148,34 @@ protected:
 	bool bCanInteract = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact")
 	class AVMNPC* CurrentNPC = nullptr;
+
+	// 인벤토리 관련 변수
+	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
+	TScriptInterface<IVMInteractionInterface> TargetInteractable;
+
+	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+	//UVMInventoryComponent* PlayerInventory;
+	TObjectPtr<UVMInventoryComponent> PlayerInventory;
+
+	UPROPERTY()
+	TObjectPtr<AVMCharacterHeroHUD> HUD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ToggleAction;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UInputAction> BeginInteract;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UInputAction> EndInteract;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext* DefaultMappingContext;
+
+
+	float InteractionCheckFrequency;
+	float InteractionCheckDistance;
+	FTimerHandle TimerHandle_Interaction;
+	FInteractionData InteractionData;
+
 };

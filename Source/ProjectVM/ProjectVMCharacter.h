@@ -7,13 +7,19 @@
 #include "Logging/LogMacros.h"
 #include "ProjectVMCharacter.generated.h"
 
+
+
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+
+
+
 
 UCLASS(config=Game)
 class AProjectVMCharacter : public ACharacter
@@ -112,5 +118,35 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+#pragma region 지훈
+public:
+//	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); };
+//
+//	//FORCEINLINE class UVMInventoryComponent* GetInventory() const { return PlayerInventory; }
+//
+//	void UpdateInteractionWidget() const;
+//
+//	void DropItem(class UItemBase* ItmeToDrop, const int32 QuantityToDrop);
+//protected:
+//
+//	float InteractionCheckFrequency;
+//
+//	float InteractionCheckDistance;
+//
+//	FTimerHandle TimerHandle_Interaction;
+//
+//	//FInteractionData InteractionData;
+//protected:
+//	UPROPERTY()
+//	AVMPracHUD* HUD;
+//
+//	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
+//	TScriptInterface<class IInteractionInterface> TargetInteractable;
+//
+//	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+//	TObjectPtr<class UVMInventoryComponent> PlayerInventory;
+//	//class UVMInventoryComponent* PlayerInventory; 임의로 변경
+#pragma endregion
 };
 

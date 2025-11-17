@@ -4,11 +4,13 @@
 #include "Game/VMRPGGameMode.h"
 #include "Game/VMRPGPlayerController.h"
 #include "Hero/Alpha/Alpha.h"
+#include "UI/Character/VMCharacterHeroHUD.h"
 #include "Quest/VMQuestManager.h"
 
 AVMRPGGameMode::AVMRPGGameMode()
 {
 	PlayerControllerClass = AVMRPGPlayerController::StaticClass();
+	HUDClass = AVMCharacterHeroHUD::StaticClass();
 	DefaultPawnClass = AAlpha::StaticClass();
 }
 

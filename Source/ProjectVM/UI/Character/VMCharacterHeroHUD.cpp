@@ -14,8 +14,10 @@ void AVMCharacterHeroHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Log, TEXT("QWER MainMenuClass 확인 전"));
 	if (MainMenuClass)
 	{
+		UE_LOG(LogTemp, Log, TEXT("QWER MainMenuClass HIHI"));
 		MainMenuWidget = CreateWidget<UVMMainMenu>(GetWorld(), MainMenuClass);
 		MainMenuWidget->AddToViewport(5);
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
@@ -38,6 +40,11 @@ void AVMCharacterHeroHUD::DisplayMenu()
 		bIsMenuVisible = true;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[DisplayMenu] MainMenuWidget is nullptr"));
+	}
+
 }
 
 void AVMCharacterHeroHUD::HideMenu()
@@ -47,6 +54,10 @@ void AVMCharacterHeroHUD::HideMenu()
 		bIsMenuVisible = false;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[HideMenu] MainMenuWidget is nullptr"));
+	}
 }
 
 
@@ -54,6 +65,7 @@ void AVMCharacterHeroHUD::ToggleMenu()
 {
 	if (bIsMenuVisible)
 	{
+		UE_LOG(LogTemp, Display, TEXT("[ToggleMenu] is true"));
 		HideMenu();
 
 		const FInputModeGameOnly InputMode;
@@ -62,6 +74,7 @@ void AVMCharacterHeroHUD::ToggleMenu()
 	}
 	else
 	{
+		UE_LOG(LogTemp, Display, TEXT("[ToggleMenu] is false"));
 		DisplayMenu();
 		const FInputModeGameAndUI InputMode;
 		GetOwningPlayerController()->SetInputMode(InputMode);

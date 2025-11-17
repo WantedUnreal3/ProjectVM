@@ -49,6 +49,8 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
 
+	//HUD = CreateDefaultSubobject< AVMCharacterHeroHUD>(TEXT("HUDTEST"));
+
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
@@ -121,14 +123,11 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 
 	// 인벤토리 관련
 
-
-
-
-
-	static ConstructorHelpers::FObjectFinder<UInputAction> ToggleRef(TEXT("/Game/Project/Input/Actions/IA_ToggleMenu.IA_ToggleMenu"));
-	if (ToggleRef.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UInputAction> ToggleActionRef(TEXT("/Game/Project/Input/Actions/IA_ToggelMenu.IA_ToggelMenu"));
+	if (ToggleActionRef.Succeeded())
 	{
-		ToggleAction = ToggleRef.Object;
+		UE_LOG(LogTemp, Log, TEXT("QWER 여긴 오니"));
+		ToggleAction = ToggleActionRef.Object;
 	}
 
 
@@ -190,7 +189,20 @@ void AVMCharacterHeroBase::BeginPlay()
 		InputSystem->AddMappingContext(InputMappingContext, 0);
 	}
 
-	HUD = Cast<AVMCharacterHeroHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	APlayerController* ControllerPtr = GetWorld()->GetFirstPlayerController();
+	if (ControllerPtr == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Controller is nullptr"));
+		return;
+	}
+	AVMCharacterHeroHUD* HUDPtr = Cast<AVMCharacterHeroHUD>(ControllerPtr->GetHUD());
+	if (HUDPtr == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("AVMCharacterHeroHUD is nullptr"));
+		return;
+	}
+	//HUD = Cast<AVMCharacterHeroHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	HUD = HUDPtr;
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -206,7 +218,10 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(LeftMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BasicSkill);
 	EnhancedInputComponent->BindAction(DebuggingAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::DebuggingTest);
+	
+	
 	EnhancedInputComponent->BindAction(ToggleAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::ToggleMenu);
+	
 	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BeginInteract);
 	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::EndInteract);
 
@@ -464,5 +479,6 @@ void AVMCharacterHeroBase::DropItem(UVMEquipment* ItemToDrop, const int32 Quanti
 
 void AVMCharacterHeroBase::ToggleMenu()
 {
+	UE_LOG(LogTemp, Log, TEXT("QWER "));
 	HUD->ToggleMenu();
 }

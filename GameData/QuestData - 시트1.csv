@@ -1,6 +1,6 @@
 ,QuestId,QuestGiver,NextQuestId,QuestCategory,QuestTitle,QuestSummary,QuestType,QuestTarget,TargetCount,Reward,RewardCount
-Main01,Main01,Bob,"Main02,ItemCollecting01",Main,사막을 지켜라1,고블린 전사 10마리를 잡아서 오아시스를 위험에서 구해라,Hunt,Warrior,10,Gold,500
-Main02,Main02,Bob,Main03,Main,사막을 지켜라2,고블린 마법사 10마리를 잡아서 오아시스를 위험에서 구해라,Hunt,Warrior,10,Gold,1000
-Main03,Main03,Bob,,Main,사막을 지켜라3,보스 고블린을 잡아서 오아시스를 위험에서 구해라,Hunt,Warrior,1,Gold,1500
-ItemCollecting01,ItemCollecting01,Buzz,ItemCrafting01,Sub,아이템 수집1,아무 아이템이나 2개 수집하기,Hunt,Warrior,10,Gold,500
-ItemCrafting01,ItemCrafting01,Buzz,,Sub,아이템 합성1,아이템 합성하기,Hunt,Warrior,10,Gold,500
+Main01,Main01,Bob,"Main02,ItemCollecting01",Main,사막을 지켜라1,고블린 전사 10마리를 잡아서 오아시스를 위험에서 구해라,Hunt,MinionSiege,10,Gold,500
+Main02,Main02,Bob,Main03,Main,사막을 지켜라2,고블린 마법사 10마리를 잡아서 오아시스를 위험에서 구해라,Hunt,MinionMelee,10,Gold,1000
+Main03,Main03,Bob,,Main,사막을 지켜라3,보스 고블린을 잡아서 오아시스를 위험에서 구해라,Hunt,MinionSuper,1,Gold,1500
+ItemCollecting01,ItemCollecting01,Buzz,ItemCrafting01,Sub,아이템 수집1,아무 아이템이나 2개 수집하기,Hunt,MinionRanged,10,Gold,500
+ItemCrafting01,ItemCrafting01,Buzz,,Sub,아이템 합성1,아이템 합성하기,Hunt,Boss,10,Gold,500

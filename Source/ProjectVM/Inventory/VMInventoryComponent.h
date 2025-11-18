@@ -125,12 +125,13 @@ public:
 	//UFUNCTION(Category = "Inventory")
 	//FORCEINLINE void SetWeightCapacity(const int32 NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
 
+	void AddNewItem(UVMEquipment* Item, const int32 AmountTodd);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	FItemAddResult HandleNonStackableItems(UVMEquipment* InputItem);
-	void AddNewItem(UVMEquipment* Item, const int32 AmountTodd);
+
 
 protected:	
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

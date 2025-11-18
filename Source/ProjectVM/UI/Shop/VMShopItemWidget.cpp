@@ -12,7 +12,7 @@
 
 
 
-void UVMShopItemWidget::SetUp(const FVMEquipmentInfo& Info)
+void UVMShopItemWidget::Setup(const FVMEquipmentInfo& Info)
 {
 	// 다이나믹 머터리얼 생성
 	if (ItemImage && ItemImage->GetBrush().GetResourceObject())

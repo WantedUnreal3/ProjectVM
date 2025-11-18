@@ -27,16 +27,10 @@ public:
 	void SetBuyMode();
 	void SetSellMode();
 
-	//UFUNCTION()
-	//void OnGridItemButtonClicked(const FVMEquipmentInfo& ClickedItemInfo);
 
 	UFUNCTION()
 	void OnGridItemButtonClicked(UVMShopItemWidget* ChildGridWidget);
 
-	//FORCEINLINE void SetShopComponent(UVMShopComponent* NewShopComponent)
-	//{
-	//	ShopComponent = NewShopComponent;
-	//}
 
 	void SetShopData(int32 InCurrentMoney, int32 InInventoryCurrentCapacity, int32 InInventoryMaxCapacity, UVMShopComponent* InShopComponent);
 

@@ -4,6 +4,8 @@
 #include "Components/BoxComponent.h"
 #include "Components/ListView.h"
 #include "Components/WidgetComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "GameData/VMNPCTalkData.h"
 #include "Kismet/GameplayStatics.h"
@@ -61,6 +63,19 @@ AVMNPC::AVMNPC()
 	{
 		InteractKey->SetWidgetClass(InterectWidgetRef.Class);
 	}
+
+	//카메라 설정
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 300.f;
+	CameraBoom->bUsePawnControlRotation = false; //플레이어 회전 따라가지 않음
+	CameraBoom->bDoCollisionTest = true; //벽 충돌 시 자동 당기기
+	NPCCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("NPCCamera"));
+	NPCCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); //봉 끝에 카메라 붙임
+
+	CameraBoom->SetRelativeRotation(FRotator(-20.0f, 130.0f, 0.0f));
+	CameraBoom->TargetArmLength = 500.f;
+
 }
 
 // Called when the game starts or when spawned
@@ -159,6 +174,28 @@ void AVMNPC::TalkSetting(FString TalkType)
 	} while (!VMNPCTalk->bIsLastLine);
 }
 
+void AVMNPC::TurnToPlayer()
+{
+	// 플레이어 방향으로 NPC 회전
+	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC == nullptr)
+	{
+		return;
+	}
+	APawn* PlayerPawn = PC->GetPawn();
+	if (PlayerPawn)
+	{
+		FVector NPCPos = GetActorLocation();
+		FVector PlayerPos = PlayerPawn->GetActorLocation();
+
+		// Z축 차이는 제거해서 고개 들고 숙이는 회전 없애기
+		PlayerPos.Z = NPCPos.Z;
+
+		FRotator LookAtRot = (PlayerPos - NPCPos).Rotation();
+		SetActorRotation(LookAtRot);
+	}
+}
+
 
 // Called every frame
 void AVMNPC::Tick(float DeltaTime)
@@ -222,10 +259,13 @@ void AVMNPC::Interact()
 	CurrentDialogueIndex = 0;
 	NextDialogue();
 
+	TurnToPlayer();
+	PC->SetViewTargetWithBlend(this, 0.6f);
 }
 
 bool AVMNPC::NextDialogue()
 {
+	NPCState = ENPCState::Talk;
 	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC == nullptr)
 	{
@@ -248,6 +288,7 @@ bool AVMNPC::NextDialogue()
 
 			if (PC != nullptr)
 			{
+				NPCState = ENPCState::Idle;
 				FInputModeUIOnly InputMode;
 				InputMode.SetWidgetToFocus(Dialogue->DialogueOptionList->TakeWidget());
 				PC->SetInputMode(InputMode);
@@ -370,6 +411,9 @@ void AVMNPC::EndDialogue()
 			Player->ChangeInputMode(EInputMode::Default);
 		}
 	}
+
+	//시점 다시 돌리기
+	PC->SetViewTargetWithBlend(PC->GetPawn(), 0.5f);
 }
 
 void AVMNPC::QuestCompleted()

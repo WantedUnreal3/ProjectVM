@@ -460,6 +460,9 @@ void UVMShopScreen::OnExitClicked()
 	UpdateAllPriceText(0);
 	ShopComponent->SetTestValues(CurrentMoney, InventoryCurrentCapacity, InventoryMaxCapacity);
 	ShopComponent = nullptr;
+
+	//시점 다시 돌리기
+	PC->SetViewTargetWithBlend(PC->GetPawn(), 0.5f);
 }
 
 void UVMShopScreen::UpdateButtonStyle()

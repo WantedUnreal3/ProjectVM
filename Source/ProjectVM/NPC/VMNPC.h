@@ -64,13 +64,25 @@ protected:
 
 	void TalkSetting(FString TalkType);
 
+	virtual void TurnToPlayer();
+
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	TObjectPtr<class UCameraComponent> NPCCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	TObjectPtr<class USpringArmComponent> CameraBoom;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
 	TObjectPtr<class UWidgetComponent> InteractKey;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
 	TObjectPtr<class UVMBillboardComponent> Billboard;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	ENPCState NPCState = ENPCState::Idle;
+
 protected:
+
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	ENPCType NPCType;
 

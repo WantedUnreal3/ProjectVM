@@ -19,6 +19,8 @@
 #include "AI/VMEnemyBase.h"
 #include "EngineUtils.h"
 
+#include "Kismet/GameplayStatics.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -195,7 +197,7 @@ void AProjectVMCharacter::Jump()
 {
 	Super::Jump();
 
-	UE_LOG(LogTemp, Log, TEXT("(%f, %f, %f)"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
+	//UE_LOG(LogTemp, Log, TEXT("(%f, %f, %f)"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z);
 	MakeNoise(1.0f, this, GetActorLocation());  // 점프할 때 소리 발생
 }
 
@@ -271,11 +273,16 @@ void AProjectVMCharacter::SpawnAllyActor()
 		SpawnParams.Instigator = GetInstigator();
 
 		// 실제 스폰
-		AVMAllyBase* AllySpawnedActor = World->SpawnActor<AVMAllyBase>(AVMAllyBase::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		FTransform Transform(SpawnRotation, SpawnLocation);
+		
+		//AVMAllyBase* AllySpawnedActor = World->SpawnActorDeferred<AVMAllyBase>(AVMAllyBase::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		AVMAllyBase* AllySpawnedActor = World->SpawnActorDeferred<AVMAllyBase>(AVMAllyBase::StaticClass(), Transform, this, this);
 		if (AllySpawnedActor)
 		{
 			AllySpawnedActor->SetOwnerTarget(this);
 			UE_LOG(LogTemp, Warning, TEXT("스폰 성공!"));
 		}
+		AllySpawnedActor->FinishSpawning(Transform);
+		//UGameplayStatics::FinishSpawningActor(AllySpawnedActor, Transform);
 	}
 }

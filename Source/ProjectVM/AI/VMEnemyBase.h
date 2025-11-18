@@ -11,15 +11,11 @@
 
 #include "VMEnemyBase.generated.h"
 
-//#define PAWNSENSING 1
-
-
-
 UCLASS()
 class PROJECTVM_API AVMEnemyBase : public ACharacter
 	, public IVMStatChangeable
 	, public IVMLaserAttackInterface
-	//, public IVMAIEnemyBaseInterface
+	, public IVMAIEnemyBaseInterface
 {
 	GENERATED_BODY()
 
@@ -38,12 +34,19 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 #pragma endregion
 
-//#pragma region IVMAIEnemyBaseInterface
-//	virtual float GetAIPatrolRadius() const override;
-//	virtual float GetAIDetectRange() override;
-//	virtual float GetAIAttackRange() override;
-//	virtual float GetAITurnSpeed() override;
-//#pragma endregion
+	float DeltaTimer = 2.0f;
+
+#pragma region IVMAIEnemyBaseInterface
+	virtual float GetAIMoveSpeed() const override;
+	virtual float GetAIAttackRange() const override;
+	virtual float GetAITurnSpeed() const override;
+	virtual float GetAIAttackRadius() const override;
+	virtual float GetAINormalAttackDamage() const override;
+	virtual float GetAIAttackSpeed() const override;
+
+	virtual void NormalAttack() override;
+	virtual void NormalAttackCheck() override;
+#pragma endregion
 
 	
 
@@ -94,14 +97,52 @@ public:
 #pragma endregion
 
 #pragma region PawnSensing
-	//// Pawn Sensing 붙이기
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, Meta = (AllowPrivateAccess = "true"))
-	//TObjectPtr<class UPawnSensingComponent> PawnSensing;
-	//
-	//UFUNCTION()
-	//void OnSeePawn(APawn* Pawn);
+	// Pawn Sensing 붙이기
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Member | AI", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPawnSensingComponent> PawnSensing;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Member | Target", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class APawn> EnemyTarget;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Member | Target", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPawnNoiseEmitterComponent> EmitterComp;
+	
+	UFUNCTION()
+	void OnSeePawn(APawn* Pawn);
+
+	UFUNCTION()
+	void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
+
+	void TryMakeNoise();
+	void ResetSoundCooldown();
+
+	bool bCanMakeSound = true;
+	FTimerHandle MemoryTimers;
+	FTimerHandle SoundTimers;
+
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	//float NoiseInterval;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	//float NoiseLoudness;
+
+	//// Perception
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	//TObjectPtr<class UAIPerceptionComponent> PerceptionComp;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	//TObjectPtr<class UAISenseConfig_Sight> SightConfig;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	//TObjectPtr<class UAISenseConfig_Hearing> HearingConfig;
+
+	//// AI Perception 감지 이벤트
 	//UFUNCTION()
-	//void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
+	//void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
+
+	//// Noise 발생 함수
+	//void MakeNoiseForNPC(float Loudness = 2000.f);
 #pragma endregion
 };

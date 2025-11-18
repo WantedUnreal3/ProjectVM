@@ -23,6 +23,11 @@
 #include "Inventory/VMPickup.h"
 #include "Inventory/VMInventoryComponent.h"
 
+#include "Components/PawnNoiseEmitterComponent.h"
+
+
+#include "AI/Allies/VMAllyBase.h"
+
 
 
 AVMCharacterHeroBase::AVMCharacterHeroBase()
@@ -138,6 +143,16 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	Skills = CreateDefaultSubobject<UVMHeroSkillComponent>(TEXT("Skills"));
 
 
+#pragma region 나희영 손 묻음 ㅈㅅ
+	ConstructorHelpers::FObjectFinder<UInputAction> SpawnAllyActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Project/Input/Actions/IA_SpawnAlly.IA_SpawnAlly'"));
+	if (SpawnAllyActionRef.Object)
+	{
+		SpawnAllyAction = SpawnAllyActionRef.Object;
+	}
+	PawnNoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitterComponent"));
+#pragma endregion
+
+
 	// 인벤토리 관련
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ToggleActionRef(TEXT("/Game/Project/Input/Actions/IA_ToggelMenu.IA_ToggelMenu"));
@@ -230,7 +245,7 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Look);
@@ -246,6 +261,9 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	
 	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BeginInteract);
 	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::EndInteract);
+
+	// Spawn Ally
+	EnhancedInputComponent->BindAction(SpawnAllyAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::SpawnAllyActor);
 
 	//다이얼로그
 	EnhancedInputComponent->BindAction(NextTalkAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::NextTalk);
@@ -556,3 +574,38 @@ void AVMCharacterHeroBase::OnHitExplosionByAOE(AActor* Target, FVector Explosion
 
 	LaunchCharacter(LaunchVelocity, true, true);
 }
+
+#pragma region 필요해서 넣었습니다
+void AVMCharacterHeroBase::SpawnAllyActor()
+{
+	UE_LOG(LogTemp, Log, TEXT("SpawnAllyActor"));
+	// 1. SpawnActor 알아보기.
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// 스폰 위치와 회전 지정
+		FVector SpawnLocation = GetActorLocation() + FVector(100, 0, 0);
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		// 스폰 파라미터 설정
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		// 실제 스폰
+		AVMAllyBase* AllySpawnedActor = World->SpawnActor<AVMAllyBase>(AVMAllyBase::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		if (AllySpawnedActor)
+		{
+			AllySpawnedActor->SetOwnerTarget(this);
+			UE_LOG(LogTemp, Warning, TEXT("스폰 성공!"));
+		}
+	}
+}
+
+void AVMCharacterHeroBase::Jump()
+{
+	Super::Jump();
+
+	MakeNoise(1, this, GetActorLocation());
+}
+#pragma endregion

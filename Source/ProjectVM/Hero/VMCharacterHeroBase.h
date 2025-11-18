@@ -184,6 +184,20 @@ protected:
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	//TObjectPtr<class UInputAction> EndInteract;
 
+
+#pragma region 나희영_손 묻음 ㅈㅅ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SpawnAllyAction;
+
+	void SpawnAllyActor();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPawnNoiseEmitterComponent> PawnNoiseEmitter;
+
+	virtual void Jump() override;
+#pragma endregion
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 

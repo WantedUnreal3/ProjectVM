@@ -35,15 +35,17 @@ AVMAOELightning::AVMAOELightning()
 void AVMAOELightning::BeginPlay()
 {
     Super::BeginPlay();
-    GetWorld()->GetTimerManager().SetTimer(DecalTimeHandle, [this]()
+    CreateLogic();
+    /*GetWorld()->GetTimerManager().SetTimer(DecalTimeHandle, [this]()
         {
             CreateLogic();
-        }, 3.0f, false);
+        }, 3.0f, false);*/
 }
 
 void AVMAOELightning::CreateLogic()
 {
-    DecalComp->DecalSize = FVector(600.f, 600.f, 600.f);
+    DecalComp->DecalSize = FVector(256.f, 256.f, 256.f);
+    DecalComp->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
     DecalComp->MarkRenderStateDirty(); // 갱신 강제 굳이?
     DecalComp->SetHiddenInGame(false);
 
@@ -75,15 +77,11 @@ GetWorld()->GetTimerManager().SetTimer(DecalTimeHandle, [this]()
 void AVMAOELightning::InitAOEPosition()
 {
 	// z축으로 Lay를 쏴서 부딪힌 Mesh의 좌표를 얻는다.
-    FVector StartLocation = DecalLocation + FVector(1, 1, 1000);
-    FVector EndLocation = DecalLocation * FVector(1, 1, -2000);
-
-    ParticleSystemComp;
+    DecalLocation = GetActorLocation();
+    FVector StartLocation = DecalLocation + FVector(0, 0, 1000);
+    FVector EndLocation = DecalLocation + FVector(0, 0, -1000);
 
     FHitResult Hit;
-    FVector Start = GetActorLocation();
-    FVector End = Start + GetActorForwardVector() * 1000.f;
-
     FCollisionQueryParams Params;
     Params.AddIgnoredActor(this);    // 자기 자신 무시
 
@@ -94,6 +92,7 @@ void AVMAOELightning::InitAOEPosition()
         if (HitActor)
         {
             Location = Hit.Location;
+            UE_LOG(LogTemp, Log, TEXT("맞긴하니?"));
         }
     }
     FColor LineColor = bHit ? FColor::Red : FColor::Green;
@@ -128,7 +127,7 @@ void AVMAOELightning::SpawnAOE()
         return;
     }
     
-    UGameplayStatics::SpawnEmitterAttached(ParticleSystem, RootComponent, TEXT("NoName"), Location, GetActorRotation(), EAttachLocation::KeepRelativeOffset);
+    UGameplayStatics::SpawnEmitterAttached(ParticleSystem, RootComponent, TEXT("NoName"), FVector::Zero(), GetActorRotation(), EAttachLocation::KeepRelativeOffset);
 
 
     // Sphere를 그리고 충돌 처리를 하는게 나을 듯?
@@ -162,21 +161,21 @@ void AVMAOELightning::SpawnAOE()
                 HeroPawn->GetCharacterMovement()->Velocity = FVector::Zero();
                 HeroPawn->GetCharacterMovement()->MovementMode = MOVE_None;
 
+                //TWeakObjectPtr<AVMCharacterHeroBase> WeakHero = HeroPawn;
+                GetWorld()->GetTimerManager().ClearTimer(HeroPawn->StunTimerHandle);
 
-
-                // 해야할 것. 캐릭터에서 타이머를 돌린다. 타이머를 돌린 후 1초 뒤에 풀리게 설정.
-                GetWorld()->GetTimerManager().SetTimer(HeroPawn->StunTimerHandle, [HeroPawn]() {
-                    if (HeroPawn == nullptr)
+                GetWorld()->GetTimerManager().SetTimer(
+                    HeroPawn->StunTimerHandle,
+                    [HeroPawn]()
                     {
-                        return;
-                    }
-                    if (IsValid(HeroPawn) == false)
-                    {
-                        return;
-                    }
-                    
-                    HeroPawn->GetCharacterMovement()->MovementMode = MOVE_Walking;
-                    }, 10.0f, false);
+                        if (IsValid(HeroPawn))
+                        {
+                            HeroPawn->GetCharacterMovement()->MovementMode = MOVE_Walking;
+                        }
+                    },
+                    10.0f,
+                    false
+                );
             }
         }
     }

@@ -6,15 +6,34 @@
 
 #include "Perception/PawnSensingComponent.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Perception/AIPerceptionSystem.h"
+#include "Perception/AISense_Hearing.h"
+#include "Perception/AISense_Sight.h"
+#include "Perception/AISenseConfig_Hearing.h"
+#include "Perception/AISenseConfig_Sight.h"
 
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimSequence.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/PawnNoiseEmitterComponent.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
 
 #include "Engine/DamageEvents.h"
 
 #include "Macro/VMPhysics.h"
+
+#include "Perception/AISense_Hearing.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "AIController.h"
+#include "DrawDebugHelpers.h"
+
+#include "Hero/VMCharacterHeroBase.h"
+
+#include "TimerManager.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 
@@ -22,9 +41,9 @@
 
 AVMEnemyBase::AVMEnemyBase()
 {
-	//PrimaryActorTick.bCanEverTick = true;
-
 	PrimaryActorTick.bCanEverTick = true;
+
+	//GetCharacterMovement()->bUseAccelerationForPaths = true;
 	
 	// 시작할 때는 메시를 안보여주도록 설정.
 	//GetMesh()->SetHiddenInGame(true);
@@ -61,19 +80,6 @@ AVMEnemyBase::AVMEnemyBase()
 	}
 #pragma endregion
 
-	// PawnSensing
-	//PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
-
-	//PawnSensing->SetComponentTickEnabled(true);
-	//PawnSensing->HearingThreshold = 2000.f;      // 들을 수 있는 기본 거리
-	//PawnSensing->LOSHearingThreshold = 2000;		// 시야 내에서 들을 수 있는 거리
-	//PawnSensing->bEnableSensingUpdates = true;
-	//PawnSensing->bHearNoises = true;            // 소리 감지 활성화
-	//PawnSensing->SensingInterval = 0.05f;  // 0.1초마다 감지
-
-	//PawnSensing->OnSeePawn.AddDynamic(this, &AVMEnemyBase::OnSeePawn);
-	//PawnSensing->OnHearNoise.AddDynamic(this, &AVMEnemyBase::OnHearPawn);
-
 #pragma region Montage
 	ConstructorHelpers::FObjectFinder<UAnimMontage> NormalAttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_WarriorNormalAttack.AM_WarriorNormalAttack'"));
 	if (NormalAttackMontageRef.Object)
@@ -109,6 +115,91 @@ AVMEnemyBase::AVMEnemyBase()
 	// Stat
 	SetMaxHp(200.0f);
 	SetCurrentHp(GetMaxHp());
+
+#pragma region PawnSensing
+	EmitterComp = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("Emitter"));
+
+	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
+
+	PawnSensing->SetComponentTickEnabled(true);
+	PawnSensing->HearingThreshold = 2000.f;      // 들을 수 있는 기본 거리
+	PawnSensing->bOnlySensePlayers = false;
+	PawnSensing->LOSHearingThreshold = 2000;		// 시야 내에서 들을 수 있는 거리
+	PawnSensing->bEnableSensingUpdates = true;
+	PawnSensing->bHearNoises = true;            // 소리 감지 활성화
+	PawnSensing->SensingInterval = 0.05f;  // 0.1초마다 감지
+
+	PawnSensing->SightRadius = 1000;
+	PawnSensing->SetPeripheralVisionAngle(45);
+
+	PawnSensing->OnSeePawn.AddDynamic(this, &AVMEnemyBase::OnSeePawn);
+	PawnSensing->OnHearNoise.AddDynamic(this, &AVMEnemyBase::OnHearPawn);
+#pragma endregion
+
+	DeltaTimer = 0.f;
+	/*NoiseInterval = 2.f;
+	NoiseLoudness = 2500.f;*/
+
+	// Perception Component
+	//PerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComp"));
+
+	//SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+	//SightConfig->SightRadius = 1500.f;
+	//SightConfig->LoseSightRadius = 1600.f;
+	//SightConfig->PeripheralVisionAngleDegrees = 60.f;
+	//SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	//SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	//SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+
+
+	//HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
+
+	//HearingConfig->HearingRange = 2000.f;
+	//HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+	//HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	//HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
+
+	//PerceptionComp->ConfigureSense(*HearingConfig);
+	//PerceptionComp->SetDominantSense(HearingConfig->GetSenseImplementation());
+	//PerceptionComp->ConfigureSense(*SightConfig);
+	//PerceptionComp->SetDominantSense(SightConfig->GetSenseImplementation());
+
+	//HearingConfig->DetectionByAffiliation = SightConfig->DetectionByAffiliation;
+
+
+	//// 감지 이벤트 바인딩
+	//PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AVMEnemyBase::OnTargetPerceptionUpdated);
+
+	// AI Perception ----
+	//PerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComp"));
+
+	//// Sight
+	//SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+	//SightConfig->SightRadius = 1500.f;
+	//SightConfig->LoseSightRadius = 1600.f;
+	//SightConfig->PeripheralVisionAngleDegrees = 60.f;
+	//SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	//SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	//SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	//PerceptionComp->ConfigureSense(*SightConfig);
+	//PerceptionComp->SetDominantSense(SightConfig->GetSenseImplementation());
+
+	//// Hearing
+	//HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
+	//HearingConfig->HearingRange = 3000.f;
+	//HearingConfig->LoSHearingRange = 3000.f;
+	//HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+	//HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	//HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
+
+	//PerceptionComp->ConfigureSense(*HearingConfig);
+
+	//
+
+	//// 감지 이벤트 바인딩
+	//PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AVMEnemyBase::OnTargetPerceptionUpdated);
+
+	EnemyTarget = nullptr;
 }
 
 #pragma endregion
@@ -125,7 +216,58 @@ void AVMEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// DrawDebugSphere(GetWorld(), GetActorLocation(), PawnSensing->HearingThreshold, 16, FColor::Cyan);
+	//DeltaTimer -= DeltaTime;
+	//if (DeltaTimer <= 0)
+	//{
+	//	DeltaTimer += 2;
+	//	//EmitterComp->MakeNoise(this, 2500, GetActorLocation());
+	//	UAISense_Hearing::ReportNoiseEvent(
+	//		GetWorld(),          // World
+	//		GetActorLocation(),  // Noise location.
+	//		2500,
+	//		this,                // Instigator
+	//		2500.f,              // Loudness
+	//		TEXT("NPCNoise")     // Tag
+	//	);
+	//	UE_LOG(LogTemp, Log, TEXT("호출되니?"));
+	//	DrawDebugSphere(GetWorld(), GetActorLocation(), PawnSensing->HearingThreshold, 16, FColor::Cyan);
+	//	if (EnemyTarget == nullptr)
+	//	{
+	//		UE_LOG(LogTemp, Log, TEXT("NoTarget"));
+	//	}
+	//	else
+	//	{
+	//		if (IsValid(EnemyTarget))
+	//		{
+	//			AAIController* AIController = Cast<AAIController>(GetController());
+	//			if (AIController == nullptr)
+	//			{
+	//				return;
+	//			}
+	//			UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+	//			if (BBComp)
+	//			{
+	//				BBComp->SetValueAsObject(TEXT("EnemyTarget"), EnemyTarget);
+	//			}
+
+	//			UE_LOG(LogTemp, Log, TEXT("[TargetName]:%s"), *EnemyTarget->GetName());
+	//		}
+	//		else
+	//		{
+	//			AAIController* AIController = Cast<AAIController>(GetController());
+	//			if (AIController == nullptr)
+	//			{
+	//				return;
+	//			}
+	//			UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+	//			if (BBComp)
+	//			{
+	//				BBComp->SetValueAsObject(TEXT("EnemyTarget"), nullptr);
+	//			}
+	//		}
+	//	}
+	//}
+
 }
 
 // Called to bind functionality to input
@@ -133,6 +275,44 @@ void AVMEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+float AVMEnemyBase::GetAIMoveSpeed() const
+{
+	return 100.0f;
+}
+
+float AVMEnemyBase::GetAIAttackRange() const
+{
+	return 100.0f;
+}
+
+float AVMEnemyBase::GetAITurnSpeed() const
+{
+	return 2.0f;
+}
+
+float AVMEnemyBase::GetAIAttackRadius() const
+{
+	return 100.0f;
+}
+
+float AVMEnemyBase::GetAINormalAttackDamage() const
+{
+	return 10.0f;
+}
+
+float AVMEnemyBase::GetAIAttackSpeed() const
+{
+	return 1.0f;
+}
+
+void AVMEnemyBase::NormalAttack()
+{
+}
+
+void AVMEnemyBase::NormalAttackCheck()
+{
 }
 
 #pragma endregion
@@ -179,32 +359,6 @@ void AVMEnemyBase::HealthPointChange(float Amount, AActor* Causer)
 
 #pragma endregion
 
-#pragma region Pawn Sensing에서 호출될 함수
-
-//void AVMEnemyBase::OnSeePawn(APawn* Pawn)
-//{
-//	//UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnSeePawn : %s"), *Pawn->GetName());
-//}
-//
-//void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume)
-//{
-//	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnHearPawn : %s"), *InstigatorPawn->GetName());
-//	/*if (!InstigatorPawn)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Heard noise but InstigatorPawn is null!"));
-//		return;
-//	}
-//
-//	UE_LOG(LogTemp, Warning, TEXT("Heard noise from %s at %s, volume %.2f"),
-//		*InstigatorPawn->GetName(),
-//		*Location.ToString(),
-//		Volume);*/
-//
-//	DrawDebugSphere(GetWorld(), Location, 100.f, 16, FColor::Blue, false, 2.0f);
-//}
-
-#pragma endregion
-
 void AVMEnemyBase::LaserAttackHitCheck()
 {
 	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::LaserAttackHitCheck"));
@@ -243,3 +397,196 @@ void AVMEnemyBase::LaserAttackHitCheck()
 	FColor Color = Result ? FColor::Green : FColor::Red;
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 5.0f);
 }
+
+#pragma region Pawn Sensing에서 호출될 함수
+
+void AVMEnemyBase::OnSeePawn(APawn* Pawn)
+{
+	//TryMakeNoise();
+
+	AVMCharacterHeroBase* HeroPawnPtr = Cast<AVMCharacterHeroBase>(Pawn);
+	if (HeroPawnPtr == nullptr)
+	{
+		return;
+	}
+	//UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnSeePawn : %s"), *Pawn->GetName());
+	EnemyTarget = Pawn;
+
+	MakeNoise(1.0f, this, GetActorLocation());
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.f, 16, FColor::Blue, false, 2.0f);
+
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BBComp = AIController->GetBlackboardComponent())
+		{
+			BBComp->SetValueAsObject(TEXT("EnemyTarget"), EnemyTarget);
+		}
+	}
+	/*MemoryTimers.Invalidate();
+
+	GetWorld()->GetTimerManager().SetTimer(MemoryTimers, [this]()
+		{
+			if (IsValid(this))
+			{
+				AAIController* AIController = Cast<AAIController>(GetController());
+				if (AIController != nullptr)
+				{
+					UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+					if (BBComp != nullptr)
+					{
+						BBComp->SetValueAsObject(TEXT("EnemyTarget"), nullptr);
+					}
+				}
+			}
+		}, 10, false);*/
+}
+
+void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume)
+{
+
+	AVMEnemyBase* OtherEnemyBase = Cast<AVMEnemyBase>(InstigatorPawn);
+	if (OtherEnemyBase == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No EnemyBase!"));
+		return;
+	}
+
+	if (OtherEnemyBase->EnemyTarget == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No EnemyBase's Target!"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnHearPawn : target %s"), *OtherEnemyBase->EnemyTarget->GetName());
+	
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BBComp = AIController->GetBlackboardComponent())
+		{
+			BBComp->SetValueAsObject(TEXT("EnemyTarget"), OtherEnemyBase->EnemyTarget);
+		}
+	}
+
+	/*MemoryTimers.Invalidate();
+
+	GetWorld()->GetTimerManager().SetTimer(MemoryTimers, [this]()
+		{
+			if (IsValid(this))
+			{
+				AAIController* AIController = Cast<AAIController>(GetController());
+				if (AIController != nullptr)
+				{
+					UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+					if (BBComp != nullptr)
+					{
+						BBComp->SetValueAsObject(TEXT("EnemyTarget"), nullptr);
+					}
+				}
+			}
+		}, 10, false);*/
+	/*UE_LOG(LogTemp, Warning, TEXT("Heard noise from %s at %s, volume %.2f"),
+		*InstigatorPawn->GetName(),
+		*Location.ToString(),
+		Volume);*/
+
+	
+}
+
+void AVMEnemyBase::TryMakeNoise()
+{
+	if (bCanMakeSound == false)
+	{
+		return;
+	}
+
+	bCanMakeSound = false; // 쿨타임 시작
+
+	// 실제 소리 발생
+	MakeNoise(1.0f, this, GetActorLocation());
+
+	// 10초 후 다시 소리 가능
+	GetWorld()->GetTimerManager().SetTimer(
+		SoundTimers,
+		this,
+		&AVMEnemyBase::ResetSoundCooldown,
+		1.0f,
+		false
+	);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.f, 16, FColor::Blue, false, 2.0f);
+}
+
+void AVMEnemyBase::ResetSoundCooldown()
+{
+	bCanMakeSound = true;
+}
+#pragma endregion
+
+// 감지 이벤트
+//void AVMEnemyBase::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+//{
+//	if (!Actor)
+//		return;
+//
+//	APawn* SensedPawn = Cast<APawn>(Actor);
+//	if (!SensedPawn)
+//		return;
+//
+//	// Sight 감지
+//	if (Stimulus.Type == UAISense_Sight::StaticClass()->GetDefaultObject<UAISense_Sight>()->GetSenseID())
+//	{
+//		AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(SensedPawn);
+//		if (Hero == nullptr)
+//		{
+//			return;
+//		}
+//		EnemyTarget = SensedPawn;
+//		UE_LOG(LogTemp, Log, TEXT("[Sight] Target: %s"), *SensedPawn->GetName());
+//
+//		// Blackboard 업데이트 (AIController가 있는 경우)
+//		if (AAIController* AIController = Cast<AAIController>(GetController()))
+//		{
+//			if (UBlackboardComponent* BBComp = AIController->GetBlackboardComponent())
+//			{
+//				BBComp->SetValueAsObject(TEXT("EnemyTarget"), EnemyTarget);
+//			}
+//		}
+//		MakeNoiseForNPC();
+//	}
+//	// Hearing 감지
+//	else if (Stimulus.Type == UAISense_Hearing::StaticClass()->GetDefaultObject<UAISense_Hearing>()->GetSenseID())
+//	{
+//		// Noise를 발생시킨 Actor를 따라감
+//		AVMEnemyBase* EnemyBase = Cast<AVMEnemyBase>(SensedPawn);
+//		if (EnemyBase == nullptr)
+//		{
+//			UE_LOG(LogTemp, Warning, TEXT("Nullptr이야"));
+//			return;
+//		}
+//		if (EnemyBase->EnemyTarget)
+//		{
+//			UE_LOG(LogTemp, Log, TEXT("[Hearing] Heard Noise from: %s Target:%s"), *SensedPawn->GetName(), *EnemyBase->EnemyTarget->GetName());
+//		}
+//	}
+//
+//	
+//}
+//
+//void AVMEnemyBase::MakeNoiseForNPC(float Loudness)
+//{
+//	if (!GetWorld())
+//		return;
+//
+//	UAISense_Hearing::ReportNoiseEvent(
+//		GetWorld(),
+//		GetActorLocation(),
+//		1.0f,
+//		Cast<APawn>(this),
+//		3000.f,
+//		TEXT("NPCNoise")
+//	);
+//
+//	// 디버그용
+//	DrawDebugSphere(GetWorld(), GetActorLocation(), Loudness, 16, FColor::Cyan, false, 1.0f);
+//	UE_LOG(LogTemp, Log, TEXT("Noise emitted by: %s"), *GetName());
+//}

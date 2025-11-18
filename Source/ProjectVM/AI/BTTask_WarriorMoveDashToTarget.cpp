@@ -22,7 +22,7 @@ EBTNodeResult::Type UBTTask_WarriorMoveDashToTarget::ExecuteTask(UBehaviorTreeCo
     ACharacter* OwnerChar = Cast<ACharacter>(AICon->GetPawn());
     if (!OwnerChar) return EBTNodeResult::Failed;
 
-    AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("Target"));
+    AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("EnemyTarget"));
     if (!Target)
     {
         return EBTNodeResult::Failed;

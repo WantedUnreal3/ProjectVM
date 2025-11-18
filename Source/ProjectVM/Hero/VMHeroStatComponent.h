@@ -49,18 +49,34 @@ public:
 	
 	void ApplyEquipmentStats(class UVMEquipment* Equipment);
 	void RemoveEquipmentStats(class UVMEquipment* Equipment);
-	FORCEINLINE FHeroStat GetStat() { return CurStat; }
+
+	FORCEINLINE FHeroStat GetFinalStat() { return FinalStats; }
+	FORCEINLINE FHeroStat GetCurStat() { return CurStats; }
+
+	FORCEINLINE FHeroStat GetStat() { return CurStats; } // Legacy
+	FORCEINLINE FHeroStat GetDefaultStat() { return FinalStats; } // Legacy
+
 
 protected:
 	virtual void InitializeComponent() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void CalcFinalStats();
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Stat)
-	FHeroStat DefaultStat;
+	FHeroStat BaseStats;
 
 	UPROPERTY(VisibleAnywhere, Category = Stat)
-	FHeroStat CurStat;
+	FHeroStat AdditiveModifier;
+
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat MultiplicativeModifier;
+
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat FinalStats;
+
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat CurStats;
 
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	float TimeProgress;

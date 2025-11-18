@@ -63,6 +63,7 @@ void UVMInventoryItemSlot::NativeConstruct()
 	{
 		ItemBorder->SetBrushColor(FLinearColor::Transparent);
 	}
+
 }
 
 FReply UVMInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -105,8 +106,6 @@ void UVMInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, con
 
 		OutOperation = DragItemOperation;
 	}*/
-	UE_LOG(LogTemp, Warning, TEXT("Slot::OnDragDetected"));
-
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
 	if (!ItemReference)

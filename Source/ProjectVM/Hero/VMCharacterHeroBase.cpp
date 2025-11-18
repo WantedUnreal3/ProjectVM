@@ -170,6 +170,9 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	InteractionCheckDistance = 300.0f;
 
 	BaseEyeHeight = 74.0f;
+
+	// Todo: 나중에 변경해야 함.
+	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void AVMCharacterHeroBase::HealthPointChange(float Amount, AActor* Causer)
@@ -662,9 +665,149 @@ void AVMCharacterHeroBase::OnHitExplosionByAOE(AActor* Target, FVector Explosion
 
 	float LaunchStrength = 1500.f;
 	FVector LaunchVelocity = Direction * LaunchStrength;
-	LaunchVelocity.Z = 500.f;
+	LaunchVelocity.Z = 1000.f;
 
 	LaunchCharacter(LaunchVelocity, true, true);
+}
+
+void AVMCharacterHeroBase::OnHitMeteorByAOE(AActor* Target, float InDamage)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[OnHitMeteorByAOE]: %s damage: %f"), *Target->GetName(), InDamage);
+
+	// 데미지 입히기.
+	HealthPointChange(InDamage, this);
+}
+
+void AVMCharacterHeroBase::OnHitFrozenByAOE(AActor* Target, float InDamage)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[OnHitFrozenByAOE]: %s damage: %f"), *Target->GetName(), InDamage);
+
+	ApplySlowDown();
+
+	if (!GetWorld()->GetTimerManager().IsTimerActive(FrozenTimerHandle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			FrozenTimerHandle,
+			this,
+			&AVMCharacterHeroBase::ClearSlowDown,
+			10.0f,
+			false
+		);
+	}
+
+	HealthPointChange(InDamage, this);
+}
+
+void AVMCharacterHeroBase::ApplySlowDown()
+{
+	if (SlowFlag == true)
+	{
+		return;
+	}
+	SlowFlag = true;
+	GetCharacterMovement()->MaxWalkSpeed = 200;
+}
+
+void AVMCharacterHeroBase::ClearSlowDown()
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+	SlowFlag = false;
+}
+
+void AVMCharacterHeroBase::OnHitThunderByAOE(AActor* Target, float InDamage)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[OnHitThunderByAOE]: %s damage: %f"), *Target->GetName(), InDamage);
+
+	GetCharacterMovement()->Velocity = FVector::Zero();
+	GetCharacterMovement()->MovementMode = MOVE_None;
+
+	//TWeakObjectPtr<AVMCharacterHeroBase> WeakHero = HeroPawn;
+	GetWorld()->GetTimerManager().ClearTimer(StunTimerHandle);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		StunTimerHandle,
+		[this]()
+		{
+			GetCharacterMovement()->MovementMode = MOVE_Walking;
+		},
+		10.0f,
+		false
+	);
+
+	// 데미지 입히기.
+	HealthPointChange(InDamage, this);
+}
+
+void AVMCharacterHeroBase::OnHitDotByAOE(AActor* Target)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	// DOT 카운트 증가
+	FireDotCount++;
+
+	// 데미지 타이머가 안 돌고 있으면 시작
+	if (!GetWorld()->GetTimerManager().IsTimerActive(DamageHandle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			DamageHandle,
+			this,
+			&AVMCharacterHeroBase::ApplyFireDotDamage,
+			1.0f,        // 1초마다 실행
+			true
+		);
+	}
+
+	// 10초 디버프 갱신 타이머 리셋
+	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(
+		FireTimerHandle,
+		this,
+		&AVMCharacterHeroBase::ClearFireDot,
+		10.0f,
+		false
+	);
+
+	UE_LOG(LogTemp, Warning, TEXT("Fire DOT Hit! Count = %d"), FireDotCount);
+}
+
+void AVMCharacterHeroBase::ApplyFireDotDamage()
+{
+	// 예: DOT 수 × 5 데미지
+	int Damage = FireDotCount * 5;
+
+	UE_LOG(LogTemp, Warning, TEXT("Fire DOT Damage: %d"), Damage);
+
+	HealthPointChange(Damage, this);
+	//DamageHandle.Invalidate();
+	// 여기에 실제 데미지 입히는 코드 넣으면 됨
+	// ApplyDamage(this, Damage, ...);
+}
+
+void AVMCharacterHeroBase::ClearFireDot()
+{
+	FireDotCount = 0;
+
+	GetWorld()->GetTimerManager().ClearTimer(DamageHandle);
+
+	UE_LOG(LogTemp, Warning, TEXT("Fire DOT expired! Count reset to 0"));
 }
 
 #pragma region 필요해서 넣었습니다

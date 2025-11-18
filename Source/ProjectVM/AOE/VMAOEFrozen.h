@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "VMAOEFrozen.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAOEFrozenOverlapActorDelegate, AActor*, Target, float, Damage);
+
 UCLASS()
 class PROJECTVM_API AVMAOEFrozen : public AActor
 {
@@ -30,6 +32,12 @@ public:
 
 	void InitAOEPosition();
 	void SpawnAOE();
+
+public:
+	FOnAOEFrozenOverlapActorDelegate OnAOEFrozenOverlapActor;
+
+	UFUNCTION()
+	void BroadcastOverlapActor(AActor* Actor, float InDamage);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Member | Mesh", Meta = (AllowPrivateAccess = "true"))

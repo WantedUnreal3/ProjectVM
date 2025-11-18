@@ -78,33 +78,33 @@ EBTNodeResult::Type UBTTask_LightningAttack::SpawnThunderToTarget(UBehaviorTreeC
                 return;
             }
 
-            AVMCharacterHeroBase* Target =  Cast<AVMCharacterHeroBase>(BBComp->GetValueAsObject(TEXT("EnemyTarget")));
-            if (Target == nullptr)
+            AVMCharacterHeroBase* HeroPawnTarget =  Cast<AVMCharacterHeroBase>(BBComp->GetValueAsObject(TEXT("EnemyTarget")));
+            if (HeroPawnTarget == nullptr)
             {
                 FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
                 return;
             }
 
 
-            FTransform Transform = Target->GetActorTransform();
+            FTransform Transform = HeroPawnTarget->GetActorTransform();
 
             FActorSpawnParameters Params;
             Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-            //AVMAOEMeteor* Thunder = World->SpawnActorDeferred<AVMAOEMeteor>(AVMAOEMeteor::StaticClass(), Transform, BossPtr, BossPtr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-            AVMAOEFrozen* Thunder = World->SpawnActorDeferred<AVMAOEFrozen>(AVMAOEFrozen::StaticClass(), Transform, BossPtr, BossPtr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-            //AVMAOELightning* Thunder = World->SpawnActorDeferred<AVMAOELightning>(AVMAOELightning::StaticClass(), Transform, BossPtr, BossPtr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+            AVMAOELightning* Thunder = World->SpawnActorDeferred<AVMAOELightning>(AVMAOELightning::StaticClass(), Transform, BossPtr, BossPtr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
             if (Thunder == nullptr)
             {
                 FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
                 return;
             }
 
+            Thunder->OnAOEThunderOverlapActor.RemoveDynamic(HeroPawnTarget, &AVMCharacterHeroBase::OnHitThunderByAOE);
+            Thunder->OnAOEThunderOverlapActor.AddDynamic(HeroPawnTarget, &AVMCharacterHeroBase::OnHitThunderByAOE);
+
             Thunder->SetDelay(3.0f);
             Thunder->FinishSpawning(Transform);
 
 
-                //SpawnActor<AVMAOELightning>(AVMAOELightning::StaticClass(), SpawnLocation, SpawnRotation, Params);
 
             SpawnFinishedCount++;
 

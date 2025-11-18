@@ -120,18 +120,14 @@ void AVMAOEFrozen::SpawnAOE()
         1.0f            // 피치
     );
 
-    UParticleSystem* ParticleSystem = LoadObject<UParticleSystem>(nullptr, TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_waterBall.P_ky_waterBall'"));
+    UParticleSystem* ParticleSystem = LoadObject<UParticleSystem>(nullptr, TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_laser01.P_ky_laser01'"));
     if (ParticleSystem == nullptr)
     {
-        UE_LOG(LogTemp, Warning, TEXT("번개가 안나오는데?"));
         return;
     }
 
     UGameplayStatics::SpawnEmitterAttached(ParticleSystem, RootComponent, TEXT("NoName"), FVector::Zero(), GetActorRotation(), EAttachLocation::KeepRelativeOffset);
 
-
-    // Sphere를 그리고 충돌 처리를 하는게 나을 듯?
-    // 충돌 채널 설정
     TArray<FOverlapResult> Overlaps;
     float Radius = 256.0f;
     FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
@@ -158,24 +154,7 @@ void AVMAOEFrozen::SpawnAOE()
                 {
                     continue;
                 }
-                HeroPawn->GetCharacterMovement()->Velocity = FVector::Zero();
-                HeroPawn->GetCharacterMovement()->MovementMode = MOVE_None;
-
-                //TWeakObjectPtr<AVMCharacterHeroBase> WeakHero = HeroPawn;
-                GetWorld()->GetTimerManager().ClearTimer(HeroPawn->StunTimerHandle);
-
-                GetWorld()->GetTimerManager().SetTimer(
-                    HeroPawn->StunTimerHandle,
-                    [HeroPawn]()
-                    {
-                        if (IsValid(HeroPawn))
-                        {
-                            HeroPawn->GetCharacterMovement()->MovementMode = MOVE_Walking;
-                        }
-                    },
-                    10.0f,
-                    false
-                );
+                BroadcastOverlapActor(HeroPawn, 10);
             }
         }
     }
@@ -183,4 +162,10 @@ void AVMAOEFrozen::SpawnAOE()
     DrawDebugSphere(GetWorld(), Location, Radius, 16, FColor::Green, false, 10.0f, 0, 1.0f);
 #pragma endregion 
 
+}
+
+void AVMAOEFrozen::BroadcastOverlapActor(AActor* Actor, float InDamage)
+{
+    UE_LOG(LogTemp, Log, TEXT("AVMAOEFrozen::BroadcastOverlapActor"));
+    OnAOEFrozenOverlapActor.Broadcast(Actor, InDamage);
 }

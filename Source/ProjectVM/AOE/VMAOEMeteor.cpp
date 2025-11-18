@@ -120,7 +120,7 @@ void AVMAOEMeteor::SpawnAOE()
         1.0f            // 피치
     );
 
-    UParticleSystem* ParticleSystem = LoadObject<UParticleSystem>(nullptr, TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_fireBall.P_ky_fireBall'"));
+    UParticleSystem* ParticleSystem = LoadObject<UParticleSystem>(nullptr, TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_hit2.P_ky_hit2'"));
     if (ParticleSystem == nullptr)
     {
         UE_LOG(LogTemp, Warning, TEXT("운석이 안나오는데?"));
@@ -151,31 +151,14 @@ void AVMAOEMeteor::SpawnAOE()
                     FColor::Red,        // 텍스트 색상
                     Debug // 출력할 문자열
                 );
-
                 //Alpha의 CharacterMovement를 건들여보자.
                 AVMCharacterHeroBase* HeroPawn = Cast<AVMCharacterHeroBase>(OverlappedActor);
                 if (HeroPawn == nullptr)
                 {
                     continue;
                 }
-                HeroPawn->GetCharacterMovement()->Velocity = FVector::Zero();
-                HeroPawn->GetCharacterMovement()->MovementMode = MOVE_None;
-
-                //TWeakObjectPtr<AVMCharacterHeroBase> WeakHero = HeroPawn;
-                GetWorld()->GetTimerManager().ClearTimer(HeroPawn->StunTimerHandle);
-
-                GetWorld()->GetTimerManager().SetTimer(
-                    HeroPawn->StunTimerHandle,
-                    [HeroPawn]()
-                    {
-                        if (IsValid(HeroPawn))
-                        {
-                            HeroPawn->GetCharacterMovement()->MovementMode = MOVE_Walking;
-                        }
-                    },
-                    10.0f,
-                    false
-                );
+                
+                BroadcastOverlapActor(HeroPawn, 40);
             }
         }
     }
@@ -185,3 +168,8 @@ void AVMAOEMeteor::SpawnAOE()
 
 }
 
+void AVMAOEMeteor::BroadcastOverlapActor(AActor* Actor, float InDamage)
+{
+    UE_LOG(LogTemp, Log, TEXT("AVMAOEMeteor::BroadcastOverlapActor"));
+    OnAOEMeteorOverlapActor.Broadcast(Actor, InDamage);
+}

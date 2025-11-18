@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "VMAOEMeteor.generated.h"
 
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAOEMeteorOverlapActorDelegate, AActor*, Target);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAOEMeteorOverlapActorDelegate, AActor*, Target, float, Damage);
+
 UCLASS()
 class PROJECTVM_API AVMAOEMeteor : public AActor
 {
@@ -30,6 +33,13 @@ public:
 
 	void InitAOEPosition();
 	void SpawnAOE();
+
+
+public:
+	FOnAOEMeteorOverlapActorDelegate OnAOEMeteorOverlapActor;
+
+	UFUNCTION()
+	void BroadcastOverlapActor(AActor* Actor, float InDamage);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Member | Mesh", Meta = (AllowPrivateAccess = "true"))

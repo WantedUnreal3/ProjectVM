@@ -108,8 +108,39 @@ protected:
 public:
 	UFUNCTION()
 	void OnHitExplosionByAOE(AActor* Target, FVector ExplosionCenter);
+	
+	UFUNCTION()
+	void OnHitMeteorByAOE(AActor* Target, float InDamage);
+
+	UFUNCTION()
+	void OnHitFrozenByAOE(AActor* Target, float InDamage);
+	
+	bool SlowFlag = false;
+	void ApplySlowDown();
+	void ClearSlowDown();
+	float MaxWalkSpeed;
+
+
+
+	UFUNCTION()
+	void OnHitThunderByAOE(AActor* Target, float InDamage);
 
 	FTimerHandle StunTimerHandle;
+
+	UFUNCTION()
+	void OnHitDotByAOE(AActor* Target);
+
+	void ClearFireDot();
+	void ApplyFireDotDamage();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Member")
+	int32 FireDotCount = 0;
+	
+	FTimerHandle FireTimerHandle;
+
+	FTimerHandle FrozenTimerHandle;
+
+	FTimerHandle DamageHandle;
 
 	UFUNCTION()
 	void ToggleInventory(const FInputActionValue& Value);

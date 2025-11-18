@@ -158,30 +158,19 @@ void AVMAOELightning::SpawnAOE()
                 {
                     continue;
                 }
-                HeroPawn->GetCharacterMovement()->Velocity = FVector::Zero();
-                HeroPawn->GetCharacterMovement()->MovementMode = MOVE_None;
 
-                //TWeakObjectPtr<AVMCharacterHeroBase> WeakHero = HeroPawn;
-                GetWorld()->GetTimerManager().ClearTimer(HeroPawn->StunTimerHandle);
-
-                GetWorld()->GetTimerManager().SetTimer(
-                    HeroPawn->StunTimerHandle,
-                    [HeroPawn]()
-                    {
-                        if (IsValid(HeroPawn))
-                        {
-                            HeroPawn->GetCharacterMovement()->MovementMode = MOVE_Walking;
-                        }
-                    },
-                    10.0f,
-                    false
-                );
+                BroadcastOverlapActor(HeroPawn, 20);
             }
         }
     }
 #pragma region Debug용 코드
-    DrawDebugSphere(GetWorld(), Location, Radius, 16, FColor::Green, false, 10.0f, 0, 1.0f);
+        DrawDebugSphere(GetWorld(), Location, Radius, 16, FColor::Green, false, 10.0f, 0, 1.0f);
 #pragma endregion 
-
 }
 
+
+void AVMAOELightning::BroadcastOverlapActor(AActor* Actor, float InDamage)
+{
+    UE_LOG(LogTemp, Log, TEXT("AVMAOELightning::BroadcastOverlapActor"));
+    OnAOEThunderOverlapActor.Broadcast(Actor, InDamage);
+}

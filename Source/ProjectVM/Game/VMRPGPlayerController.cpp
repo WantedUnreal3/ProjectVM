@@ -9,6 +9,7 @@
 #include "UI/Dialogue/VMNPCDialogueScreen.h"
 #include "UI/Shop/VMShopScreen.h"
 #include "UI/Stat/VMHeroStatusWidget.h"
+#include "UI/Common/VMInteractKeyWidget.h"
 
 AVMRPGPlayerController::AVMRPGPlayerController()
 {
@@ -69,6 +70,18 @@ UUserWidget* AVMRPGPlayerController::GetScreen(EScreenUIType ScreenType)
 	return nullptr;
 }
 
+void AVMRPGPlayerController::ToggleInteractKey(bool bIsVisible)
+{
+	if (bIsVisible)
+	{
+		VMGameScreen->InteractKeyWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		VMGameScreen->InteractKeyWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 void AVMRPGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -80,8 +93,13 @@ void AVMRPGPlayerController::BeginPlay()
 		if (VMGameScreen != nullptr)
 		{
 			VMGameScreen->AddToViewport();
-			VMGameScreen->SetVisibility(ESlateVisibility::Visible);
+			
+			//Interact UI 숨기기
+			ToggleInteractKey(true);
+
 			ScreenUIMap.Add(EScreenUIType::GameScreen, VMGameScreen);
+
+			VMGameScreen->InteractKeyWidget->SetVisibility(ESlateVisibility::Hidden);
 
 			AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(GetPawn());
 			Hero->GetStatComponent()->OnHealthPointPercentageChanged.AddUObject(VMGameScreen->HeroStatus, &UVMHeroStatusWidget::RefreshHealthPointBar);

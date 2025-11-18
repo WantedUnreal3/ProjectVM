@@ -17,4 +17,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UVMHeroStatusWidget> HeroStatus;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UVMInteractKeyWidget> InteractKeyWidget;
 };

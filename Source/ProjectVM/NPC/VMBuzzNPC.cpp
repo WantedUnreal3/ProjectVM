@@ -6,6 +6,8 @@
 #include "Core/GameEnums.h"
 #include "Game/VMRPGPlayerController.h"
 #include "Shop/VMShopComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 AVMBuzzNPC::AVMBuzzNPC()
 {
@@ -29,10 +31,11 @@ AVMBuzzNPC::AVMBuzzNPC()
 	}
 
 	InteractKey->SetWorldLocation(FVector(40.0f, 0.0f, -20.0f));
-	InteractKeyBoxComponent->SetBoxExtent(FVector(200.0f, 200.0f, 320.0f));
 
+	//카메라 설정
+	CameraBoom->SetRelativeLocation(FVector(160.0f, -45.0f, -65.0f));
+	CameraBoom->SetRelativeRotation(FRotator(-25.0f, 110.0f, 0.0f));
 	ShopComponent = CreateDefaultSubobject<UVMShopComponent>(TEXT("ShopComponent"));
-	
 
 }
 
@@ -61,4 +64,9 @@ void AVMBuzzNPC::SetDialogueOption()
 	}
 	AddDialogueOption(ENPCOption::Shop);
 	AddDialogueOption(ENPCOption::Exit);
+}
+
+void AVMBuzzNPC::TurnToPlayer()
+{
+	//상점 주인 바즈는 회전하지 않는다.
 }

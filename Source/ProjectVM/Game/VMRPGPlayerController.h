@@ -27,6 +27,8 @@ public:
 	UFUNCTION()
 	UUserWidget* GetScreen(EScreenUIType ScreenType);
 
+	void ToggleInteractKey(bool bIsVisible);
+
 protected:
 	virtual void BeginPlay() override;
 

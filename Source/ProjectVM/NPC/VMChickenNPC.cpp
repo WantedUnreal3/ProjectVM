@@ -2,6 +2,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 AVMChickenNPC::AVMChickenNPC()
 {
@@ -25,5 +27,4 @@ AVMChickenNPC::AVMChickenNPC()
 	}
 
 	InteractKey->SetWorldLocation(FVector(0.0f, 0.0f, 100.0f));
-	InteractKeyBoxComponent->SetBoxExtent(FVector(120.0f, 120.0f, 100.0f));
 }

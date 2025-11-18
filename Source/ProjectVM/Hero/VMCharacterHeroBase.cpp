@@ -572,7 +572,7 @@ void AVMCharacterHeroBase::BeginInteract()
 	}
 }
 
-void AVMCharacterHeroBase::EndInteract()
+/*void AVMCharacterHeroBase::EndInteract()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
@@ -591,7 +591,7 @@ void AVMCharacterHeroBase::BeingInteract()
 		TargetInteractable->BeingInteract(this);
 	}
 }
-
+*/
 
 void AVMCharacterHeroBase::UpdateInteractionWidget() const
 {
@@ -646,6 +646,47 @@ void AVMCharacterHeroBase::ToggleInventory(const FInputActionValue& Value)
 		PC->CloseInventory();
 	else
 		PC->OpenInventory();
+}
+
+void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)
+{
+	if (!Item)
+	{
+		return;
+	}
+
+	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
+    UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
+
+    // 기존 장비 능력치 제거
+    if (EquippedWeapon)
+    {
+        RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
+    }
+
+    // 새 장비 장착
+    EquippedWeapon = Item;
+	
+	RecalculateStatsFromEquipment();
+
+
+}
+
+void AVMCharacterHeroBase::RecalculateStatsFromEquipment()
+{
+	int32 NewAttack = 0;
+
+	if (EquippedWeapon)
+	{
+		const FVMEquipmentInfo& Info = EquippedWeapon->GetEquipmentInfo();
+		NewAttack += Info.AttackPower;
+	}
+
+	CurrentAttack = NewAttack;
+
+	UE_LOG(LogTemp, Warning, TEXT("RecalculateStats: Atk=%d"), CurrentAttack);
+
+
 }
 
 
@@ -811,6 +852,12 @@ void AVMCharacterHeroBase::ClearFireDot()
 }
 
 #pragma region 필요해서 넣었습니다
+void AVMCharacterHeroBase::ApplyEquipmentStats(const FVMEquipmentInfo& Info)
+{
+}
+void AVMCharacterHeroBase::RemoveEquipmentStats(const FVMEquipmentInfo& Info)
+{
+}
 void AVMCharacterHeroBase::SpawnAllyActor()
 {
 	UE_LOG(LogTemp, Log, TEXT("SpawnAllyActor"));

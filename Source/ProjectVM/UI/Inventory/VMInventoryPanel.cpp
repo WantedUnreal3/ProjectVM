@@ -31,19 +31,6 @@ void UVMInventoryPanel::NativeOnInitialized()
 
 void UVMInventoryPanel::RefreshInventory()
 {
-    UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory called"));
-
-    if (!InventoryReference)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory - InventoryReference is NULL"));
-        return;
-    }
-
-    if (!InventorySlotClass)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory - InventorySlotClass is NULL"));
-        return;
-    }
 
     const TArray<UVMEquipment*>& Contents = InventoryReference->GetInventoryContents();
     UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory - NumItems: %d"), Contents.Num());
@@ -58,12 +45,31 @@ void UVMInventoryPanel::RefreshInventory()
         UVMInventoryItemSlot* ItemSlot =
             CreateWidget<UVMInventoryItemSlot>(this, InventorySlotClass);
 
+        ItemSlot->OnItemDoubleClicked.AddDynamic(this, &UVMInventoryPanel::HandleItemDoubleClicked);
+
         ItemSlot->SetItemReference(InventoryItem);  // 여기서 SetItemReference 로그가 떠야 함
 
         InventoryWrapBox->AddChildToWrapBox(ItemSlot);
     }
 
     SetInfoText();
+}
+
+void UVMInventoryPanel::HandleItemDoubleClicked(UVMEquipment* Item)
+{
+    UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::HandleItemDoubleClicked: %s"),
+        Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
+
+    if (!Item || !InventoryReference)
+        return;
+
+    // 인벤토리의 Owner는 보통 캐릭터일 것
+    AActor* Owner = InventoryReference->GetOwner();
+    class AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(Owner);
+    if (!Hero)
+        return;
+
+    Hero->EquipFromInventory(Item);
 }
 
 void UVMInventoryPanel::SetInfoText() const

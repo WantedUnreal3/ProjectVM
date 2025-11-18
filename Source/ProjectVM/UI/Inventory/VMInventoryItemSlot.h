@@ -19,14 +19,35 @@ class UImage;
 /**
  * 
  */
+
+//더블 클릭 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryItemDoubleClicked, UVMEquipment*, Item);
+
 UCLASS()
 class PROJECTVM_API UVMInventoryItemSlot : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE UVMEquipment* GetItemReference() const { return ItemReference; };
+	UFUNCTION(BlueprintCallable)
+	UVMEquipment* GetItemReference() const { return ItemReference; }
+
+
 	void SetItemReference(UVMEquipment* ItemIn);
+
+	void SetUp(const FVMEquipmentInfo& Info);
+	//UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
+	//TObjectPtr<UTextBlock> ItemQuantity;
+
+	void RefreshFromItem();
+
+	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Slot")
@@ -47,17 +68,15 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UMaterialInstanceDynamic> ItemMaterialInstance;
 
-	void SetUp(const FVMEquipmentInfo& Info);
-	//UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
-	//TObjectPtr<UTextBlock> ItemQuantity;
+	// 더블 클릭 델리게이트 (패널에서 바인딩)
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnInventoryItemDoubleClicked OnItemDoubleClicked;
 
-	void RefreshFromItem();
+protected:
 
-	virtual void NativeOnInitialized() override;
-	virtual void NativeConstruct() override;
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
-	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-	
+	// 더블클릭 처리
+	virtual FReply NativeOnMouseButtonDoubleClick(
+		const FGeometry& InGeometry,
+		const FPointerEvent& InMouseEvent) override;
+
 };

@@ -12,6 +12,7 @@
 
 #include "Inventory/VMInventoryComponent.h"
 #include "UI/Character/VMCharacterHeroHUD.h"
+#include "Item/Equipment/VMEquipmentInfo.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -93,8 +94,8 @@ protected:
 	void FoundInteractable(AActor* NewInteractable);
 	void NoInteractableFound();
 	void BeginInteract();
-	void EndInteract();
-	void BeingInteract();
+	/*void EndInteract();
+	void BeingInteract();*/
 	void ToggleMenu();
 
 
@@ -145,7 +146,11 @@ public:
 	UFUNCTION()
 	void ToggleInventory(const FInputActionValue& Value);
 
-	
+	UFUNCTION()
+	void EquipFromInventory(UVMEquipment* Item);
+
+	// 장비에 따른 스탯 갱신 함수
+	void RecalculateStatsFromEquipment();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -226,7 +231,25 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
 	bool bInventoryIsOpen = false;
 
+	// 무기 장착 관련 변수
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	UVMEquipment* EquippedItem;
 
+	// 장착 시 능력치 적용 (예: 공격력, 방어력 등)
+	void ApplyEquipmentStats(const FVMEquipmentInfo& Info);
+
+	// 장착 해제 시 능력치 제거
+	void RemoveEquipmentStats(const FVMEquipmentInfo& Info);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentAttack = 0;
+	
+	// 캐릭터의 실제 스탯 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	int32 AttackPower = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	TObjectPtr<UVMEquipment> EquippedWeapon;
 
 
 

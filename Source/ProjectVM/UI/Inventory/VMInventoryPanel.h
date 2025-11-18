@@ -53,6 +53,10 @@ public:
 	TSubclassOf<UVMInventoryItemSlot> InventorySlotClass;
 
 protected:
+	UFUNCTION()
+	void HandleItemDoubleClicked(class UVMEquipment* Item);
+
+
 	void SetInfoText() const;
 	virtual void NativeOnInitialized() override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;

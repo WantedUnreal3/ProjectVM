@@ -228,3 +228,17 @@ bool UVMInventoryItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDrag
 	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 }
 
+FReply UVMInventoryItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	UE_LOG(LogTemp, Warning, TEXT("InventorySlot::OnMouseButtonDoubleClick"));
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && ItemReference)
+	{
+		// 더블클릭 시 장착 요청 브로드캐스트
+		OnItemDoubleClicked.Broadcast(ItemReference);
+		return FReply::Handled();
+	}
+
+	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+}
+

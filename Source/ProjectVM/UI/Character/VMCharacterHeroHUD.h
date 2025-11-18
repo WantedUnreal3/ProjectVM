@@ -10,6 +10,7 @@ struct FInteractableData;
 class UVMMainMenu;
 class UVMInteractionWidget;
 class UVMInventoryPanel;
+class UVMEquipmentPanel;
 
 /**
  * 
@@ -57,6 +58,12 @@ protected:
 	// 실제 인스턴스
 	UPROPERTY()
 	UVMInventoryPanel* InventoryPanel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UVMEquipmentPanel> EquipmentPanelClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UVMEquipmentPanel* EquipmentPanel;
 
 protected:
 	virtual void BeginPlay() override;

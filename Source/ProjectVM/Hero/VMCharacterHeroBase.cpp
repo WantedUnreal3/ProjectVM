@@ -330,17 +330,8 @@ void AVMCharacterHeroBase::Interact(const FInputActionValue& Value)
 		return;
 	}
 
+	//상호작용 시작
 	InteractionManager->Interact();
-	//if (CurrentNPC != nullptr)
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("input E, show ui : %s"), *CurrentNPC->GetName());
-	//	CurrentNPC->Interact();
-	//	ChangeInputMode(EInputMode::Dialogue);
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("input E, cannot interact"));
-	//}
 }
 
 void AVMCharacterHeroBase::NextTalk(const FInputActionValue& Value)
@@ -365,7 +356,6 @@ void AVMCharacterHeroBase::DebuggingTest(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Input Test Key"));
 
-	//FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
 	GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(EMonsterName::Warrior);
 }
 

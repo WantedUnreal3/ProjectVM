@@ -27,5 +27,4 @@ AVMChickenNPC::AVMChickenNPC()
 	}
 
 	InteractKey->SetWorldLocation(FVector(0.0f, 0.0f, 100.0f));
-	//InteractKeyBoxComponent->SetBoxExtent(FVector(120.0f, 120.0f, 100.0f));
 }

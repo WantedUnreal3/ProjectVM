@@ -31,7 +31,6 @@ AVMBuzzNPC::AVMBuzzNPC()
 	}
 
 	InteractKey->SetWorldLocation(FVector(40.0f, 0.0f, -20.0f));
-	//InteractKeyBoxComponent->SetBoxExtent(FVector(200.0f, 200.0f, 320.0f));
 
 	//카메라 설정
 	CameraBoom->SetRelativeLocation(FVector(160.0f, -45.0f, -65.0f));

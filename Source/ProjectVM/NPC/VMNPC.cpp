@@ -47,11 +47,6 @@ AVMNPC::AVMNPC()
 	Billboard = CreateDefaultSubobject<UVMBillboardComponent>(TEXT("BillboardComponent"));
 	Billboard->SetupAttachment(RootComponent);
 
-	//InteractKeyBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractTrigger"));
-	//InteractKeyBoxComponent->SetupAttachment(GetCapsuleComponent());
-	//InteractKeyBoxComponent->SetBoxExtent(FVector(70.0f, 70.0f, 100.0f));
-	//InteractKeyBoxComponent->SetCollisionProfileName(TEXT("InteractTrigger"));
-
 	InteractKey = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractKeyWidget"));
 	InteractKey->SetupAttachment(Billboard);
 	InteractKey->SetWorldLocation(FVector(0.0f, 0.0f, 130.0f));
@@ -96,8 +91,6 @@ void AVMNPC::BeginPlay()
 		NPCData = *LoadedData; // 포인터 → 값 복사
 	}
 
-	//InteractKeyBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapBegin);
-	//InteractKeyBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapEnd);
 	InteractKey->SetVisibility(false);
 
 	//퀘스트 매니저 구독
@@ -384,12 +377,6 @@ void AVMNPC::StartDailyTalk()
 	Dialogue->DialogueOptionList->ClearListItems();
 
 	SetDialogueOption();
-	//AddDialogueOption(ENPCOption::Talk);
-	//if (!AvailableQuests.IsEmpty())
-	//{
-	//	AddDialogueOption(ENPCOption::Quest);
-	//}
-	//AddDialogueOption(ENPCOption::Exit);
 
 	NextDialogue();
 }

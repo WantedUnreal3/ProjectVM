@@ -15,6 +15,8 @@
 
 #include "Macro/VMPhysics.h"
 
+#include "Environment/BossWall.h"
+
 // Sets default values
 AVMEnemyBoss::AVMEnemyBoss()
 {
@@ -87,6 +89,48 @@ void AVMEnemyBoss::LoadAsset()
 		SummonMontage = SummonMontageRef.Object;
 	}
 #pragma endregion
+
+	HPPhase.Push(2000);
+	HPPhase.Push(1000);
+	HPPhase.Push(0);
+	PhaseIndex = 0;
+
+	CurrentHp = MaxHp;
+	PhaseMinHp = HPPhase[PhaseIndex];
+}
+
+// Called when the game starts or when spawned
+void AVMEnemyBoss::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Tags.Add("Enemy");
+
+	SaveAllSpawner();
+
+	// Phase2 전용 변수 저장.
+	TArray<AActor*> Walls;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABossWall::StaticClass(), Walls);
+
+	if (Walls.Num() > 0)
+	{
+		BossWall = Cast<ABossWall>(Walls[0]);
+		UE_LOG(LogTemp, Warning, TEXT("BossWall found: %s"), *BossWall->GetName());
+	}
+}
+
+// Called every frame
+void AVMEnemyBoss::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+// Called to bind functionality to input
+void AVMEnemyBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 }
 
 void AVMEnemyBoss::ActivateSummonMontage()
@@ -152,10 +196,30 @@ void AVMEnemyBoss::HealthPointChange(float Amount, AActor* Causer)
 		return; 
 	}
 
-	CurrentHp -= Amount;
-	UE_LOG(LogTemp, Log, TEXT("여기 들어오긴 하니?"));
+	CurrentHp = FMath::Clamp<float>(CurrentHp - Amount, PhaseMinHp, PhaseMaxHp);
+	if (CurrentHp < KINDA_SMALL_NUMBER)
+	{
+		OnHealthPointPercentageChanged.Broadcast(0);
+		Destroy();
+		return;
+	}
 
-	OnHealthPointPercentageChanged.Broadcast(CurrentHp / MaxHp);
+	if (CurrentHp - HPPhase[PhaseIndex] < KINDA_SMALL_NUMBER)
+	{
+		PhaseMaxHp = PhaseMinHp;
+		PhaseIndex++;
+		if (PhaseIndex == 1)
+		{
+			BossWall->StartLoweringWall();
+		}
+		PhaseMinHp = HPPhase[PhaseIndex];
+		UE_LOG(LogTemp, Log, TEXT("변경"));
+		//BossWall->WallDown1();
+	}
+	
+
+	float HpPercent = CurrentHp / MaxHp;
+	OnHealthPointPercentageChanged.Broadcast(HpPercent);
 }
 
 void AVMEnemyBoss::SaveAllSpawner()
@@ -167,31 +231,6 @@ void AVMEnemyBoss::SaveAllSpawner()
 	UE_LOG(LogTemp, Log, TEXT("Spawners:%d"), Spawners.Num());
 }
 
-
-
-// Called when the game starts or when spawned
-void AVMEnemyBoss::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	Tags.Add("Enemy");
-
-	SaveAllSpawner();
-}
-
-// Called every frame
-void AVMEnemyBoss::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void AVMEnemyBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
 
 
 

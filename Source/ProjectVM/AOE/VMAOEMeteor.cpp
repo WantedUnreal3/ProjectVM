@@ -2,6 +2,7 @@
 
 
 #include "AOE/VMAOEMeteor.h"
+#include "AOE/VMAOEFire.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Components/DecalComponent.h"
@@ -166,6 +167,11 @@ void AVMAOEMeteor::SpawnAOE()
     DrawDebugSphere(GetWorld(), Location, Radius, 16, FColor::Green, false, 10.0f, 0, 1.0f);
 #pragma endregion 
 
+    AVMAOEFire* FireSpawnActor = GetWorld()->SpawnActor<AVMAOEFire>(AVMAOEFire::StaticClass(), GetActorTransform());
+    if (FireSpawnActor == nullptr)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("운석 충돌 -> 불 소환 실패"));
+    }
 }
 
 void AVMAOEMeteor::BroadcastOverlapActor(AActor* Actor, float InDamage)

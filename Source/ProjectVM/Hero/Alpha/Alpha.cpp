@@ -7,6 +7,7 @@
 #include "Hero/Alpha/VMFlamingLaunch.h"
 #include "Hero/Alpha/VMFireworks.h"
 #include "Hero/VMHeroSkillComponent.h"
+#include "Hero/VMHeroStatComponent.h"
 
 AAlpha::AAlpha()
 {
@@ -43,6 +44,17 @@ void AAlpha::BeginPlay()
 	USkillBase* BurningFuse = NewObject<UVMBurningFuse>(this, UVMBurningFuse::StaticClass());
 	USkillBase* FlamingLaunch = NewObject<UVMFlamingLaunch>(this, UVMFlamingLaunch::StaticClass());
 	USkillBase* Fireworks = NewObject<UVMFireworks>(this, UVMFireworks::StaticClass());
+
+	FHeroStat BaseStats;
+	BaseStats.AttackPower = 10;
+	BaseStats.DefensivePower = 5;
+	BaseStats.HealthPoint = 100;
+	BaseStats.ManaPoint = 100;
+	BaseStats.ManaRegeneration = 5;
+	BaseStats.Speed = 500;
+	BaseStats.LifeSteal = 10;
+	
+	Stat->InitBaseStats(BaseStats);
 
 	Skills->BindBasicSkill(SparksFly);
 	Skills->BindAdvancedSkill(BurningFuse);

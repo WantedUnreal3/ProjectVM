@@ -72,6 +72,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventoryItemDoubleClicked OnItemDoubleClicked;
 
+
+
 protected:
 
 	// 더블클릭 처리

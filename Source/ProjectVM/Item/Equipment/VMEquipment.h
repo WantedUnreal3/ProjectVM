@@ -28,18 +28,20 @@ public:
 
 	TObjectPtr<UVMEquipment> CreateItemCopy() const;
 
-	//FORCEINLINE float GetItemStackWeight() const { return Quantity * ItemNumericData.Weight; };
-	//FORCEINLINE float GetItemSingleWeight() const { return ItemNumericData.Weight; };
-	//FORCEINLINE bool IsFullItemStack() const { return Quantity == ItemNumericData.Weight; };
-
 	void SetQuantity(const int32 NewQuantity);
 
 	virtual void Use(AVMCharacterHeroBase* Character);
 
 
 	void EquipEffect(class AVMCharacterHeroBase* Owner);
-	FORCEINLINE FVMEquipmentInfo& GetEquipmentInfo() { return EquipmentInfo; };
-	FORCEINLINE void SetEquipmentInfo(FVMEquipmentInfo InEquipmentInfo) { EquipmentInfo = InEquipmentInfo; }
+	FORCEINLINE const FVMEquipmentInfo& GetEquipmentInfo() const { return EquipmentInfo; };
+	FORCEINLINE void SetEquipmentInfo(FVMEquipmentInfo InEquipmentInfo) 
+	{ 
+		EquipmentInfo = InEquipmentInfo; 
+		UE_LOG(LogTemp, Warning, TEXT("UVMEquipment::SetEquipmentInfo: %s Icon:%s"),
+			*EquipmentInfo.ItemName,
+			EquipmentInfo.Icon ? *EquipmentInfo.Icon->GetName() : TEXT("NULL"));
+	}
 
 public:
 	UPROPERTY()
@@ -51,6 +53,9 @@ public:
 	bool bIsCopy;
 	bool bIsPickup;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+	FVMEquipmentInfo EquipmentInfo;
+
 protected:
 	friend class UItemFactorySubsystem;
 	
@@ -60,6 +65,5 @@ protected:
 	}
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
-	FVMEquipmentInfo EquipmentInfo;
+	
 };

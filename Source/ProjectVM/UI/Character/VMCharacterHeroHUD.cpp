@@ -39,32 +39,25 @@ void AVMCharacterHeroHUD::BeginPlay()
 		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
-	// 인벤토리 패널
-	if (InventoryPanelClass && PC)
+	if (InventoryPanelClass)
 	{
-		InventoryPanel = CreateWidget<UVMInventoryPanel>(PC, InventoryPanelClass);
+		InventoryPanel = CreateWidget<UVMInventoryPanel>(GetWorld(), InventoryPanelClass);
 		if (InventoryPanel)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("HeroHUD: InventoryPanel created: %s"), *InventoryPanel->GetName());
-			InventoryPanel->AddToViewport(0);
+			InventoryPanel->AddToViewport();
 			InventoryPanel->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 
-	// 장비 패널
-	if (EquipmentPanelClass && PC)
+	if (EquipmentPanelClass)
 	{
-		EquipmentPanel = CreateWidget<UVMEquipmentPanel>(PC, EquipmentPanelClass);
+		EquipmentPanel = CreateWidget<UVMEquipmentPanel>(GetWorld(), EquipmentPanelClass);
 		if (EquipmentPanel)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("HeroHUD: EquipmentPanel created: %s"), *EquipmentPanel->GetName());
-			EquipmentPanel->AddToViewport(0);
+			EquipmentPanel->AddToViewport();
 			EquipmentPanel->SetVisibility(ESlateVisibility::Collapsed);
+			UE_LOG(LogTemp, Warning, TEXT("HUD: EquipmentPanel created OK"));
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("HeroHUD: EquipmentPanelClass is NULL or PC is NULL"));
 	}
 }
 

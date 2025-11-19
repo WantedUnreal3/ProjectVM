@@ -30,6 +30,15 @@ public:
 
 	bool bIsMenuVisible;
 
+	// UMG 클래스 지정용
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UVMInventoryPanel> InventoryPanelClass;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UVMEquipmentPanel> EquipmentPanelClass;
+
+
 	// 실제 인스턴스
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UVMInventoryPanel* InventoryPanel;
@@ -63,13 +72,7 @@ protected:
 	UPROPERTY()
 	UVMInteractionWidget* InteractionWidget;
 
-	// UMG 클래스 지정용
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UVMInventoryPanel> InventoryPanelClass;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UVMEquipmentPanel> EquipmentPanelClass;
 
 
 

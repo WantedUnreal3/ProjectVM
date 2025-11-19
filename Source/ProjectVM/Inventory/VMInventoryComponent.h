@@ -111,6 +111,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void RemoveItem(UVMEquipment* Item);
 
+	UPROPERTY()
+	int32 SlotCapacity;
+
 	//// Setter
 	//UFUNCTION(Category = "Inventory")
 	//FORCEINLINE void SetSlotsCapacity(const int32 NewSlotsCapacity) { InventorySlotsCapacity = NewSlotsCapacity; };
@@ -118,7 +121,7 @@ public:
 	//UFUNCTION(Category = "Inventory")
 	//FORCEINLINE void SetWeightCapacity(const int32 NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
 
-	void AddNewItem(UVMEquipment* Item, const int32 AmountTodd);
+	void AddNewItem(UVMEquipment* Item, const int32 AmountToAdd);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

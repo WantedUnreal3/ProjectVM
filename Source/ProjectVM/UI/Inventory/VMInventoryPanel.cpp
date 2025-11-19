@@ -60,83 +60,47 @@ void UVMInventoryPanel::RefreshInventory()
 
 void UVMInventoryPanel::HandleItemDoubleClicked(UVMEquipment* Item)
 {
-    /*UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::HandleItemDoubleClicked: %s"),
-        Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
-
-    if (!Item || !InventoryReference)
-        return;
-
-    // 인벤토리의 Owner는 보통 캐릭터일 것
-    AActor* Owner = InventoryReference->GetOwner();
-    class AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(Owner);
-    if (!Hero)
-        return;
-
-    Hero->EquipFromInventory(Item);*/
-
+   
     UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::HandleItemDoubleClicked: %s"),
         Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
 
-    if (!Item || !InventoryReference)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: Item or InventoryReference is NULL"));
-        return;
-    }
+    if (!Item || !InventoryReference) return;
 
     AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(InventoryReference->GetOwner());
-    if (!Hero)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: Hero cast failed"));
-        return;
-    }
+    if (!Hero) return;
 
     // 1) 스탯 적용
     Hero->EquipFromInventory(Item);
 
-    int32 EquippedSlotIndex = INDEX_NONE;
-
+    // 2) 장비 패널 UI
     if (APlayerController* PC = Cast<APlayerController>(Hero->GetController()))
     {
         UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: PlayerController OK"));
-
         if (AVMCharacterHeroHUD* HUD = PC->GetHUD<AVMCharacterHeroHUD>())
         {
             UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: HUD OK"));
-
             if (HUD->EquipmentPanel)
             {
-                UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: EquipmentPanel is valid, calling TryEquipToEmptySlot"));
+                UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: EquipmentPanel valid, calling TryEquipToEmptySlot"));
 
-                EquippedSlotIndex = HUD->EquipmentPanel->TryEquipToEmptySlot(Item);
+                // 수정
+                const int32 EquippedIndex = HUD->EquipmentPanel->TryEquipToEmptySlot(Item);
 
-                UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: TryEquipToEmptySlot returned %d"), EquippedSlotIndex);
+                if (EquippedIndex != INDEX_NONE)
+                {
+                    // 장비칸에 장착 성공 → 인벤토리에서 제거 + 새로고침
+                    InventoryReference->RemoveSingleInstanceOfItem(Item);
+                    RefreshInventory();
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: No free equipment slot, item stays in inventory"));
+                }
             }
-            else
-            {
-                UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: EquipmentPanel is NULL"));
-            }
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: GetHUD cast failed"));
-        }
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: PlayerController cast failed"));
-    }
 
-    // 2) 성공했으면 인벤토리에서 제거
-    if (EquippedSlotIndex != INDEX_NONE)
-    {
-        InventoryReference->RemoveItem(Item);
-        RefreshInventory();
+        }
     }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: No free equipment slot, item stays in inventory"));
-    }
-}
+}   
 
 void UVMInventoryPanel::SetInfoText() const
 {

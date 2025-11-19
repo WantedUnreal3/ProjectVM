@@ -82,7 +82,7 @@ int32 UVMInventoryComponent::RemoveAmountOfItem(UVMEquipment* ItemIn, int32 Desi
 
 void UVMInventoryComponent::SplitExistingStack(UVMEquipment* ItemIn, const int32 AmountToSplit)
 {
-	if (!(InventoryContents.Num() + 1 > 20))
+	if (!(InventoryContents.Num() + 1 > SlotCapacity))
 	{
 		RemoveAmountOfItem(ItemIn, AmountToSplit);
 		AddNewItem(ItemIn, AmountToSplit);
@@ -124,7 +124,7 @@ FItemAddResult UVMInventoryComponent::HandleNonStackableItems(UVMEquipment* Inpu
 	return FItemAddResult::AddedAll(1, Msg);
 }
 
-void UVMInventoryComponent::AddNewItem(UVMEquipment* Item, const int32 AmountTodd)
+void UVMInventoryComponent::AddNewItem(UVMEquipment* Item, const int32 AmountToAdd)
 {
 	UVMEquipment* NewItem;
 

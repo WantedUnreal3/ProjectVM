@@ -236,7 +236,6 @@ void UVMInventoryItemSlot::RefreshFromItem()
 	{
 		ItemIcon->SetBrushFromTexture(Info.Icon);
 	}
-
 }
 
 

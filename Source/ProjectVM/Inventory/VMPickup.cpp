@@ -23,39 +23,42 @@ AVMPickup::AVMPickup()
 
 void AVMPickup::InitializePickup(const TSubclassOf<UVMEquipment> PickupClass)
 {
-	if (!ItemDataTable || DesiredItemID.IsNone())
+	if (ItemDataTable && !DesiredItemID.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("VMPickup: ItemDataTable is null or DesiredItemID is None"));
-		return;
-	}
+		const FVMEquipmentInfo* ItemData =
+			ItemDataTable->FindRow<FVMEquipmentInfo>(DesiredItemID, DesiredItemID.ToString());
 
-	const FVMEquipmentInfo* ItemData = ItemDataTable->FindRow<FVMEquipmentInfo>(DesiredItemID, DesiredItemID.ToString());
+		if (!ItemData)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("InitializePickup: Row %s NOT FOUND"),
+				*DesiredItemID.ToString());
+			return;
+		}
 
-	if (!ItemData)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("VMPickup: Failed to find row %s in ItemDataTable"),
-			*DesiredItemID.ToString());
-		return;
-	}
+		// 여기에서 DataTable 아이콘부터 확인
+		UE_LOG(LogTemp, Warning, TEXT("InitializePickup: Row %s Icon:%s"),
+			*ItemData->ItemName,
+			ItemData->Icon ? *ItemData->Icon->GetName() : TEXT("NULL"));
 
-	UE_LOG(LogTemp, Warning, TEXT("InitializePickup Row: %s Icon:%s"),
-		*ItemData->ItemName,
-		ItemData->Icon ? *ItemData->Icon->GetName() : TEXT("NULL"));
+		ItemReference = NewObject<UVMEquipment>(this, PickupClass);
+		if (!ItemReference)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("InitializePickup: Failed to create UVMEquipment"));
+			return;
+		}
 
-	ItemReference = NewObject<UVMEquipment>(this, PickupClass);
+		ItemReference->SetEquipmentInfo(*ItemData);   // 구조체 통째로 복사
+		ItemReference->SetQuantity(1);
 
-	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
-	ItemReference->SetEquipmentInfo(*ItemData);
-	ItemReference->GetEquipmentInfo();
-	
-
-	ItemReference->SetQuantity(1);
-
-		
-
-		InstanceInteractableData.Name = FText::FromString(Info.ItemName);
+		InstanceInteractableData.Name = FText::FromString(ItemData->ItemName);
 		InstanceInteractableData.Action = FText::FromString(TEXT("획득"));
 		UpdateInteractableData();
+
+		if (PickupMesh && ItemData->Mesh)
+		{
+			PickupMesh->SetStaticMesh(ItemData->Mesh);
+		}
+	}
 }
 
 

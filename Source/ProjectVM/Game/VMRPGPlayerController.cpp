@@ -11,6 +11,11 @@
 #include "UI/Stat/VMHeroStatusWidget.h"
 #include "UI/Common/VMInteractKeyWidget.h"
 
+// 보스
+#include "AI/Enemies/VMEnemyBoss.h"
+#include "Engine/World.h"
+#include "EngineUtils.h"
+
 AVMRPGPlayerController::AVMRPGPlayerController()
 {
 	//게임 스크린 로드
@@ -34,6 +39,13 @@ AVMRPGPlayerController::AVMRPGPlayerController()
 	if (VMShopScreenRef.Succeeded())
 	{
 		VMShopScreenClass = VMShopScreenRef.Class;
+	}
+
+	// 보스 스크린 로드
+	static ConstructorHelpers::FClassFinder<UVMHeroStatusWidget> VMBossStatusWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Project/UI/Stat/WBP_BossStatus.WBP_BossStatus_C'"));
+	if (VMBossStatusWidgetRef.Succeeded())
+	{
+		VMBossStatusWidgetClass = VMBossStatusWidgetRef.Class;
 	}
 }
 
@@ -80,6 +92,49 @@ void AVMRPGPlayerController::ToggleInteractKey(bool bIsVisible)
 	{
 		VMGameScreen->InteractKeyWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+
+void AVMRPGPlayerController::ShowBossStatusWidget()
+{
+	for (TActorIterator<AVMEnemyBoss> It(GetWorld()); It; ++It)
+	{
+		AVMEnemyBoss* Boss = *It;
+		if (Boss)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Found Boss: %s"), *Boss->GetName());
+			// 여기서 Boss 객체에 원하는 작업 수행
+			if (VMBossStatusWidgetClass != nullptr)
+			{
+				VMBossStatusWidget = CreateWidget<UVMHeroStatusWidget>(this, VMBossStatusWidgetClass);
+				if (VMBossStatusWidget != nullptr)
+				{
+					VMBossStatusWidget->AddToViewport();
+					Boss->OnHealthPointPercentageChanged.AddUObject(VMBossStatusWidget, &UVMHeroStatusWidget::RefreshHealthPointBar);
+					VMBossStatusWidget->RefreshHealthPointBar(1);
+				}
+			}
+			return;
+		}
+	}
+}
+
+void AVMRPGPlayerController::HideBossStatusWidget()
+{
+	for (TActorIterator<AVMEnemyBoss> It(GetWorld()); It; ++It)
+	{
+		AVMEnemyBoss* Boss = *It;
+		if (Boss)
+		{
+			if (VMBossStatusWidget != nullptr)
+			{
+				VMBossStatusWidget->RemoveFromViewport();
+				Boss->ClearDelegate();
+			}
+			return;
+		}
+	}
+	
 }
 
 void AVMRPGPlayerController::BeginPlay()

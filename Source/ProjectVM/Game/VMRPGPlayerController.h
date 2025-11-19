@@ -29,6 +29,13 @@ public:
 
 	void ToggleInteractKey(bool bIsVisible);
 
+	// 보스
+	UFUNCTION(BlueprintCallable)
+	void ShowBossStatusWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideBossStatusWidget();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -53,4 +60,10 @@ protected:
 
 	UPROPERTY()
 	TMap<EScreenUIType, UUserWidget*> ScreenUIMap;
+
+	// 보스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UVMHeroStatusWidget> VMBossStatusWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
+	TObjectPtr<class UVMHeroStatusWidget> VMBossStatusWidget;
 };

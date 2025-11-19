@@ -53,6 +53,7 @@ class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChan
 public:
 	AVMCharacterHeroBase();
 
+	FORCEINLINE class UCameraComponent* GetCameraComponent() { return FollowCamera; }
 	FORCEINLINE class UVMHeroStatComponent* GetStatComponent() { return Stat; }
 	FORCEINLINE class UVMHeroSkillComponent* GetSkillComponent() { return Skills; }
 	

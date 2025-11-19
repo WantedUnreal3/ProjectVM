@@ -58,7 +58,7 @@ AVMEnemyBase::AVMEnemyBase()
 	// Todo :기본 매시 사용중 -> 나중에 변경 필요.
 
 	GetCapsuleComponent()->SetCollisionProfileName(VM_ENEMY_COLLISION);
-
+	
 #pragma region 스켈레탈메시
 	ConstructorHelpers::FObjectFinder<USkeletalMesh>SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple'"));
 	ensureAlways(SkeletalMeshRef.Object);
@@ -200,6 +200,10 @@ AVMEnemyBase::AVMEnemyBase()
 	//PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AVMEnemyBase::OnTargetPerceptionUpdated);
 
 	EnemyTarget = nullptr;
+
+	// Character Movement 설정
+	// 중력 삭제
+	GetCharacterMovement()->GravityScale = 0;
 }
 
 #pragma endregion

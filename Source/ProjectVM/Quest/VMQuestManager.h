@@ -31,7 +31,7 @@ public:
 
 	// 퀘스트 진행 알림
 	void NotifyMonsterDeath(EMonsterName MonsterName);
-	void NotifyItemCollecting(EItemName ItemName);
+	void NotifyItemCollecting();
 
 	// 퀘스트 트래커 UI 갱신
 	void UpdateQuestProgress(TArray<UVMQuestDataObject*> Quests);

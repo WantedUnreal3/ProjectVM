@@ -99,6 +99,13 @@ void AVMEnemyBoss::LoadAsset()
 	{
 		SummonMontage = SummonMontageRef.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> MoveMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Project/Animation/AM_BossMove.AM_BossMove'"));
+	ensureAlways(MoveMontageRef.Object);
+	if (MoveMontageRef.Object)
+	{
+		MoveMontage = MoveMontageRef.Object;
+	}
 #pragma endregion
 
 	HPPhase.Push(1000);

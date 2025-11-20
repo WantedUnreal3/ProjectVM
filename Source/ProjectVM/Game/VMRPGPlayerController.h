@@ -45,6 +45,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideBossStatusWidget();
 
+	void ResetInputSystem();
+	void ShowGameOverUI();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -84,4 +87,9 @@ protected:
 	TSubclassOf<class UVMHeroStatusWidget> VMBossStatusWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
 	TObjectPtr<class UVMHeroStatusWidget> VMBossStatusWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UUserWidget> GameOverWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<class UUserWidget> GameOverWidget;
 };

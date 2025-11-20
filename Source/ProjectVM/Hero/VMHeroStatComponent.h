@@ -20,7 +20,8 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FCurrentHealthPointHandler, float /* Current
 DECLARE_MULTICAST_DELEGATE_OneParam(FCurrentManaPointHandler, float /* CurrentMP */);
 DECLARE_MULTICAST_DELEGATE_OneParam(FHealthPointPercentageHandler, float /* HPPercentage */);
 DECLARE_MULTICAST_DELEGATE_OneParam(FManaPointPercentageHandler, float /* MPPercentage */);
-DECLARE_MULTICAST_DELEGATE(FOnDeathDelegate);
+
+DECLARE_MULTICAST_DELEGATE(FHealthPointZeroHandler);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTVM_API UVMHeroStatComponent : public UActorComponent
@@ -44,7 +45,7 @@ public:
 	FCurrentHealthPointHandler OnCurrentHealthPointChanged;
 	FCurrentManaPointHandler OnCurrentManaPointChanged;
 	
-	FOnDeathDelegate OnDeath;
+	FHealthPointZeroHandler OnCurrentHealthPointZero;
 
 	void ApplyDamage(int32 InDamage);
 	void RecoverHealth(int32 Amount);

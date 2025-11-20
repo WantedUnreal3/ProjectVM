@@ -248,6 +248,7 @@ void AVMCharacterHeroBase::BeginPlay()
 	HUD = HUDPtr;
 
 	Stat->OnSpeedChanged.AddUObject(this, &AVMCharacterHeroBase::ApplySpeed);
+	Stat->OnCurrentHealthPointZero.AddUObject(this, &AVMCharacterHeroBase::Die);
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -322,6 +323,16 @@ void AVMCharacterHeroBase::ApplySpeed(int32 SpeedStat)
 {
 	GetCharacterMovement()->MaxAcceleration = 500.f + SpeedStat;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f + SpeedStat;
+}
+
+void AVMCharacterHeroBase::Die()
+{
+	UE_LOG(LogTemp, Log, TEXT("Die : 테스트"));
+	CurState = EHeroState::Dead;
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	OnHeroDeath.Broadcast();
 }
 
 void AVMCharacterHeroBase::BasicSkill(const FInputActionValue& Value)

@@ -20,7 +20,7 @@ void UVMHeroStatComponent::ApplyDamage(int32 InDamage)
 
 	if (ActualDamage > 0) OnCurrentHealthPointChanged.Broadcast(CurStats.HealthPoint);
 	if (ActualDamage > 0) OnHealthPointPercentageChanged.Broadcast(static_cast<float>(CurStats.HealthPoint) / FinalStats.HealthPoint);
-	if (CurStats.HealthPoint <= 0) OnDeath.Broadcast();
+	if (CurStats.HealthPoint <= 0) OnCurrentHealthPointZero.Broadcast();
 }
 
 void UVMHeroStatComponent::RecoverHealth(int32 Amount)
@@ -31,7 +31,6 @@ void UVMHeroStatComponent::RecoverHealth(int32 Amount)
 
 	if (ActualRecovery > 0) OnCurrentHealthPointChanged.Broadcast(CurStats.HealthPoint);
 	if (ActualRecovery > 0) OnHealthPointPercentageChanged.Broadcast(static_cast<float>(CurStats.HealthPoint) / FinalStats.HealthPoint);
-	if (CurStats.HealthPoint <= 0) OnDeath.Broadcast();
 }
 
 void UVMHeroStatComponent::ConsumeMana(int32 Amount)

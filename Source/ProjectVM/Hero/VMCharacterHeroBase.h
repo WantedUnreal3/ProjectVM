@@ -17,9 +17,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
-
 #include "VMCharacterHeroBase.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FHeroDeathHandler);
 
 class UVMEquipment;
 
@@ -48,6 +48,8 @@ class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChan
 
 public:
 	AVMCharacterHeroBase();
+	
+	FHeroDeathHandler OnHeroDeath;
 
 	FORCEINLINE class UCameraComponent* GetCameraComponent() { return FollowCamera; }
 	FORCEINLINE class UVMHeroStatComponent* GetStatComponent() { return Stat; }
@@ -72,11 +74,13 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void ApplySpeed(int32 SpeedStat);
-
+	void Die();
+	
 	void BasicSkill(const FInputActionValue& Value);
 	void AdvancedSkill(const FInputActionValue& Value);
 	void MovementSkill(const FInputActionValue& Value);
 	void UltimateSkill(const FInputActionValue& Value);
+
 
 	//상호작용
 	void Interact(const FInputActionValue& Value);
@@ -254,4 +258,6 @@ protected:
 	FTimerHandle TimerHandle_Interaction;
 	FInteractionData InteractionData;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DieMontage;
 };

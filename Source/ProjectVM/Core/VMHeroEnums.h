@@ -7,6 +7,7 @@ enum class EHeroState : uint8
 {
 	Idle		UMETA(DisplayName = "Idle"),
 	Move		UMETA(DisplayName = "Move"),
-	Skill		UMETA(DisplayName = "Skill")
+	Skill		UMETA(DisplayName = "Skill"),
+	Dead 		UMETA(DisplayName = "Dead"),
 };
 

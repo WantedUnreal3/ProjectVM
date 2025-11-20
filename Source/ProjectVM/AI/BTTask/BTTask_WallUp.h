@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_AOEHeal.generated.h"
+#include "BTTask_WallUp.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTVM_API UBTTask_AOEHeal : public UBTTaskNode
+class PROJECTVM_API UBTTask_WallUp : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBTTask_AOEHeal();
+	UBTTask_WallUp();
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

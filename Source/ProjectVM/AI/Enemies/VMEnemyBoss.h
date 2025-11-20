@@ -61,18 +61,18 @@ public:
 	void ActivateSummonMinion();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
-	float MaxHp = 3000;
+	float MaxHp = 1500;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
-	float PhaseMaxHp = 3000;
+	float PhaseMaxHp = 1500;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
 	float PhaseMinHp;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
-	float CurrentHp = 3000;
+	float CurrentHp = 1500;
 
 
 	virtual void HealthPointChange(float Amount, AActor* Causer) override;
@@ -97,10 +97,15 @@ public:
 	TArray<float> HPPhase;
 	int32 PhaseIndex;
 
+	void UpdatePhase();
+
 public:
 	void ClearDelegate();
 
 	// Phase 2 돌입 시 사용할 변수
 	UPROPERTY()
 	TObjectPtr<class ABossWall> BossWall;
+
+	UPROPERTY()
+	TObjectPtr<class ABossWater> BossWater;
 };

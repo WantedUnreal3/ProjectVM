@@ -11,11 +11,18 @@
 #include "AI/Enemies/Minions/VMEnemySpawnSiege.h"
 #include "AI/Enemies/Minions/VMEnemySpawnSuper.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "Kismet/GameplayStatics.h"
 
 #include "Macro/VMPhysics.h"
 
 #include "Environment/BossWall.h"
+#include "Environment/BossWater.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
+
+#include "Enum/BossPhase.h"
 
 // Sets default values
 AVMEnemyBoss::AVMEnemyBoss()
@@ -45,6 +52,10 @@ void AVMEnemyBoss::InitDefaultSetting()
 	GetCapsuleComponent()->SetCapsuleRadius(50.0f);
 	GetCapsuleComponent()->SetLineThickness(1.0f);
 	GetCapsuleComponent()->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
+
+	GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+	GetCharacterMovement()->GravityScale = 0.f;
+	GetCharacterMovement()->MaxFlySpeed = 600;
 
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -120.0f));
@@ -90,8 +101,8 @@ void AVMEnemyBoss::LoadAsset()
 	}
 #pragma endregion
 
-	HPPhase.Push(2000);
 	HPPhase.Push(1000);
+	HPPhase.Push(500);
 	HPPhase.Push(0);
 	PhaseIndex = 0;
 
@@ -116,6 +127,15 @@ void AVMEnemyBoss::BeginPlay()
 	{
 		BossWall = Cast<ABossWall>(Walls[0]);
 		UE_LOG(LogTemp, Warning, TEXT("BossWall found: %s"), *BossWall->GetName());
+	}
+
+	TArray<AActor*> Waters;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABossWater::StaticClass(), Waters);
+
+	if (Waters.Num() > 0)
+	{
+		BossWater = Cast<ABossWater>(Waters[0]);
+		UE_LOG(LogTemp, Warning, TEXT("BossWall found: %s"), *BossWater->GetName());
 	}
 }
 
@@ -187,6 +207,7 @@ void AVMEnemyBoss::DeactivateSummonMontage()
 void AVMEnemyBoss::OnHealHp(float HealGauge)
 {
 	CurrentHp = FMath::Clamp<float>(CurrentHp + HealGauge, 0, MaxHp);
+	OnHealthPointPercentageChanged.Broadcast(CurrentHp / MaxHp);
 }
 
 void AVMEnemyBoss::HealthPointChange(float Amount, AActor* Causer)
@@ -208,13 +229,19 @@ void AVMEnemyBoss::HealthPointChange(float Amount, AActor* Causer)
 	{
 		PhaseMaxHp = PhaseMinHp;
 		PhaseIndex++;
+
+		UpdatePhase();
 		if (PhaseIndex == 1)
 		{
 			BossWall->StartLoweringWall();
+			BossWater->StartLoweringWater();
+		}
+		else if (PhaseIndex == 2)
+		{
+			BossWall->StartUpperingWall();
 		}
 		PhaseMinHp = HPPhase[PhaseIndex];
 		UE_LOG(LogTemp, Log, TEXT("변경"));
-		//BossWall->WallDown1();
 	}
 	
 
@@ -231,6 +258,25 @@ void AVMEnemyBoss::SaveAllSpawner()
 	UE_LOG(LogTemp, Log, TEXT("Spawners:%d"), Spawners.Num());
 }
 
+void AVMEnemyBoss::UpdatePhase()
+{
+	int32 NewPhase = 0;
+
+	if (PhaseMaxHp >= 1500)      NewPhase = (int32)EBossPhase::Phase1;
+	else if (PhaseMaxHp >= 1000)NewPhase = (int32)EBossPhase::Phase2;
+	else                       NewPhase = (int32)EBossPhase::Phase3;
+	// Controller 통해 Blackboard에 접근 — Pawn이 직접 소유하지 않음
+	AController* Controllers = GetController();
+	if (!Controllers) return;
+
+	AAIController* AICon = Cast<AAIController>(Controllers);
+	if (!AICon) return;
+
+	UBlackboardComponent* BBComp = AICon->GetBlackboardComponent();
+	if (!BBComp) return;
+
+	BBComp->SetValueAsInt(TEXT("BossPhase"), NewPhase);
+}
 
 
 

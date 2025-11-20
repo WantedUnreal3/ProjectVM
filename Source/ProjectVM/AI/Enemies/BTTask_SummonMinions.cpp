@@ -114,7 +114,7 @@ void UBTTask_SummonMinions::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, ui
 	FNavLocation RandomLocation;
 	FVector MyPos;
 	MyPos = OwnerComp.GetBlackboardComponent()->GetValueAsVector(TEXT("InitPosition"));
-	for (int i = 0; i < 1; ++i)
+	for (int i = 0; i < 30; ++i)
 	{
 		UE_LOG(LogTemp, Log, TEXT("(%f, %f, %f)"), MyPos.X, MyPos.Y, MyPos.Z);
 		NavSys->GetRandomReachablePointInRadius(MyPos, 20000, RandomLocation);

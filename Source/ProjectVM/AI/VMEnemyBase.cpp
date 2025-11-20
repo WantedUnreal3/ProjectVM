@@ -200,10 +200,6 @@ AVMEnemyBase::AVMEnemyBase()
 	//PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &AVMEnemyBase::OnTargetPerceptionUpdated);
 
 	EnemyTarget = nullptr;
-
-	// Character Movement 설정
-	// 중력 삭제
-	GetCharacterMovement()->GravityScale = 0;
 }
 
 #pragma endregion

@@ -41,6 +41,9 @@ void UVMShopItemWidget::Setup(const FVMEquipmentInfo& Info)
 	{
 		ItemPriceText->SetText(FText::AsNumber(EquipmentInfo->ItemLevel * 2000));
 	}
+
+
+	//this->SetToolTipText(FText::FromString(Info.ItemName));
 }
 
 void UVMShopItemWidget::NativeConstruct()

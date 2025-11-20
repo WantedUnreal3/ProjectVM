@@ -85,7 +85,7 @@ void AVMEnemySpawnBase::InitDefaultAssetSetting()
 void AVMEnemySpawnBase::NormalAttack()
 {
 	UE_LOG(LogTemp, Log, TEXT("AVMEnemySpawnBase::NormalAttack %s"), *GetName());
-	PlayNormalAttackMontage();
+	//PlayNormalAttackMontage();
 }
 
 void AVMEnemySpawnBase::NormalAttackCheck()
@@ -111,7 +111,7 @@ void AVMEnemySpawnBase::NormalAttackCheck()
 			IVMStatChangeable* IVMStatPtr = Cast<IVMStatChangeable>(HitResult.GetActor());
 			if (IVMStatPtr)
 			{
-				IVMStatPtr->HealthPointChange(AttackRange_, this);
+				IVMStatPtr->HealthPointChange(AttackDamage, this);
 			}
 			UE_LOG(LogTemp, Log, TEXT("Name: %s"), *HitResult.GetActor()->GetName());
 		}
@@ -133,7 +133,7 @@ void AVMEnemySpawnBase::PlayNormalAttackMontage()
 	}
 
 	const float AnimPlayRate = GetAIAttackSpeed();
-	AnimInstancePtr->Montage_Play(NormalAttackMontage, 1.0f);
+	AnimInstancePtr->Montage_Play(NormalAttackMontage, AnimPlayRate);
 	
 	UE_LOG(LogTemp, Log, TEXT("PlayNormalAttackMontage 재생"));
 }

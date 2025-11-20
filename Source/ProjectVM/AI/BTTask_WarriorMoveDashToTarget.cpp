@@ -17,7 +17,6 @@ UBTTask_WarriorMoveDashToTarget::UBTTask_WarriorMoveDashToTarget()
 
 EBTNodeResult::Type UBTTask_WarriorMoveDashToTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-    UE_LOG(LogTemp, Log, TEXT("Glide Dash To Target"));
     AAIController* AICon = OwnerComp.GetAIOwner();
     ACharacter* OwnerChar = Cast<ACharacter>(AICon->GetPawn());
     if (!OwnerChar) return EBTNodeResult::Failed;
@@ -34,7 +33,6 @@ EBTNodeResult::Type UBTTask_WarriorMoveDashToTarget::ExecuteTask(UBehaviorTreeCo
     float X = (End - Start).X;
     float Y = (End - Start).Y;
     float Z = (End - Start).Z;
-    UE_LOG(LogTemp, Log, TEXT("(%f, %f, %f)"), X, Y, Z);
 
     FVector Dir = (End - Start).GetSafeNormal2D();
     //FVector Dir = (End - Start).GetSafeNormal();

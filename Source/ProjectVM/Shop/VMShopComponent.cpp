@@ -48,7 +48,8 @@ void UVMShopComponent::SetShop()
 	}
 
 	InventoryCurrentCapacity = InventoryComp->GetInventoryContents().Num();
-	ShopScreen->SetShopData(TestMoney, InventoryCurrentCapacity, InventoryMaxCapacity, this);
+	PlayerMoney = InventoryComp->GetMoney();
+	ShopScreen->SetShopData(PlayerMoney, InventoryCurrentCapacity, InventoryMaxCapacity, this);
 	ShopScreen->SetBuyMode();
 }
 
@@ -73,7 +74,6 @@ void UVMShopComponent::AddInventoryItem(UVMEquipment* NewItem)
 
 	InventoryComp->GetInventoryContents().Add(NewItem);
 	//InventoryItems.Add(NewItem);
-
 	UE_LOG(LogTemp, Log, TEXT("Item added to InventoryItems: %s"), *NewItem->GetName());
 }
 

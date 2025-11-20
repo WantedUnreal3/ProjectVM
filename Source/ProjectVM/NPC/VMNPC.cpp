@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/ListView.h"
 #include "Components/WidgetComponent.h"
+#include "Components/Image.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
@@ -16,6 +17,7 @@
 #include "UI/VMBillboardComponent.h"
 #include "UI/Dialogue/VMDialogueOption.h"
 #include "UI/Common/VMGameScreen.h"
+#include "UI/NPC/VMNPCHeadInfo.h"
 #include "NPC/VMNPCEnums.h"
 #include "Quest/VMQuestManager.h"
 #include "Game/VMRPGPlayerController.h"
@@ -60,6 +62,20 @@ AVMNPC::AVMNPC()
 		InteractKey->SetWidgetClass(InterectWidgetRef.Class);
 	}
 
+	//NPC Head 정보 위젯 설정
+	NPCHeadInfo = CreateDefaultSubobject<UWidgetComponent>(TEXT("NPCHeadInfo"));
+	NPCHeadInfo->SetupAttachment(Billboard);
+	NPCHeadInfo->SetWorldLocation(FVector(0.0f, 0.0f, 130.0f));
+	NPCHeadInfo->SetWidgetSpace(EWidgetSpace::World);
+	NPCHeadInfo->SetDrawSize(FVector2D(200.0f, 100.0f));
+	NPCHeadInfo->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	static ConstructorHelpers::FClassFinder<UUserWidget> NPCHeadInfoRef(TEXT("/Game/Project/UI/NPC/WBP_VMNPCHeadInfo.WBP_VMNPCHeadInfo_C"));
+
+	if (NPCHeadInfoRef.Succeeded())
+	{
+		NPCHeadInfo->SetWidgetClass(NPCHeadInfoRef.Class);
+	}
+
 	//카메라 설정
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -97,23 +113,55 @@ void AVMNPC::BeginPlay()
 	UVMQuestManager* QuestManager = GetGameInstance()->GetSubsystem<UVMQuestManager>();
 	if (QuestManager != nullptr)
 	{
+		//퀘스트 배포 구독
 		QuestManager->OnQuestPublished.AddLambda([this](const FVMQuestData& QuestData)
 			{
 				if (QuestData.QuestGiver == NPCId)
 				{
+					//퀘스트가 없었는데 생긴거라면 headInfo에 QuestionIcon 띄우기
+					if (AvailableQuests.IsEmpty())
+					{
+						UVMNPCHeadInfo* NPCHeadInfoWidget = Cast<UVMNPCHeadInfo>(NPCHeadInfo->GetUserWidgetObject());
+						if (NPCHeadInfoWidget != nullptr)
+						{
+							NPCHeadInfoWidget->QuestionIcon->SetVisibility(ESlateVisibility::Visible);
+						}
+					}
+					//퀘스트 배열에 추가
 					AvailableQuests.Enqueue(&QuestData);
 				}
 			}
 		);
 
+		//퀘스트 완료 구독
 		QuestManager->OnQuestCompleted.AddLambda([this](const FVMQuestData& QuestData)
 			{
 				if (QuestData.QuestGiver == NPCId)
 				{
+					//퀘스트 완료가 없었는데 생긴거라면 headInfo에 ExclamationIcon 띄우기
+					if (AvailableQuests.IsEmpty())
+					{
+						UVMNPCHeadInfo* NPCHeadInfoWidget = Cast<UVMNPCHeadInfo>(NPCHeadInfo->GetUserWidgetObject());
+						if (NPCHeadInfoWidget != nullptr)
+						{
+							NPCHeadInfoWidget->ExclamationIcon->SetVisibility(ESlateVisibility::Visible);
+						}
+					}
 					CompletedQuests.Enqueue(QuestData); // 값 복사 하지 않으면 휘발됨. 
 				}
 			}
 		);
+	}
+
+	if (NPCHeadInfo != nullptr)
+	{
+		UVMNPCHeadInfo* NPCHeadInfoWidget = Cast<UVMNPCHeadInfo>(NPCHeadInfo->GetUserWidgetObject());
+		if (NPCHeadInfoWidget != nullptr)
+		{
+			NPCHeadInfoWidget->NPCName->SetText(NPCData.GetNPCName());
+			NPCHeadInfoWidget->QuestionIcon->SetVisibility(ESlateVisibility::Hidden);
+			NPCHeadInfoWidget->ExclamationIcon->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 
@@ -206,28 +254,6 @@ void AVMNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
-
-//void AVMNPC::OnInteractTriggerOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-//{
-//	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("Overlapped with Player: %s"), *Player->GetName());
-//		InteractKey->SetVisibility(true);
-//		Player->SetInteractNPC(this);
-//	}
-//}
-//
-//void AVMNPC::OnInteractTriggerOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-//{
-//	//만약 NPC가 붙어있어서 여러 NPC가 활성화 된 상태라면 하나만 선택된다. 바로 옆으로 이동하면 nullptr로 설정하기 때문에 다른 NPC가 실행되지는 않는다.
-//	//일단 NPC를 붙어서 만들지는 않을 예정이르모 이렇게 처리한다.
-//	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("Exit with Player: %s"), *Player->GetName());
-//		InteractKey->SetVisibility(false);
-//		Player->SetInteractNPC(nullptr);
-//	}
-//}
 
 void AVMNPC::Interact()
 {
@@ -424,6 +450,15 @@ void AVMNPC::QuestCompleted()
 	FVMQuestData QuestData;
 	if (CompletedQuests.Dequeue(QuestData))
 	{
+		//퀘스트 완료 이후 더 이상 퀘스트 완료가 없다면 headInfo에서 ExclamationIcon 숨기기
+		if (AvailableQuests.IsEmpty())
+		{
+			UVMNPCHeadInfo* NPCHeadInfoWidget = Cast<UVMNPCHeadInfo>(NPCHeadInfo->GetUserWidgetObject());
+			if (NPCHeadInfoWidget != nullptr)
+			{
+				NPCHeadInfoWidget->ExclamationIcon->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
 
 		EndDialogue();
 
@@ -444,6 +479,15 @@ void AVMNPC::AcceptQuest()
 	const FVMQuestData* QuestData = nullptr;
 	AvailableQuests.Dequeue(QuestData);
 
+	//퀘스트 수락 이후 더 이상 퀘스트가 없다면 headInfo에서 QuestionIcon 숨기기
+	if (AvailableQuests.IsEmpty())
+	{
+		UVMNPCHeadInfo* NPCHeadInfoWidget = Cast<UVMNPCHeadInfo>(NPCHeadInfo->GetUserWidgetObject());
+		if (NPCHeadInfoWidget != nullptr)
+		{
+			NPCHeadInfoWidget->QuestionIcon->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 	EndDialogue();
 
 	GetGameInstance()->GetSubsystem<UVMQuestManager>()->AcceptQuest(*QuestData);

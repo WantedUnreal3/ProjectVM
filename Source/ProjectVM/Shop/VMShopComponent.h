@@ -30,7 +30,7 @@ public:
 
 	FORCEINLINE void SetTestValues(int32 InMoney, int32 InCurrentCapacity, int32 InMaxCapacity)
 	{
-		TestMoney = InMoney;
+		PlayerMoney = InMoney;
 		InventoryCurrentCapacity = InCurrentCapacity;
 		InventoryMaxCapacity = InMaxCapacity;
 	}
@@ -66,7 +66,7 @@ private:
 
 
 	//Todo: 나중에 인벤토리 붙이면 바꿔야함
-	int32 TestMoney = 200000;
+	int32 PlayerMoney = 0;
 	int32 InventoryCurrentCapacity = 0;
 	int32 InventoryMaxCapacity = 20;
 };

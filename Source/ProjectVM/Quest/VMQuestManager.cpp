@@ -7,6 +7,7 @@
 #include "UI/Quest/VMQuestTracker.h"
 #include "UI/Quest/VMQuestTrackerWidget.h"
 #include "Components/ListView.h"
+#include "Hero/VMCharacterHeroBase.h"
 
 void UVMQuestManager::AssignQuestToNPC(FName QuestId)
 {
@@ -89,6 +90,20 @@ void UVMQuestManager::ClearQuest(FVMQuestData QuestData)
 	{
 		AssignQuestToNPC(FName(NextQuest));
 	}
+
+	//Reward
+	if (QuestData.Reward == FName("Money"))
+	{
+		AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(PC->GetPawn());
+		if (Player == nullptr)
+		{
+			UE_LOG(LogTemp, Log, TEXT("AVMCharacterHeroBase is nullptr"));
+			return;
+		}
+
+		Player->GetInventory()->AddMoney(QuestData.RewardCount);
+	}
+
 }
 
 void UVMQuestManager::CompleteQuestForNPC(FVMQuestData QuestData)

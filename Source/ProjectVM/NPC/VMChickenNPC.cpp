@@ -27,4 +27,5 @@ AVMChickenNPC::AVMChickenNPC()
 	}
 
 	InteractKey->SetWorldLocation(FVector(0.0f, 0.0f, 100.0f));
+	NPCHeadInfo->SetWorldLocation(FVector(0.0f, 0.0f, 160.0f));
 }

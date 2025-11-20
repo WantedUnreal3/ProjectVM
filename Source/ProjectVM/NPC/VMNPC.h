@@ -15,31 +15,10 @@ class PROJECTVM_API AVMNPC : public ACharacter, public IVMInteractableInterface
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AVMNPC();
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	//UFUNCTION()
-	//void OnInteractTriggerOverlapBegin(
-	//	UPrimitiveComponent* OverlappedComponent,
-	//	AActor* OtherActor,
-	//	UPrimitiveComponent* OtherComp,
-	//	int32 OtherBodyIndex,
-	//	bool bFromSweep,
-	//	const FHitResult& SweepResult
-	//);
-
-	//UFUNCTION()
-	//void OnInteractTriggerOverlapEnd(
-	//	UPrimitiveComponent* OverlappedComponent,
-	//	AActor* OtherActor,
-	//	UPrimitiveComponent* OtherComp,
-	//	int32 OtherBodyIndex
-	//);
 
 	virtual void Interact() override;
 	bool NextDialogue();
@@ -53,11 +32,7 @@ public:
 	virtual void EnterShop(); //상점 호출 함수, 자식에서 구현
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	//다이얼로그에 들어갈 옵션 정하는 함수
-	//virtual void SelectDialogueOption();
 
 	//다이얼로그에 옵션 추가하는 함수
 	void AddDialogueOption(ENPCOption NewNPCOption);
@@ -76,6 +51,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
 	TObjectPtr<class UWidgetComponent> InteractKey;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
+	TObjectPtr<class UWidgetComponent> NPCHeadInfo;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
 	TObjectPtr<class UVMBillboardComponent> Billboard;
 

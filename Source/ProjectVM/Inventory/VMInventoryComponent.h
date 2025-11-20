@@ -131,6 +131,11 @@ public:
 	void AddNewItem(UVMEquipment* Item, const int32 AmountTodd);
 
 	void UpdateUI();
+
+	FORCEINLINE int32 GetMoney() { return Money; }
+	FORCEINLINE void SetMoney(int32 NewMoney) { Money = NewMoney; }
+	FORCEINLINE void AddMoney(int32 Amount) { Money += Amount; }
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -142,7 +147,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	TArray<UVMEquipment*> InventoryContents;
 
-	
+	UPROPERTY(EditAnywhere, Category = "Money")
+	int32 Money = 0;
 
 
 };

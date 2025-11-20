@@ -425,6 +425,9 @@ void UVMShopScreen::OnExitClicked()
 	//인벤토리 UI 갱신
 	Player->GetInventory()->UpdateUI();
 	UE_LOG(LogTemp, Log, TEXT("인벤토리 갱신"));
+
+	//Player Money 갱신
+	Player->GetInventory()->SetMoney(CurrentMoney);
 }
 
 void UVMShopScreen::UpdateButtonStyle()

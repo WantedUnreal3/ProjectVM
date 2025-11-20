@@ -31,6 +31,7 @@ AVMBuzzNPC::AVMBuzzNPC()
 	}
 
 	InteractKey->SetWorldLocation(FVector(40.0f, 0.0f, -20.0f));
+	NPCHeadInfo->SetWorldLocation(FVector(-50.0f, 0.0f, 160.0f));
 
 	//카메라 설정
 	CameraBoom->SetRelativeLocation(FVector(160.0f, -45.0f, -65.0f));

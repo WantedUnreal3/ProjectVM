@@ -37,14 +37,16 @@ EBTNodeResult::Type UBTTask_WarriorNormalAttack::ExecuteTask(UBehaviorTreeCompon
 	}
 
 	UAnimInstance* AnimInstance = EnemyPtr->GetMesh()->GetAnimInstance();
-	if (AnimInstance != nullptr)
+	if (AnimInstance == nullptr)
 	{
-		AnimInstance->Montage_Play(EnemyPtr->NormalAttackMontage);
-		bIsAttacking = true;
-		return EBTNodeResult::InProgress;
+		return EBTNodeResult::Failed;
 	}
 
-	return EBTNodeResult::Failed;
+	// 몽타주 실행하기.
+	AnimInstance->Montage_Play(EnemyPtr->NormalAttackMontage);
+	bIsAttacking = true;
+
+	return EBTNodeResult::InProgress;
 }
 void UBTTask_WarriorNormalAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {

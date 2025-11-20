@@ -20,19 +20,16 @@ EBTNodeResult::Type UBTTask_SpawnNormalAttack::ExecuteTask(UBehaviorTreeComponen
 	{
 		return EBTNodeResult::Failed;
 	}
-	APawn* PawnPtr = AIControllerPtr->GetPawn();
-	if (PawnPtr == nullptr)
+
+	// EnemySpawn의 Pawn으로 변환 시도
+	AVMEnemySpawnBase* EnemySpawnPawnPtr = Cast<AVMEnemySpawnBase>(AIControllerPtr->GetPawn());
+	if (EnemySpawnPawnPtr == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	AVMEnemySpawnBase* EnemyPtr = Cast<AVMEnemySpawnBase>(PawnPtr);
-	if (EnemyPtr == nullptr)
-	{
-		return EBTNodeResult::Failed;
-	}
-
-	EnemyPtr->NormalAttack();
+	// 애니메이션 재생.
+	EnemySpawnPawnPtr->PlayNormalAttackMontage();
 
 	return EBTNodeResult::InProgress;
 }

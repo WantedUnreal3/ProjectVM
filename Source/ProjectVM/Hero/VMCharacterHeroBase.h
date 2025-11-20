@@ -249,8 +249,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPawnNoiseEmitterComponent> PawnNoiseEmitter;
-
-	virtual void Jump() override;
 #pragma endregion
 
 

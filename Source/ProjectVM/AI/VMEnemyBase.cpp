@@ -456,29 +456,38 @@ void AVMEnemyBase::OnSeePawn(APawn* Pawn)
 
 void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume)
 {
+	AVMEnemyBase* OtherEnemyPtr = Cast<AVMEnemyBase>(InstigatorPawn);
 
-	AVMEnemyBase* OtherEnemyBase = Cast<AVMEnemyBase>(InstigatorPawn);
-	if (OtherEnemyBase == nullptr)
+	// Enemy가 아닌 경우(나와선 안됌)
+	if (OtherEnemyPtr == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No EnemyBase!"));
+		UE_LOG(LogTemp, Warning, TEXT("[OnHearPawn]: AVMEnemyBase 캐스팅 실패!"));
 		return;
 	}
 
-	if (OtherEnemyBase->EnemyTarget == nullptr)
+	// Target이 없는 경우(정상 범주)
+	if (OtherEnemyPtr->EnemyTarget == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No EnemyBase's Target!"));
+		UE_LOG(LogTemp, Log, TEXT("[OnHearPawn]: Target이 없음."));
 		return;
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnHearPawn : target %s"), *OtherEnemyBase->EnemyTarget->GetName());
 	
-	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	// AI 컨트롤러가 없는 경우
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController == nullptr)
 	{
-		if (UBlackboardComponent* BBComp = AIController->GetBlackboardComponent())
-		{
-			BBComp->SetValueAsObject(TEXT("EnemyTarget"), OtherEnemyBase->EnemyTarget);
-		}
-	}	
+		return;
+	}
+
+	// AI 컨트롤러의 Blackboard가 없는 경우
+	UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
+	if (BBComp == nullptr)
+	{
+		return;
+	}
+
+	// EnemyTarget의 설정.
+	BBComp->SetValueAsObject(TEXT("EnemyTarget"), OtherEnemyPtr->EnemyTarget);
 }
 
 void AVMEnemyBase::TryMakeNoise()

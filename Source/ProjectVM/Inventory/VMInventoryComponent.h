@@ -111,6 +111,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void RemoveItem(UVMEquipment* Item);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UDataTable> EquipmentDataTable;
+
 	UPROPERTY()
 	int32 SlotCapacity;
 

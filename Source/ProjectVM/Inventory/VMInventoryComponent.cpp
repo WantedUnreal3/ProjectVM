@@ -32,6 +32,20 @@ UVMInventoryComponent::UVMInventoryComponent()
 		UE_LOG(LogTemp, Warning, TEXT("InventoryComponent: Failed to load EquipmentDataTable"));
 	}
 
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_Equip(
+		TEXT("/Game/Data/DT_VMEquipmentInfo.DT_VMEquipmentInfo")); // 실제 경로로 수정
+
+	if (DT_Equip.Succeeded())
+	{
+		EquipmentDataTable = DT_Equip.Object;
+		UE_LOG(LogTemp, Warning, TEXT("InventoryComponent: EquipmentDataTable SET in ctor: %s"),
+			*EquipmentDataTable->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InventoryComponent: Failed to load EquipmentDataTable"));
+	}
+
 	// ...
 }
 

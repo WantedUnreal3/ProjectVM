@@ -113,6 +113,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void RemoveItem(UVMEquipment* Item);
 
+<<<<<<< HEAD
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void DropItemToWorld(class UVMEquipment* ItemToDrop, int32 Quantity = 1);
 
@@ -130,6 +131,11 @@ public:
 
 	
 
+=======
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UDataTable> EquipmentDataTable;
+
+>>>>>>> 8d4101aed61e91b1497a79122b35e098e464e27f
 	UPROPERTY()
 	int32 SlotCapacity;
 

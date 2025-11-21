@@ -2,6 +2,8 @@
 
 
 #include "UI/Inventory/VMEquipmentPanel.h"
+
+
 #include "UI/Inventory/VMInventoryItemSlot.h"
 #include "UI/Inventory/VMInventoryPanel.h"
 #include "Item/Equipment/VMEquipment.h"
@@ -12,6 +14,25 @@
 #include "Components/WrapBoxSlot.h"
 
 
+void UVMEquipmentPanel::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    // 여기에 패널 초기화 코드 넣기
+    // 예시:
+    // EnsureSlotsInitialized();
+    // RefreshEquipment(CurrentHero);
+}
+
+void UVMEquipmentPanel::RefreshEquipment(AVMCharacterHeroBase* InHero)
+{
+    // 최소한 이렇게라도 구현이 있어야 링크 오류가 안 난다.
+    if (!InHero)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel::RefreshEquipment - InHero is null"));
+        return;
+    }
+}
 void UVMEquipmentPanel::NativeOnInitialized()
 {
     Super::NativeOnInitialized();

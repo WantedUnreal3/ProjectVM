@@ -22,7 +22,7 @@ void UVMMainMenu::NativeConstruct()
     if (WBP_VMInventoryPanel && WBP_VMEquipmentPanel)
     {
         WBP_VMInventoryPanel->LinkedEquipmentPanel = WBP_VMEquipmentPanel;
-        WBP_VMEquipmentPanel->LinkedInventoryPanel = WBP_VMInventoryPanel;
+        //WBP_VMEquipmentPanel->LinkedInventoryPanel = WBP_VMInventoryPanel;
     }
 }
 

@@ -22,10 +22,20 @@ UCLASS()
 class PROJECTVM_API UVMEquipmentPanel : public UUserWidget
 {
 	GENERATED_BODY()
+	
+public:
+    UFUNCTION(BlueprintCallable)
+    void RefreshEquipment(AVMCharacterHeroBase* Hero);
+
+protected:
+    // 무기칸 슬롯 (재사용 가능)
+    //UPROPERTY(meta = (BindWidget))
+    //UVMInventoryItemSlot* WeaponSlot;
+    virtual void NativeConstruct() override;
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PanelRefs")
-	TObjectPtr<UVMInventoryPanel> LinkedInventoryPanel;
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PanelRefs")
+	//TObjectPtr<UVMInventoryPanel> LinkedInventoryPanel;
 
 public:
 	virtual void NativeOnInitialized() override;

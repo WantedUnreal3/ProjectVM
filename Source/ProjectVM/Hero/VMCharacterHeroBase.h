@@ -98,8 +98,8 @@ protected:
 	void FoundInteractable(AActor* NewInteractable);
 	void NoInteractableFound();
 	void BeginInteract();
-	void EndInteract();
-	void BeingInteract();
+	/*void EndInteract();
+	void BeingInteract();*/
 	void ToggleMenu();
 
 

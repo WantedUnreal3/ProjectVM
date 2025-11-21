@@ -76,6 +76,12 @@ protected:
 
 
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	//TSubclassOf<UVMEquipmentPanel> EquipmentPanelClass;
+
+	//UPROPERTY(BlueprintReadOnly)
+	//UVMEquipmentPanel* EquipmentPanel;
+
 protected:
 	virtual void BeginPlay() override;
 	

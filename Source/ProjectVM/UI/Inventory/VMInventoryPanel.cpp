@@ -63,6 +63,21 @@ void UVMInventoryPanel::RefreshInventory()
 
 void UVMInventoryPanel::HandleItemDoubleClicked(UVMEquipment* Item)
 {
+    //UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::HandleItemDoubleClicked: %s"),
+    /*UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::HandleItemDoubleClicked: %s"),
+        Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
+
+    if (!Item || !InventoryReference)
+        return;
+
+    // 인벤토리의 Owner는 보통 캐릭터일 것
+    AActor* Owner = InventoryReference->GetOwner();
+    class AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(Owner);
+    if (!Hero)
+        return;
+
+    Hero->EquipFromInventory(Item);*/
+
    
     UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::HandleItemDoubleClicked: %s"),
         Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));

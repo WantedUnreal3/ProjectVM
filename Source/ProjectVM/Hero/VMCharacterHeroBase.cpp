@@ -266,7 +266,7 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	//인벤토리
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AVMCharacterHeroBase::BeginInteract);
-	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AVMCharacterHeroBase::EndInteract);
+	//PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AVMCharacterHeroBase::EndInteract);
 
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
@@ -452,7 +452,7 @@ void AVMCharacterHeroBase::FoundInteractable(AActor* NewInteractable)
 {
 	if (IsInteracting())
 	{
-		EndInteract();
+		//EndInteract();
 	}
 
 	if (InteractionData.CurrentInteractable)
@@ -513,19 +513,9 @@ void AVMCharacterHeroBase::BeginInteract()
 
 			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("InteractionDuration ~ 0, calling BeingInteract immediately"));
-				BeingInteract();
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Setting timer for BeingInteract, duration: %f"),
-					TargetInteractable->InteractableData.InteractionDuration);
-				GetWorldTimerManager().SetTimer(
-					TimerHandle_Interaction,
-					this,
-					&AVMCharacterHeroBase::BeingInteract,
-					TargetInteractable->InteractableData.InteractionDuration,
-					false);
 			}
 		}
 	}
@@ -535,7 +525,7 @@ void AVMCharacterHeroBase::BeginInteract()
 	}
 }
 
-void AVMCharacterHeroBase::EndInteract()
+/*void AVMCharacterHeroBase::EndInteract()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
@@ -554,7 +544,7 @@ void AVMCharacterHeroBase::BeingInteract()
 		TargetInteractable->BeingInteract(this);
 	}
 }
-
+*/
 
 void AVMCharacterHeroBase::UpdateInteractionWidget() const
 {
@@ -662,48 +652,90 @@ void AVMCharacterHeroBase::ToggleInventory(const FInputActionValue& Value)
 	}
 }
 
+//void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)
+//{
+//	if (!Item)
+//		return;
+//
+//	if (!Stat)
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("EquipFromInventory: Stat is NULL"));
+//		return;
+//	}
+//
+//	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
+//	UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
+//
+//	// 1) 기존 장비 능력치 제거
+//	if (EquippedWeapon)
+//	{
+//		RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
+//	}
+//
+//
+//	// 2) 새 장비 장착
+//	EquippedWeapon = Item;
+//	EquippedItem = Item; // 둘 중 하나만 쓸 거면 하나로 통일해도 됨
+//
+//	// 3) 새 장비 능력치 적용
+//	Stat->ApplyEquipmentStats(Item);
+//
+//	// 4) 디버그 출력
+//	UE_LOG(LogTemp, Warning,
+//		TEXT("[Equip] Atk=%d Def=%d HP=%d Mana=%d Speed=%d"),
+//		Stat->CurStats.AttackPower,
+//		Stat->CurStats.DefensivePower,
+//		Stat->CurStats.HealthPoint,
+//		Stat->CurStats.ManaPoint,
+//		Stat->CurStats.Speed
+//	);
+//}
+
+//void AVMCharacterHeroBase::RecalculateStatsFromEquipment()
+//{
+//}
+
 void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)
 {
 	if (!Item)
-		return;
-
-	if (!Stat)
 	{
-		UE_LOG(LogTemp, Error, TEXT("EquipFromInventory: Stat is NULL"));
 		return;
 	}
 
 	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
-	UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
+    UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
 
-	// 1) 기존 장비 능력치 제거
-	if (EquippedWeapon)
-	{
-		RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
-	}
+    // 기존 장비 능력치 제거
+    if (EquippedWeapon)
+    {
+        RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
+    }
+
+    // 새 장비 장착
+    EquippedWeapon = Item;
+	
+	RecalculateStatsFromEquipment();
 
 
-	// 2) 새 장비 장착
-	EquippedWeapon = Item;
-	EquippedItem = Item; // 둘 중 하나만 쓸 거면 하나로 통일해도 됨
-
-	// 3) 새 장비 능력치 적용
-	Stat->ApplyEquipmentStats(Item);
-
-	// 4) 디버그 출력
-	UE_LOG(LogTemp, Warning,
-		TEXT("[Equip] Atk=%d Def=%d HP=%d Mana=%d Speed=%d"),
-		Stat->CurStats.AttackPower,
-		Stat->CurStats.DefensivePower,
-		Stat->CurStats.HealthPoint,
-		Stat->CurStats.ManaPoint,
-		Stat->CurStats.Speed
-	);
 }
 
 void AVMCharacterHeroBase::RecalculateStatsFromEquipment()
 {
+	int32 NewAttack = 0;
+
+	if (EquippedWeapon)
+	{
+		const FVMEquipmentInfo& Info = EquippedWeapon->GetEquipmentInfo();
+		NewAttack += Info.AttackPower;
+	}
+
+	CurrentAttack = NewAttack;
+
+	UE_LOG(LogTemp, Warning, TEXT("RecalculateStats: Atk=%d"), CurrentAttack);
+
+
 }
+
 
 void AVMCharacterHeroBase::OnHitExplosionByAOE(AActor* Target, FVector ExplosionCenter)
 {

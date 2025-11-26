@@ -1,91 +1,159 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/Skill/VMSkillsCooldownWidget.h"
 
+#include "Components/ProgressBar.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Math/UnitConversion.h"
+#include "Hero/SkillBase.h"
 
-void UVMSkillsCooldownWidget::StartBasicSkillCooldown(float Time)
+void UVMSkillsCooldownWidget::StartBasicSkillCooldown(USkillBase* Skill)
 {
-	BasicSkillCooldown = Time;
-	BasicSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), BasicSkillCooldown)));
+	BasicSkillCooldownBase = Skill->GetCooldown();
+	BasicSkillCooldownRemaining = BasicSkillCooldownBase;
+	BasicSkillCooldownProgressBar->SetPercent(0.0f);
+	BasicSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.5f));
+	BasicSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), BasicSkillCooldownRemaining)));
 }
 
-void UVMSkillsCooldownWidget::StartAdvancedSkillCooldown(float Time)
+void UVMSkillsCooldownWidget::StartAdvancedSkillCooldown(USkillBase* Skill)
 {
-	AdvancedSkillCooldown = Time;
-	AdvancedSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), AdvancedSkillCooldown)));
+	AdvancedSkillCooldownBase = Skill->GetCooldown();
+	AdvancedSkillCooldownRemaining = AdvancedSkillCooldownBase;
+	AdvancedSkillCooldownProgressBar->SetPercent(0.0f);
+	AdvancedSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.5f));
+	AdvancedSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), AdvancedSkillCooldownRemaining)));
 }
 
-void UVMSkillsCooldownWidget::StartMovementSkillSkillCooldown(float Time)
+void UVMSkillsCooldownWidget::StartMovementSkillCooldown(USkillBase* Skill)
 {
-	MovementSkillCooldown = Time;
-	MovementSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), MovementSkillCooldown)));
+	MovementSkillCooldownBase = Skill->GetCooldown();
+	MovementSkillCooldownRemaining = MovementSkillCooldownBase;
+	MovementSkillCooldownProgressBar->SetPercent(0.0f);
+	MovementSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.5f));
+	MovementSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), MovementSkillCooldownRemaining)));
 }
 
-void UVMSkillsCooldownWidget::StartUltimateSkillCooldown(float Time)
+void UVMSkillsCooldownWidget::StartUltimateSkillCooldown(USkillBase* Skill)
 {
-	UltimateSkillCooldown = Time;
-	UltimateSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), UltimateSkillCooldown)));
+	UltimateSkillCooldownBase = Skill->GetCooldown();
+	UltimateSkillCooldownRemaining = UltimateSkillCooldownBase;
+	UltimateSkillCooldownProgressBar->SetPercent(0.0f);
+	UltimateSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.5f));
+	UltimateSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), UltimateSkillCooldownRemaining)));
 }
 
 void UVMSkillsCooldownWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	BasicSkillCooldown = 0.0f;
-	AdvancedSkillCooldown = 0.0f;
-	MovementSkillCooldown = 0.0f;
-	UltimateSkillCooldown = 0.0f;
+	BasicSkillCooldownProgressBar->SetPercent(1.0f);
+	AdvancedSkillCooldownProgressBar->SetPercent(1.0f);
+	MovementSkillCooldownProgressBar->SetPercent(1.0f);
+	UltimateSkillCooldownProgressBar->SetPercent(1.0f);
+
+	BasicSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	AdvancedSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	MovementSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	UltimateSkillCooldownText->SetText(FText::FromString(TEXT("")));
 }
 
 void UVMSkillsCooldownWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (BasicSkillCooldown > KINDA_SMALL_NUMBER) BasicSkillCooldown -= InDeltaTime;
-	if (AdvancedSkillCooldown > KINDA_SMALL_NUMBER) AdvancedSkillCooldown -= InDeltaTime;
-	if (MovementSkillCooldown > KINDA_SMALL_NUMBER) MovementSkillCooldown -= InDeltaTime;
-	if (UltimateSkillCooldown > KINDA_SMALL_NUMBER) UltimateSkillCooldown -= InDeltaTime;
 
-	if (BasicSkillCooldown < KINDA_SMALL_NUMBER)
+	if (BasicSkillCooldownRemaining > 0)
 	{
-		BasicSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT(" "))));
-	}
-	else
-	{
-		BasicSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), BasicSkillCooldown)));
+		UpdateBasicSkillCooldown(InDeltaTime);
 	}
 
-	if (AdvancedSkillCooldown < KINDA_SMALL_NUMBER)
+	if (AdvancedSkillCooldownRemaining > 0)
 	{
-		AdvancedSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT(" "))));
-	}
-	else
-	{
-		AdvancedSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), BasicSkillCooldown)));
+		UpdateAdvancedSkillCooldown(InDeltaTime);
 	}
 
-	if (MovementSkillCooldown < KINDA_SMALL_NUMBER)
+	if (MovementSkillCooldownRemaining > 0)
 	{
-		MovementSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT(" "))));
-	}
-	else
-	{
-		MovementSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), BasicSkillCooldown)));
+		UpdateMovementSkillCooldown(InDeltaTime);
 	}
 
-	if (UltimateSkillCooldown < KINDA_SMALL_NUMBER)
+	if (UltimateSkillCooldownRemaining > 0)
 	{
-		UltimateSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT(" "))));
-	}
-	else
-	{
-		UltimateSkillCooldownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f sec"), BasicSkillCooldown)));
+		UpdateUltimateSkillCooldown(InDeltaTime);
 	}
 }
 
-void UVMSkillsCooldownWidget::Cooldown(float DeltaTime)
+void UVMSkillsCooldownWidget::UpdateBasicSkillCooldown(float DeltaTime)
 {
+	BasicSkillCooldownRemaining -= DeltaTime;
+	
+	if (BasicSkillCooldownRemaining <= 0)
+	{
+		BasicSkillCooldownProgressBar->SetPercent(0.0f);
+		BasicSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		BasicSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	}
+	else
+	{
+		BasicSkillCooldownProgressBar->SetPercent(1.0f - BasicSkillCooldownRemaining / BasicSkillCooldownBase);
+		int32 CooldownSeconds = FMath::CeilToInt(BasicSkillCooldownRemaining);
+		BasicSkillCooldownText->SetText(FText::FromString(FString::FromInt(CooldownSeconds)));
+	}
+}
+
+void UVMSkillsCooldownWidget::UpdateAdvancedSkillCooldown(float DeltaTime)
+{
+	AdvancedSkillCooldownRemaining -= DeltaTime;
+	
+	if (AdvancedSkillCooldownRemaining <= 0)
+	{
+		AdvancedSkillCooldownProgressBar->SetPercent(0.0f);
+		AdvancedSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		AdvancedSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	}
+	else
+	{
+		AdvancedSkillCooldownProgressBar->SetPercent(1.0f - AdvancedSkillCooldownRemaining / AdvancedSkillCooldownBase);
+		int32 CooldownSeconds = FMath::CeilToInt(AdvancedSkillCooldownRemaining);
+		AdvancedSkillCooldownText->SetText(FText::FromString(FString::FromInt(CooldownSeconds)));
+	}
+}
+
+void UVMSkillsCooldownWidget::UpdateMovementSkillCooldown(float DeltaTime)
+{
+	MovementSkillCooldownRemaining -= DeltaTime;
+	
+	if (MovementSkillCooldownRemaining <= 0)
+	{
+		MovementSkillCooldownProgressBar->SetPercent(0.0f);
+		MovementSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		MovementSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	}
+	else
+	{
+		MovementSkillCooldownProgressBar->SetPercent(1.0f - MovementSkillCooldownRemaining / MovementSkillCooldownBase);
+		int32 CooldownSeconds = FMath::CeilToInt(MovementSkillCooldownRemaining);
+		MovementSkillCooldownText->SetText(FText::FromString(FString::FromInt(CooldownSeconds)));
+	}
+}
+
+void UVMSkillsCooldownWidget::UpdateUltimateSkillCooldown(float DeltaTime)
+{
+	UltimateSkillCooldownRemaining -= DeltaTime;
+	
+	if (UltimateSkillCooldownRemaining <= 0)
+	{
+		UltimateSkillCooldownProgressBar->SetPercent(0.0f);
+		UltimateSkillIcon->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		UltimateSkillCooldownText->SetText(FText::FromString(TEXT("")));
+	}
+	else
+	{
+		UltimateSkillCooldownProgressBar->SetPercent(1.0f - UltimateSkillCooldownRemaining / UltimateSkillCooldownBase);
+		int32 CooldownSeconds = FMath::CeilToInt(UltimateSkillCooldownRemaining);
+		UltimateSkillCooldownText->SetText(FText::FromString(FString::FromInt(CooldownSeconds)));
+	}
 }

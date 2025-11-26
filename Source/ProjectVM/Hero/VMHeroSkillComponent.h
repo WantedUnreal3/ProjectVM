@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "VMHeroSkillComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FSkillExecuteHandler, class USkillBase* /* Skill */);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTVM_API UVMHeroSkillComponent : public UActorComponent
@@ -14,6 +15,11 @@ class PROJECTVM_API UVMHeroSkillComponent : public UActorComponent
 
 public:	
 	UVMHeroSkillComponent();
+
+	FSkillExecuteHandler OnBasicSkillExecute;
+	FSkillExecuteHandler OnAdvancedSkillExecute;
+	FSkillExecuteHandler OnMovementSkillExecute;
+	FSkillExecuteHandler OnUltimateSkillExecute;
 
 	void ExecuteBasicSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);
 	void ExecuteAdvancedSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);

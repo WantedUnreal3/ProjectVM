@@ -23,6 +23,7 @@ void UVMHeroSkillComponent::ExecuteBasicSkill(AVMCharacterHeroBase* Owner, UVMHe
 	{
 		Owner->GetMesh()->GetAnimInstance()->Montage_Play(BasicSkillMontage);
 		BasicSkill->ActivateSkill(Owner, StatComp);
+		OnBasicSkillExecute.Broadcast(BasicSkill);
 	}
 }
 
@@ -37,6 +38,7 @@ void UVMHeroSkillComponent::ExecuteAdvancedSkill(AVMCharacterHeroBase* Owner, UV
 	{
 		Owner->GetMesh()->GetAnimInstance()->Montage_Play(AdvancedSkillMontage);
 		AdvancedSkill->ActivateSkill(Owner, StatComp);
+		OnAdvancedSkillExecute.Broadcast(AdvancedSkill);
 	}
 }
 
@@ -51,6 +53,7 @@ void UVMHeroSkillComponent::ExecuteMovementSkill(AVMCharacterHeroBase* Owner, UV
 	{
 		Owner->GetMesh()->GetAnimInstance()->Montage_Play(MovementSkillMontage);
 		MovementSkill->ActivateSkill(Owner, StatComp);
+		OnMovementSkillExecute.Broadcast(MovementSkill);
 	}
 }
 
@@ -65,6 +68,7 @@ void UVMHeroSkillComponent::ExecuteUltimateSkill(AVMCharacterHeroBase* Owner, UV
 	{
 		Owner->GetMesh()->GetAnimInstance()->Montage_Play(UltimateSkillMontage);
 		UltimateSkill->ActivateSkill(Owner, StatComp);
+		OnUltimateSkillExecute.Broadcast(UltimateSkill);
 	}
 }
 

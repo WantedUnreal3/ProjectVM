@@ -119,9 +119,9 @@
 <div align="center">
   <table>
     <tr>
-      <td align="center"><img width="395" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" /></td>
-      <td align="center"><img width="370" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" /></td>
-      <td align="center"><img width="2274" height="1452" alt="Image" src="https://github.com/user-attachments/assets/83ebd5cf-5fe5-4b0a-9d5a-ffb0d669d341" /></td>
+      <td align="center"><img width="300" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" /></td>
+      <td align="center"><img width="300" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" /></td>
+      <td align="center"><img width="300" height="1452" alt="Image" src="https://github.com/user-attachments/assets/83ebd5cf-5fe5-4b0a-9d5a-ffb0d669d341" /></td>
     </tr>
     <tr>
       <td align="center">노션 문서정리</td>

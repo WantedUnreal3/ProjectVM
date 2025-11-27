@@ -1,5 +1,3 @@
-<img width="1200" height="200" alt="Image" src="https://github.com/user-attachments/assets/fbb6bd1a-58d5-4d60-bcd8-943422fbbf5c" /> <br>
-
 >UnrealEngine5를 이용한 RPG 게임입니다. <br>
 >대충 이야기<br>
 >대충 게임 주제<br>
@@ -9,6 +7,11 @@
 ## 🖼️ 데모 / 스크린샷
 
 이미지 추가
+
+---
+
+## 📌 프로젝트 개요
+
 
 ---
 
@@ -30,7 +33,7 @@
 
 ---
 
-## 📌 게임 방법
+## 🎯 게임 방법
 | 조작 | 동작 |
 |------|------|
 | **W / A / S / D** | 이동 |
@@ -40,9 +43,7 @@
 | **Q** | 궁극기 |
 | **E** | 상호작용 |
 
-## 😒 개발 과정 & 어려웠던 점
-
-## 🚀 향후 계획
+## 🤝 협업 과정
 
 ## 📄 프로젝트 문서 (Notion)
 [🔗 노션 페이지](https://www.notion.so/pinto-roast-6b7/3-29958cbd2521802f81b7efd44d3c0ce3)

@@ -119,5 +119,34 @@
 <img width="395" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" />
 <img width="370" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" />
 
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><img width="395" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" /></td>
+      <td align="center"><img width="370" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" /></td>
+    </tr>
+    <tr>
+      <td align="left">
+        - 캐릭터 이동 및 스킬 구현<br>
+        - 아이템 빌드 구현
+      </td>
+      <td align="left">
+        - 몬스터 스킬 구현<br>
+        - 몬스터 AI 구현
+      </td>
+    </tr>
+    <tfoot>
+      <tr>
+        <td align="center" colspan="4">
+          노션 문서정리
+        </td>
+        <td align="center" colspan="4">
+          커밋 규칙
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
 ## 📄 프로젝트 문서 (Notion)
 [🔗 노션 페이지](https://www.notion.so/pinto-roast-6b7/3-29958cbd2521802f81b7efd44d3c0ce3)

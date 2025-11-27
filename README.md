@@ -122,14 +122,10 @@
       <td align="center"><img width="395" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" /></td>
       <td align="center"><img width="370" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" /></td>
     </tr>
-      <tr>
-        <td align="center" colspan="4">
-          노션 문서정리
-        </td>
-        <td align="center" colspan="4">
-          커밋 규칙
-        </td>
-      </tr>
+    <tr>
+      <td align="center">노션 문서정리</td>
+      <td align="center">커밋 규칙</td>
+    </tr>
   </table>
 </div>
 

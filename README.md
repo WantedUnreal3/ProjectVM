@@ -116,5 +116,8 @@
 - 문제 발생 시 빠른 피드백과 논의 진행  
 - **정기 회의:** 매주 수요일 정기 회의를 통해 진행 상황 확인 및 계획 조율
 
+<img width="395" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" />
+<img width="370" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" />
+
 ## 📄 프로젝트 문서 (Notion)
 [🔗 노션 페이지](https://www.notion.so/pinto-roast-6b7/3-29958cbd2521802f81b7efd44d3c0ce3)

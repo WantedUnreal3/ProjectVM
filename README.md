@@ -125,16 +125,6 @@
       <td align="center"><img width="395" height="278" alt="Image" src="https://github.com/user-attachments/assets/3be36754-1425-4f11-8016-6e429390573c" /></td>
       <td align="center"><img width="370" height="290" alt="Image" src="https://github.com/user-attachments/assets/b426a64e-010e-49d3-8a15-eb7f124f090a" /></td>
     </tr>
-    <tr>
-      <td align="left">
-        - 캐릭터 이동 및 스킬 구현<br>
-        - 아이템 빌드 구현
-      </td>
-      <td align="left">
-        - 몬스터 스킬 구현<br>
-        - 몬스터 AI 구현
-      </td>
-    </tr>
     <tfoot>
       <tr>
         <td align="center" colspan="4">

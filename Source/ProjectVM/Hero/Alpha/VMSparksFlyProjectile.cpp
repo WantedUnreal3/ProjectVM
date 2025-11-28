@@ -30,7 +30,7 @@ AVMSparksFlyProjectile::AVMSparksFlyProjectile()
 	SparksFlyEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SparksFlyEffect"));
 	SparksFlyEffect->SetupAttachment(SphereCollision);
 	SparksFlyEffect->SetAutoActivate(true);
-	SparksFlyEffect->SetAutoDestroy(true);
+	//SparksFlyEffect->SetAutoDestroy(true);
 
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraSystemAsset(TEXT("/Game/_SplineVFX/NS/NS_Spline_EnergyLoop_Burning.NS_Spline_EnergyLoop_Burning"));
 	if (NiagaraSystemAsset.Succeeded())

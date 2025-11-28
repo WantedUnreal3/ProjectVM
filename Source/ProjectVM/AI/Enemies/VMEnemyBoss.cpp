@@ -11,7 +11,21 @@
 #include "AI/Enemies/Minions/VMEnemySpawnSiege.h"
 #include "AI/Enemies/Minions/VMEnemySpawnSuper.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "Kismet/GameplayStatics.h"
+
+#include "Macro/VMPhysics.h"
+
+#include "Environment/BossWall.h"
+#include "Environment/BossWater.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
+
+#include "Enum/BossPhase.h"
+
+#include "Core/VMLevelManager.h"
+#include "Portal/VMFieldPortal.h"
 
 // Sets default values
 AVMEnemyBoss::AVMEnemyBoss()
@@ -36,10 +50,15 @@ AVMEnemyBoss::AVMEnemyBoss()
 void AVMEnemyBoss::InitDefaultSetting()
 {
 	// 기본 세팅
+	GetCapsuleComponent()->SetCollisionProfileName(VM_ENEMY_COLLISION);
 	GetCapsuleComponent()->SetCapsuleHalfHeight(130.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(50.0f);
 	GetCapsuleComponent()->SetLineThickness(1.0f);
 	GetCapsuleComponent()->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
+
+	GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+	GetCharacterMovement()->GravityScale = 0.f;
+	GetCharacterMovement()->MaxFlySpeed = 600;
 
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -120.0f));
@@ -83,7 +102,65 @@ void AVMEnemyBoss::LoadAsset()
 	{
 		SummonMontage = SummonMontageRef.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> MoveMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Project/Animation/AM_BossMove.AM_BossMove'"));
+	ensureAlways(MoveMontageRef.Object);
+	if (MoveMontageRef.Object)
+	{
+		MoveMontage = MoveMontageRef.Object;
+	}
 #pragma endregion
+
+	HPPhase.Push(1000);
+	HPPhase.Push(500);
+	HPPhase.Push(0);
+	PhaseIndex = 0;
+
+	CurrentHp = MaxHp;
+	PhaseMinHp = HPPhase[PhaseIndex];
+}
+
+// Called when the game starts or when spawned
+void AVMEnemyBoss::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Tags.Add("Enemy");
+
+	SaveAllSpawner();
+
+	// Phase2 전용 변수 저장.
+	TArray<AActor*> Walls;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABossWall::StaticClass(), Walls);
+
+	if (Walls.Num() > 0)
+	{
+		BossWall = Cast<ABossWall>(Walls[0]);
+		UE_LOG(LogTemp, Warning, TEXT("BossWall found: %s"), *BossWall->GetName());
+	}
+
+	TArray<AActor*> Waters;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABossWater::StaticClass(), Waters);
+
+	if (Waters.Num() > 0)
+	{
+		BossWater = Cast<ABossWater>(Waters[0]);
+		UE_LOG(LogTemp, Warning, TEXT("BossWall found: %s"), *BossWater->GetName());
+	}
+}
+
+// Called every frame
+void AVMEnemyBoss::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+// Called to bind functionality to input
+void AVMEnemyBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 }
 
 void AVMEnemyBoss::ActivateSummonMontage()
@@ -110,6 +187,26 @@ void AVMEnemyBoss::SummonMinion(FVector Pos)
 	Params.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
+	//Spawn Level BossMap으로 한정. BossMap 없으면 퍼시스턴트 레벨에 소환
+	UVMLevelManager* LevelManager = GetGameInstance()->GetSubsystem<UVMLevelManager>();
+	if (LevelManager != nullptr)
+	{
+		ULevelStreaming* BossLevel = LevelManager->GetLevel(FName("BossMap"));
+		if (BossLevel != nullptr && BossLevel->GetLoadedLevel() != nullptr)
+		{
+			Params.OverrideLevel = BossLevel->GetLoadedLevel();
+			UE_LOG(LogTemp, Log, TEXT("Spawn location changed to BossMap"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("BossLevel is nullptr"));
+		}
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Log, TEXT("LevelManager is nullptr"));
+	}
+	
 	if (EnemySpawnArray.Num() > 0)
 	{
 		Index = FMath::RandRange(0, EnemySpawnArray.Num() - 1);
@@ -140,6 +237,77 @@ void AVMEnemyBoss::DeactivateSummonMontage()
 void AVMEnemyBoss::OnHealHp(float HealGauge)
 {
 	CurrentHp = FMath::Clamp<float>(CurrentHp + HealGauge, 0, MaxHp);
+	OnHealthPointPercentageChanged.Broadcast(CurrentHp / MaxHp);
+}
+
+void AVMEnemyBoss::HealthPointChange(float Amount, AActor* Causer)
+{
+	if (Causer == nullptr)
+	{
+		return; 
+	}
+
+	CurrentHp = FMath::Clamp<float>(CurrentHp - Amount, PhaseMinHp, PhaseMaxHp);
+	if (CurrentHp < KINDA_SMALL_NUMBER)
+	{
+		OnHealthPointPercentageChanged.Broadcast(0);
+
+		UWorld* World = GetWorld();
+		if (!World) return;
+
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		//Spawn Level BossMap으로 한정. BossMap 없으면 퍼시스턴트 레벨에 소환
+		UVMLevelManager* LevelManager = GetGameInstance()->GetSubsystem<UVMLevelManager>();
+		if (LevelManager != nullptr)
+		{
+			ULevelStreaming* BossLevel = LevelManager->GetLevel(FName("BossMap"));
+			if (BossLevel != nullptr && BossLevel->GetLoadedLevel() != nullptr)
+			{
+				Params.OverrideLevel = BossLevel->GetLoadedLevel();
+				UE_LOG(LogTemp, Log, TEXT("Spawn location changed to BossMap"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("BossLevel is nullptr"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("LevelManager is nullptr"));
+		}
+
+		//필드 포털 생성
+		AVMFieldPortal* SpawnedActor = World->SpawnActor<AVMFieldPortal>(AVMFieldPortal::StaticClass(), GetActorTransform(), Params);
+
+		Destroy();
+		return;
+	}
+
+	if (CurrentHp - HPPhase[PhaseIndex] < KINDA_SMALL_NUMBER)
+	{
+		PhaseMaxHp = PhaseMinHp;
+		PhaseIndex++;
+
+		UpdatePhase();
+		if (PhaseIndex == 1)
+		{
+			BossWall->StartLoweringWall();
+			BossWater->StartLoweringWater();
+		}
+		else if (PhaseIndex == 2)
+		{
+			BossWall->StartUpperingWall();
+		}
+		PhaseMinHp = HPPhase[PhaseIndex];
+		UE_LOG(LogTemp, Log, TEXT("변경"));
+	}
+	
+
+	float HpPercent = CurrentHp / MaxHp;
+	OnHealthPointPercentageChanged.Broadcast(HpPercent);
 }
 
 void AVMEnemyBoss::SaveAllSpawner()
@@ -151,28 +319,24 @@ void AVMEnemyBoss::SaveAllSpawner()
 	UE_LOG(LogTemp, Log, TEXT("Spawners:%d"), Spawners.Num());
 }
 
-// Called when the game starts or when spawned
-void AVMEnemyBoss::BeginPlay()
+void AVMEnemyBoss::UpdatePhase()
 {
-	Super::BeginPlay();
-	
-	Tags.Add("Enemy");
+	int32 NewPhase = 0;
 
-	SaveAllSpawner();
-}
+	if (PhaseMaxHp >= 1500)      NewPhase = (int32)EBossPhase::Phase1;
+	else if (PhaseMaxHp >= 1000)NewPhase = (int32)EBossPhase::Phase2;
+	else                       NewPhase = (int32)EBossPhase::Phase3;
+	// Controller 통해 Blackboard에 접근 — Pawn이 직접 소유하지 않음
+	AController* Controllers = GetController();
+	if (!Controllers) return;
 
-// Called every frame
-void AVMEnemyBoss::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	AAIController* AICon = Cast<AAIController>(Controllers);
+	if (!AICon) return;
 
-}
+	UBlackboardComponent* BBComp = AICon->GetBlackboardComponent();
+	if (!BBComp) return;
 
-// Called to bind functionality to input
-void AVMEnemyBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	BBComp->SetValueAsInt(TEXT("BossPhase"), NewPhase);
 }
 
 
@@ -199,3 +363,9 @@ void AVMEnemyBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 //		UE_LOG(LogTemp, Log, TEXT("소환 몬스터"));
 //	}
 //}
+
+
+void AVMEnemyBoss::ClearDelegate()
+{
+	OnHealthPointPercentageChanged.RemoveAll(this);
+}

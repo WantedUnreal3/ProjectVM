@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Core/GameEnums.h"
+
+#include "UI/Inventory/VMInventoryPanel.h"
 #include "VMRPGPlayerController.generated.h"
 
 /**
@@ -27,6 +29,27 @@ public:
 	UFUNCTION()
 	UUserWidget* GetScreen(EScreenUIType ScreenType);
 
+	void ToggleInteractKey(bool bIsVisible);
+
+	// 인벤토리 열기/닫기 함수
+	UFUNCTION(BlueprintCallable)
+	void OpenInventory();
+
+	UFUNCTION(BlueprintCallable)
+	void CloseInventory();
+
+	// 보스
+	UFUNCTION(BlueprintCallable)
+	void ShowBossStatusWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideBossStatusWidget();
+	
+	void ShowGameOverUI();
+	void HideGameOverUI();
+
+	void ShowQuestClearUI();
+	void HideQuestClearUI();
 protected:
 	virtual void BeginPlay() override;
 
@@ -51,4 +74,35 @@ protected:
 
 	UPROPERTY()
 	TMap<EScreenUIType, UUserWidget*> ScreenUIMap;
+
+	// 인벤토리 패널 UMG 클래스
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UVMInventoryPanel> InventoryPanelClass;
+
+	// 생성된 패널 인스턴스
+	UPROPERTY()
+	UVMInventoryPanel* InventoryPanel;
+
+
+	// 보스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UVMHeroStatusWidget> VMBossStatusWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
+	TObjectPtr<class UVMHeroStatusWidget> VMBossStatusWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UUserWidget> GameOverWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<class UUserWidget> GameOverWidget;
+
+	//퀘스트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UUserWidget> QuestClearOverlayClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<class UUserWidget> QuestClearOverlay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UVMSkillsCooldownWidget> SkillsCooldownWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
+	TObjectPtr<class UVMSkillsCooldownWidget> SkillsCooldownWidget;
 };

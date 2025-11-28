@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Hero/Alpha/VMSparksFly.h"
@@ -15,6 +15,7 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "VMSparksFlyProjectile.h"
+#include "Hero/VMAnimInstance.h"
 
 UVMSparksFly::UVMSparksFly(const FObjectInitializer& ObjectInitializer)
 {
@@ -68,7 +69,15 @@ void UVMSparksFly::ActivateSkill(class AVMCharacterHeroBase* InOwner, class UVMH
 		return;
 	}
 
-	StartSpawnProjectile();
+	UVMAnimInstance* AnimInstance = Cast<UVMAnimInstance>(InOwner->GetMesh()->GetAnimInstance());
+	if (AnimInstance == nullptr)
+	{
+		StartSpawnProjectile();	
+	}
+	else
+	{
+		AnimInstance->OnSkillMotionStart.AddUObject(this, &UVMSparksFly::StartSpawnProjectile);
+	}
 
 #if HERO_SKILL_DEBUG
 	DrawDebugSphere(Owner->GetWorld(), Center, 1000.0f, 32, DrawDebugColor, false, 2.f);
@@ -96,6 +105,11 @@ void UVMSparksFly::SpawnProjectile()
 		return;
 	}
 
+	if (Targets.IsEmpty())
+	{
+		return;
+	}
+	
 	AActor* Target = Targets[TargetIndex % Targets.Num()];
 	AVMSparksFlyProjectile* Projectile = Owner->GetWorld()->SpawnActor<AVMSparksFlyProjectile>(AVMSparksFlyProjectile::StaticClass(), Owner->GetActorLocation(), FRotator::ZeroRotator);
 	if (Projectile != nullptr && Projectile->IsValidLowLevel())

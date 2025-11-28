@@ -62,7 +62,6 @@ bool UBTDecorator_AttackRange::CalculateRawConditionValue(UBehaviorTreeComponent
 	// Target이 null이면 함수 종료.
 	if (Target == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("내가 null인가5"));
 		return false;
 	}
 
@@ -74,7 +73,7 @@ bool UBTDecorator_AttackRange::CalculateRawConditionValue(UBehaviorTreeComponent
 
 	// 캐릭터와의 거리와 공격 가능 거리를 비교 후 Result에 저장.
 	bResult = (DistanceToTarget <= AttackRangetWithRadius);
-	bResult = BBComponentPtr->GetValueAsBool(TEXT("bCanAttack"));
+	//bResult = BBComponentPtr->GetValueAsBool(TEXT("bCanAttack"));
 	//UE_LOG(LogTemp, Display, TEXT("DistanceToTarget:%f AttackRangetWithRadius:%f, flag:%d"), DistanceToTarget, AttackRangetWithRadius, bResult);
 
 	return bResult;

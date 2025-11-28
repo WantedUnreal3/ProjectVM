@@ -16,7 +16,7 @@ class PROJECTVM_API UVMShopItemWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetUp(const FVMEquipmentInfo& Info);
+	void Setup(const FVMEquipmentInfo& Info);
 
 	virtual void NativeConstruct() override;
 

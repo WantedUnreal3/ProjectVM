@@ -25,14 +25,14 @@ public:
 	}
 	FORCEINLINE const TArray<UVMEquipment*>& GetInventoryItems() const
 	{
-		return InventoryItems;
+		return InventoryComp->GetInventoryContents(); //InventoryItems;
 	}
 
 	FORCEINLINE void SetTestValues(int32 InMoney, int32 InCurrentCapacity, int32 InMaxCapacity)
 	{
-		TestMoney = InMoney;
-		TestInventoryCurrentCapacity = InCurrentCapacity;
-		TestInventoryMaxCapacity = InMaxCapacity;
+		PlayerMoney = InMoney;
+		InventoryCurrentCapacity = InCurrentCapacity;
+		InventoryMaxCapacity = InMaxCapacity;
 	}
 
 	//구매시 인벤토리에 아이템 추가하는 함수
@@ -41,7 +41,8 @@ public:
 	//판매시 인벤토리에 아이템을 지우는 함수
 	FORCEINLINE void RemoveInventoryItem(int32 index)
 	{
-		InventoryItems.RemoveAt(index);
+		//InventoryItems.RemoveAt(index);
+		InventoryComp->GetInventoryContents().RemoveAt(index);
 	}
 
 protected:
@@ -49,7 +50,6 @@ protected:
 	
 private:
 	void AddShopItem(int32 ItemNum);
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VALUE")
 	FName ShopId = TEXT("temp");
@@ -58,11 +58,15 @@ private:
 	UPROPERTY()
 	TArray<struct FVMEquipmentInfo> ShopItems;
 
-	UPROPERTY()
-	TArray<class UVMEquipment*> InventoryItems;
+	//UPROPERTY()
+	//TArray<class UVMEquipment*> InventoryItems;
+
+	//UPROPERTY()
+	TObjectPtr<class UVMInventoryComponent> InventoryComp;
+
 
 	//Todo: 나중에 인벤토리 붙이면 바꿔야함
-	int32 TestMoney = 200000;
-	int32 TestInventoryCurrentCapacity = 20;
-	int32 TestInventoryMaxCapacity = 50;
+	int32 PlayerMoney = 0;
+	int32 InventoryCurrentCapacity = 0;
+	int32 InventoryMaxCapacity = 20;
 };

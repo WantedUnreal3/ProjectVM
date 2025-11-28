@@ -8,6 +8,9 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Game/VMPlayer.h"
 
+#include "Hero/VMCharacterHeroBase.h"
+#include "Hero/VMHeroStatComponent.h"
+
 UBTService_UpdateMp::UBTService_UpdateMp()
 {
 	NodeName = TEXT("Update Owner's Mp");
@@ -47,14 +50,14 @@ void UBTService_UpdateMp::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 		return;
 	}
 
-	AVMPlayer* OwnerPlayerPtr = Cast<AVMPlayer>(MasterPtr);
-	if (MasterPtr == nullptr)
+	AVMCharacterHeroBase* OwnerPlayerPtr = Cast<AVMCharacterHeroBase>(MasterPtr);
+	if (OwnerPlayerPtr == nullptr)
 	{
 		return;
 	}
 
-	float CurrentMp = OwnerPlayerPtr->GetCurrentMp();
-	float MaxMp = OwnerPlayerPtr->GetMaxMp();
+	float CurrentMp = OwnerPlayerPtr->GetStatComponent()->GetStat().ManaPoint;
+	float MaxMp = OwnerPlayerPtr->GetStatComponent()->GetDefaultStat().ManaPoint;
 
 	BBComponentPtr->SetValueAsFloat(TEXT("OwnerCurrentMp"), CurrentMp);
 	BBComponentPtr->SetValueAsFloat(TEXT("OwnerMaxMp"), MaxMp);
@@ -63,6 +66,4 @@ void UBTService_UpdateMp::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 void UBTService_UpdateMp::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 {
 	Super::OnSearchStart(SearchData);
-
-	UE_LOG(LogTemp, Log, TEXT("UpdateMp::OnMpStart"));
 }

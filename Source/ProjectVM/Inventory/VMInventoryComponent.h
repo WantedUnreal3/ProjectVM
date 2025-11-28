@@ -116,8 +116,11 @@ public:
 	//FORCEINLINE int32 GetSlotCapacity() const { return InventorySlotsCapacity; };
 
 	UFUNCTION(Category = "Inventory")
-	FORCEINLINE TArray<UVMEquipment*> GetInventoryContents() const { return InventoryContents; };
-
+	TArray<UVMEquipment*>& GetInventoryContents() { return InventoryContents; };
+	//TArray<TObjectPtr<UVMEquipment>>& GetInventoryContents()
+	//{
+	//	return InventoryContents;
+	//}
 	//// Setter
 	//UFUNCTION(Category = "Inventory")
 	//FORCEINLINE void SetSlotsCapacity(const int32 NewSlotsCapacity) { InventorySlotsCapacity = NewSlotsCapacity; };
@@ -125,16 +128,27 @@ public:
 	//UFUNCTION(Category = "Inventory")
 	//FORCEINLINE void SetWeightCapacity(const int32 NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
 
+	void AddNewItem(UVMEquipment* Item, const int32 AmountTodd);
+
+	void UpdateUI();
+
+	FORCEINLINE int32 GetMoney() { return Money; }
+	FORCEINLINE void SetMoney(int32 NewMoney) { Money = NewMoney; }
+	FORCEINLINE void AddMoney(int32 Amount) { Money += Amount; }
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	FItemAddResult HandleNonStackableItems(UVMEquipment* InputItem);
-	void AddNewItem(UVMEquipment* Item, const int32 AmountTodd);
+
 
 protected:	
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	TArray<TObjectPtr<UVMEquipment>> InventoryContents;
+	TArray<UVMEquipment*> InventoryContents;
 
-		
+	UPROPERTY(EditAnywhere, Category = "Money")
+	int32 Money = 0;
+
+
 };

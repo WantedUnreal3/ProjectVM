@@ -20,6 +20,8 @@ public:
 protected:
 	virtual void SetDialogueOption() override;
 
+	virtual void TurnToPlayer() override;
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Shop")
 	TObjectPtr<class UVMShopComponent> ShopComponent;

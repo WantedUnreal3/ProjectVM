@@ -15,7 +15,8 @@ UENUM(BlueprintType)
 enum class EInputMode : uint8
 {
 	Default		UMETA(DisplayName = "Default"),		// 기본
-	Dialogue	UMETA(DisplayName = "Dialogue")		// 대화
+	Dialogue	UMETA(DisplayName = "Dialogue"),	// 대화
+	Dead		UMETA(DisplayName = "Dialogue")
 };
 
 //스크린 UI 열거형

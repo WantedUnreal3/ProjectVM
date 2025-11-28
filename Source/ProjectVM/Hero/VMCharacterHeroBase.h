@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Core/GameEnums.h"
+#include "Core/VMHeroEnums.h"
 
 #include "Interface/VMStatChangeable.h"
 #include "Interface/VMInteractionInterface.h"
@@ -13,9 +14,12 @@
 #include "Inventory/VMInventoryComponent.h"
 #include "UI/Character/VMCharacterHeroHUD.h"
 
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 #include "VMCharacterHeroBase.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FHeroDeathHandler);
 
 class UVMEquipment;
 
@@ -37,11 +41,6 @@ struct FInteractionData
 
 
 
-
-
-
-
-
 UCLASS()
 class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChangeable
 {
@@ -49,9 +48,15 @@ class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChan
 
 public:
 	AVMCharacterHeroBase();
+	
+	FHeroDeathHandler OnHeroDeath;
+	FHeroDeathHandler OnHeroResurrect;
 
+	FORCEINLINE class UCameraComponent* GetCameraComponent() { return FollowCamera; }
 	FORCEINLINE class UVMHeroStatComponent* GetStatComponent() { return Stat; }
 	FORCEINLINE class UVMHeroSkillComponent* GetSkillComponent() { return Skills; }
+	FORCEINLINE EHeroState GetHeroState() { return CurState; }
+	void Resurrect();
 	
 	void ChangeInputMode(EInputMode NewMode);
 	virtual void HealthPointChange(float Amount, AActor* Causer) override; // TODO : ApplyDamage로 네이밍 변경 고려
@@ -62,6 +67,8 @@ public:
 	void UpdateInteractionWidget() const;
 	void DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop);
 
+	void SetCurrentNPC(AVMNPC* NewNPC);
+
 protected:
 	virtual void BeginPlay() override;
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -69,18 +76,20 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void ApplySpeed(int32 SpeedStat);
-
+	void Die();
+	
 	void BasicSkill(const FInputActionValue& Value);
 	void AdvancedSkill(const FInputActionValue& Value);
 	void MovementSkill(const FInputActionValue& Value);
 	void UltimateSkill(const FInputActionValue& Value);
+
 
 	//상호작용
 	void Interact(const FInputActionValue& Value);
 
 	//대화 넘기기
 	void NextTalk(const FInputActionValue& Value);
-
+	
 
 	void DebuggingTest(const FInputActionValue& Value);
 
@@ -93,6 +102,8 @@ protected:
 	void BeingInteract();
 	void ToggleMenu();
 
+
+
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -102,8 +113,44 @@ protected:
 public:
 	UFUNCTION()
 	void OnHitExplosionByAOE(AActor* Target, FVector ExplosionCenter);
+	
+	UFUNCTION()
+	void OnHitMeteorByAOE(AActor* Target, float InDamage);
+
+	UFUNCTION()
+	void OnHitFrozenByAOE(AActor* Target, float InDamage);
+	
+	bool SlowFlag = false;
+	void ApplySlowDown();
+	void ClearSlowDown();
+	float MaxWalkSpeed;
+
+
+
+	UFUNCTION()
+	void OnHitThunderByAOE(AActor* Target, float InDamage);
 
 	FTimerHandle StunTimerHandle;
+
+	UFUNCTION()
+	void OnHitDotByAOE(AActor* Target);
+
+	void ClearFireDot();
+	void ApplyFireDotDamage();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Member")
+	int32 FireDotCount = 0;
+	
+	FTimerHandle FireTimerHandle;
+
+	FTimerHandle FrozenTimerHandle;
+
+	FTimerHandle DamageHandle;
+
+	UFUNCTION()
+	void ToggleInventory(const FInputActionValue& Value);
+
+	
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -114,6 +161,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputMappingContext> DeadStateInputMappingContext;
 
 	//대화 매핑 컨텍스트
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -158,6 +208,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UVMHeroSkillComponent> Skills;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill, Meta = (AllowPrivateAccess = "true"))
+	EHeroState CurState;
+
 	//상호작용 관련 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bCanInteract = false;
@@ -178,11 +231,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ToggleAction;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	//TObjectPtr<class UInputAction> BeginInteract;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> InventoryAction;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	//TObjectPtr<class UInputAction> EndInteract;
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
+	bool bInventoryIsOpen = false;
+
+
+
+
+
+#pragma region 나희영_손 묻음 ㅈㅅ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SpawnAllyAction;
+
+	void SpawnAllyActor();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPawnNoiseEmitterComponent> PawnNoiseEmitter;
+#pragma endregion
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -193,4 +261,6 @@ protected:
 	FTimerHandle TimerHandle_Interaction;
 	FInteractionData InteractionData;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DieMontage;
 };

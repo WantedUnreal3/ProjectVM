@@ -7,6 +7,9 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Game/VMPlayer.h"
+#include "Hero/VMCharacterHeroBase.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
 
 UBTTask_TeleportToOwner::UBTTask_TeleportToOwner()
 {
@@ -39,13 +42,20 @@ EBTNodeResult::Type UBTTask_TeleportToOwner::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Failed;
 	}
 
-	AVMPlayer* PlayerPtr = Cast<AVMPlayer>(ObjectPtr);
+	
+	AVMCharacterHeroBase* PlayerPtr = Cast<AVMCharacterHeroBase>(ObjectPtr);
 	if (PlayerPtr == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	FVector TargetPos = PlayerPtr->GetActorLocation();
+	TargetPos.Z += 200;
+	UCharacterMovementComponent* MoveComp = Cast<UCharacterMovementComponent>(PawnPtr->GetMovementComponent());
+	if (MoveComp)
+	{
+		MoveComp->StopMovementImmediately();
+	}
 	PawnPtr->SetActorLocation(TargetPos);
 
 	return EBTNodeResult::Succeeded;

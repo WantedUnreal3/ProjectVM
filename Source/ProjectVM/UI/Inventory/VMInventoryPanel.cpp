@@ -31,20 +31,39 @@ void UVMInventoryPanel::NativeOnInitialized()
 
 void UVMInventoryPanel::RefreshInventory()
 {
-    if (InventoryReference && InventorySlotClass)
+    UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory called"));
+
+    if (!InventoryReference)
     {
-        InventoryWrapBox->ClearChildren();
-        for (UVMEquipment* const& InventoryItem : InventoryReference->GetInventoryContents())
-        {
-            UVMInventoryItemSlot* ItemSlot = CreateWidget<UVMInventoryItemSlot>(this, InventorySlotClass);
-            ItemSlot->SetItemReference(InventoryItem);
-
-            InventoryWrapBox->AddChildToWrapBox(ItemSlot);
-
-        }
-
-        SetInfoText();
+        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory - InventoryReference is NULL"));
+        return;
     }
+
+    if (!InventorySlotClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory - InventorySlotClass is NULL"));
+        return;
+    }
+
+    const TArray<UVMEquipment*>& Contents = InventoryReference->GetInventoryContents();
+    UE_LOG(LogTemp, Warning, TEXT("InventoryPanel::RefreshInventory - NumItems: %d"), Contents.Num());
+
+    InventoryWrapBox->ClearChildren();
+
+    for (UVMEquipment* const& InventoryItem : Contents)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("  Slot for item: %s"),
+            InventoryItem ? *InventoryItem->GetEquipmentInfo().ItemName : TEXT("NULL ITEM"));
+
+        UVMInventoryItemSlot* ItemSlot =
+            CreateWidget<UVMInventoryItemSlot>(this, InventorySlotClass);
+
+        ItemSlot->SetItemReference(InventoryItem);  // 여기서 SetItemReference 로그가 떠야 함
+
+        InventoryWrapBox->AddChildToWrapBox(ItemSlot);
+    }
+
+    SetInfoText();
 }
 
 void UVMInventoryPanel::SetInfoText() const

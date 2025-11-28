@@ -6,51 +6,60 @@
 #include "Engine/DataTable.h"
 #include "VMEquipmentInfo.generated.h"
 
+
+
+
 USTRUCT(BlueprintType)
 struct FVMEquipmentInfo : public FTableRowBase
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FString ItemName;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMesh> Mesh = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	UTexture2D* Icon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FString ItemDesc;
+	FString ItemName = TEXT("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ItemID;
+	FString ItemDesc = TEXT("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ItemLevel;
+	int32 ItemID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 AttackPower;
+	int32 ItemLevel = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 DefensivePower;
+	int32 AttackPower = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 HealthPoint;
+	int32 DefensivePower = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ManaPoint;
+	int32 HealthPoint = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ManaRegeneration;
+	int32 ManaPoint = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 Speed;
+	int32 ManaRegeneration = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 LifeSteal;
+	int32 Speed = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FString Ability;
+	int32 LifeSteal = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 AtlasRow;
+	FString Ability = TEXT("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 AtlasCol;
+	int32 AtlasRow = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	int32 AtlasCol = 0;
 };

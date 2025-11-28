@@ -2,7 +2,6 @@
 
 
 #include "AI/Enemies/VMBossAIController.h"
-#include "VMBossAIController.h"
 
 #include "Interface/VMStatChangeable.h"
 
@@ -10,9 +9,12 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Game/VMPlayer.h"
-#include <Kismet/GameplayStatics.h>
+
 #include "Game/VMGameMode.h"
+
+#include "Hero/VMCharacterHeroBase.h"
+
+#include "Kismet/GameplayStatics.h"
 
 AVMBossAIController::AVMBossAIController()
 {
@@ -64,39 +66,31 @@ void AVMBossAIController::RunAI()
 	}
 
 	APawn* PawnPtr = GetPawn();
-
 	BlackboardPtr->SetValueAsVector(TEXT("InitPosition"), PawnPtr->GetActorLocation());
 
-	AVMPlayer* PlayerCharacter = Cast<AVMPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (PlayerCharacter == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("저는 NULLPtr"));
+		UE_LOG(LogTemp, Warning, TEXT("[AVMBossAIController::RunAI] 월드에서 찾은 PlayerCharacter가 nullptr입니다."));
+		return;
 	}
-
-	if (PlayerCharacter)
-	{
-		// 블랙보드에 저장 (키 이름은 Blackboard Asset에서 설정한 것과 동일해야 함)
-		BlackboardPtr->SetValueAsObject(TEXT("EnemyTarget"), PlayerCharacter);
-		APawn* QWER = Cast<APawn>(BlackboardPtr->GetValueAsObject(TEXT("EnemyTarget")));
-		if (QWER == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Set EnemyTarget result Error")); // true면 성공
-		}
-		
-		
-	}
+	
+	// 위를 통과했다면 무조건 존재.
+	BlackboardPtr->SetValueAsObject(TEXT("EnemyTarget"), PlayerCharacter);
 
 	bool RunResult = RunBehaviorTree(BTAsset);
 	if (RunResult == false)
 	{
-		ensureAlways(RunResult);
+		UE_LOG(LogTemp, Warning, TEXT("[AVMBossAIController::RunAI] RunBehaviorTree를 실패하였습니다."));
 		return;
 	}
 }
+
 void AVMBossAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Todo: 삭제해야 함. BossMap에서 테스트하기 위해 넣은 코드
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (PlayerCharacter)
 	{
@@ -114,25 +108,6 @@ void AVMBossAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//
-	//UBlackboardComponent* BBComp = GetBlackboardComponent();
-	//if (BBComp)
-	//{
-	//	if (BBComp->GetValueAsObject(TEXT("EnemyTarget")))
-	//	{
-	//		return;
-	//	}
-
-	//	AVMPlayer* PlayerCharacter = Cast<AVMPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	//	if (PlayerCharacter)
-	//	{
-	//		BBComp->SetValueAsObject(TEXT("EnemyTarget"), PlayerCharacter);
-	//	}
-	//	else
-	//	{
-	//		UE_LOG(LogTemp, Log, TEXT("Player Character is null"));
-	//	}
-	//}
 }
 
 // AI를 중지하는 함수.

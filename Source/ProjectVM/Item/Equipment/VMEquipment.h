@@ -10,6 +10,7 @@
 
 
 class UVMInventoryComponent;
+class UVMEquipmentInfo;
 /**
  * 
  */
@@ -38,6 +39,7 @@ public:
 
 	void EquipEffect(class AVMCharacterHeroBase* Owner);
 	FORCEINLINE FVMEquipmentInfo& GetEquipmentInfo() { return EquipmentInfo; };
+	FORCEINLINE void SetEquipmentInfo(FVMEquipmentInfo InEquipmentInfo) { EquipmentInfo = InEquipmentInfo; }
 
 public:
 	UPROPERTY()
@@ -51,8 +53,7 @@ public:
 
 protected:
 	friend class UItemFactorySubsystem;
-	FORCEINLINE void SetEquipmentInfo(FVMEquipmentInfo InEquipmentInfo) { EquipmentInfo = InEquipmentInfo; }
-
+	
 	bool operator==(const FName& OtherItemName) const
 	{
 		return FName(*EquipmentInfo.ItemName) == OtherItemName;

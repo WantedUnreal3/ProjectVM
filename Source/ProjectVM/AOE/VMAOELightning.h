@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "AOE/VMAOEOvertimeBase.h"
 #include "VMAOELightning.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAOEThunderOverlapActorDelegate, AActor*, Target, float, Damage);
 
 /**
  * 
@@ -33,6 +34,12 @@ public:
 
 	void InitAOEPosition();
 	void SpawnAOE();
+
+public:
+	FOnAOEThunderOverlapActorDelegate OnAOEThunderOverlapActor;
+
+	UFUNCTION()
+	void BroadcastOverlapActor(AActor* Actor, float InDamage);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Member | Mesh", Meta = (AllowPrivateAccess = "true"))

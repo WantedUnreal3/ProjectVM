@@ -13,23 +13,23 @@ struct FHeroStat : public FTableRowBase
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 AttackPower;
+	int32 AttackPower = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 DefensivePower;
+	int32 DefensivePower = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 HealthPoint;
+	int32 HealthPoint = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 ManaPoint;
+	int32 ManaPoint = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 ManaRegeneration;
+	int32 ManaRegeneration = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 Speed;
+	int32 Speed = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HeroStat")
-	int32 LifeSteal;
+	int32 LifeSteal = 0;
 };

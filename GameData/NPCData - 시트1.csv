@@ -1,5 +1,5 @@
 NPCId,StartTalkId,Type,NPCName
-Bob,Daily01,Quest,마을 주민 밥
-Buzz,Daily01,Quest,상점 주인 바즈
-Anna,Daily01,Quest,마법사 안나
-Chicken,Daily01,Quest,래퍼 치킨
+Bob,First01,Quest,마을 주민 밥
+Buzz,First01,Quest,상점 주인 바즈
+Anna,First01,Quest,마법사 안나
+Chicken,First01,Quest,래퍼 치킨

@@ -7,6 +7,7 @@
 #include "UI/Quest/VMQuestTracker.h"
 #include "UI/Quest/VMQuestTrackerWidget.h"
 #include "Components/ListView.h"
+#include "Hero/VMCharacterHeroBase.h"
 
 void UVMQuestManager::AssignQuestToNPC(FName QuestId)
 {
@@ -89,6 +90,20 @@ void UVMQuestManager::ClearQuest(FVMQuestData QuestData)
 	{
 		AssignQuestToNPC(FName(NextQuest));
 	}
+
+	//Reward
+	if (QuestData.Reward == FName("Money"))
+	{
+		AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(PC->GetPawn());
+		if (Player == nullptr)
+		{
+			UE_LOG(LogTemp, Log, TEXT("AVMCharacterHeroBase is nullptr"));
+			return;
+		}
+
+		Player->GetInventory()->AddMoney(QuestData.RewardCount);
+	}
+
 }
 
 void UVMQuestManager::CompleteQuestForNPC(FVMQuestData QuestData)
@@ -141,25 +156,11 @@ void UVMQuestManager::NotifyMonsterDeath(EMonsterName MonsterType)
 	}
 }
 
-void UVMQuestManager::NotifyItemCollecting(EItemName ItemName)
+void UVMQuestManager::NotifyItemCollecting()
 {
-	UE_LOG(LogTemp, Log, TEXT("아이템 수집 : %s"), *UEnum::GetValueAsString(ItemName));
+	UE_LOG(LogTemp, Log, TEXT("QuestManager: 아이템 수집"));
 
-	FName Target;
-	switch (ItemName)
-	{
-	case EItemName::Item1:
-		Target = "Item1";
-		break;
-	case EItemName::Item2:
-		Target = "Item2";
-		break;
-	default:
-		Target = "None";
-		break;
-	}
-
-	TArray<UVMQuestDataObject*>* Quests = CurrentQuests.Find(Target);
+	TArray<UVMQuestDataObject*>* Quests = CurrentQuests.Find(FName("ItemCollect"));
 	if (Quests != nullptr)
 	{
 		UpdateQuestProgress(*Quests);

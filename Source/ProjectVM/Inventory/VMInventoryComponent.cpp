@@ -3,6 +3,7 @@
 
 #include "Inventory/VMInventoryComponent.h"
 #include "Item/Equipment/VMEquipment.h"
+#include "Inventory/VMPickup.h"
 
 // Sets default values for this component's properties
 UVMInventoryComponent::UVMInventoryComponent()
@@ -39,7 +40,7 @@ UVMEquipment* UVMInventoryComponent::FindNextItemByID(UVMEquipment* ItemIn) cons
 {
 	if (ItemIn)
 	{
-		if (const TArray<TObjectPtr<UVMEquipment>>::ElementType* Result = InventoryContents.FindByKey(ItemIn))
+		if (const TArray<UVMEquipment*>::ElementType* Result = InventoryContents.FindByKey(ItemIn))
 		{
 			return *Result;
 		}
@@ -70,6 +71,8 @@ FItemAddResult UVMInventoryComponent::HandleAddItem(UVMEquipment* InputItem)
 
 void UVMInventoryComponent::RemoveSingleInstanceOfItem(UVMEquipment* ItemToRemove)
 { 
+	InventoryContents.RemoveSingle(ItemToRemove);
+	OnInventoryUpdated.Broadcast();
 }
 
 int32 UVMInventoryComponent::RemoveAmountOfItem(UVMEquipment* ItemIn, int32 DesiredAmountToRemove)
@@ -79,6 +82,11 @@ int32 UVMInventoryComponent::RemoveAmountOfItem(UVMEquipment* ItemIn, int32 Desi
 
 void UVMInventoryComponent::SplitExistingStack(UVMEquipment* ItemIn, const int32 AmountToSplit)
 {
+	if (!(InventoryContents.Num() + 1 > 20))
+	{
+		RemoveAmountOfItem(ItemIn, AmountToSplit);
+		AddNewItem(ItemIn, AmountToSplit);
+	}
 }
 
 
@@ -121,6 +129,11 @@ void UVMInventoryComponent::AddNewItem(UVMEquipment* Item, const int32 AmountTod
 
 	InventoryContents.Add(NewItem);
 	//InventoryTotalWeight += NewItem->GetItemStackWeight();
+	OnInventoryUpdated.Broadcast();
+}
+
+void UVMInventoryComponent::UpdateUI()
+{
 	OnInventoryUpdated.Broadcast();
 }
 

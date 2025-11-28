@@ -2,6 +2,8 @@
 
 
 #include "Hero/VMAnimInstance.h"
+
+#include "Hero/VMCharacterHeroBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -15,10 +17,10 @@ void UVMAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 	
-	Owner = Cast<ACharacter>(GetOwningActor());
-	if (Owner == nullptr) return;
-
-	Movement = Owner->GetCharacterMovement();
+	Hero = Cast<AVMCharacterHeroBase>(GetOwningActor());
+	if (Hero == nullptr) return;
+	
+	Movement = Hero->GetCharacterMovement();
 }
 
 void UVMAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -33,4 +35,19 @@ void UVMAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsIdle = GroundSpeed < MovingThreshold;
 	bIsFalling = Movement->IsFalling();
 	bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshold);
+
+	HeroState = Hero->GetHeroState();
+}
+
+void UVMAnimInstance::AnimNotify_SkillMotionStart()
+{
+	UE_LOG(LogTemp, Log, TEXT("AnimNotify : SkillMotionStart"));
+	OnSkillMotionStart.Broadcast();
+	OnSkillMotionStart.Clear();
+}
+
+void UVMAnimInstance::AnimNotify_SkillMotionEnd()
+{
+	OnSkillMotionEnd.Broadcast();
+	OnSkillMotionEnd.Clear();
 }

@@ -7,6 +7,7 @@
 #include "Hero/Alpha/VMFlamingLaunch.h"
 #include "Hero/Alpha/VMFireworks.h"
 #include "Hero/VMHeroSkillComponent.h"
+#include "Hero/VMHeroStatComponent.h"
 
 AAlpha::AAlpha()
 {
@@ -33,6 +34,30 @@ AAlpha::AAlpha()
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> BasicSkillMontageRef(TEXT("/Game/Project/Hero/Alpha/Anim/AM_SparksFly.AM_SparksFly"));
+	if (BasicSkillMontageRef.Succeeded())
+	{
+		GetSkillComponent()->BindBasicSkillMontage(BasicSkillMontageRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AdvancedSkillMontageRef(TEXT("/Game/Project/Hero/Alpha/Anim/AM_BurningFuse.AM_BurningFuse"));
+	if (AdvancedSkillMontageRef.Succeeded())
+	{
+		GetSkillComponent()->BindAdvancedSkillMontage(AdvancedSkillMontageRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> MovementSkillMontageRef(TEXT("/Game/Project/Hero/Alpha/Anim/AM_FlamingLaunch.AM_FlamingLaunch"));
+	if (MovementSkillMontageRef.Succeeded())
+	{
+		GetSkillComponent()->BindMovementSkillMontage(MovementSkillMontageRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> UltimateSkillMontageRef(TEXT("/Game/Project/Hero/Alpha/Anim/AM_Fireworks.AM_Fireworks"));
+	if (UltimateSkillMontageRef.Succeeded())
+	{
+		GetSkillComponent()->BindUltimateSkillMontage(UltimateSkillMontageRef.Object);
+	}
 }
 
 void AAlpha::BeginPlay()
@@ -43,6 +68,17 @@ void AAlpha::BeginPlay()
 	USkillBase* BurningFuse = NewObject<UVMBurningFuse>(this, UVMBurningFuse::StaticClass());
 	USkillBase* FlamingLaunch = NewObject<UVMFlamingLaunch>(this, UVMFlamingLaunch::StaticClass());
 	USkillBase* Fireworks = NewObject<UVMFireworks>(this, UVMFireworks::StaticClass());
+
+	FHeroStat BaseStats;
+	BaseStats.AttackPower = 10;
+	BaseStats.DefensivePower = 5;
+	BaseStats.HealthPoint = 100;
+	BaseStats.ManaPoint = 100;
+	BaseStats.ManaRegeneration = 5;
+	BaseStats.Speed = 500;
+	BaseStats.LifeSteal = 10;
+	
+	Stat->InitBaseStats(BaseStats);
 
 	Skills->BindBasicSkill(SparksFly);
 	Skills->BindAdvancedSkill(BurningFuse);

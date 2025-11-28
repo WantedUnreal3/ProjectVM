@@ -80,7 +80,7 @@ void UVMShopScreen::SetBuyMode()
 		UE_LOG(LogTemp, Log, TEXT("Item : %s"), *Item.ItemName);
 		UVMShopItemWidget* NewItemWidget = CreateWidget<UVMShopItemWidget>(this, ShopItemWidgetClass);
 
-		NewItemWidget->SetUp(Item);
+		NewItemWidget->Setup(Item);
 		NewItemWidget->ShopScreen = this;
 		NewItemWidget->InventoryIndex = Index;
 
@@ -127,7 +127,7 @@ void UVMShopScreen::SetSellMode()
 		UE_LOG(LogTemp, Log, TEXT("Item : %s"), *Item->GetEquipmentInfo().ItemName);
 		UVMShopItemWidget* NewItemWidget = CreateWidget<UVMShopItemWidget>(this, ShopItemWidgetClass);
 
-		NewItemWidget->SetUp(Item->GetEquipmentInfo());
+		NewItemWidget->Setup(Item->GetEquipmentInfo());
 		NewItemWidget->ShopScreen = this;
 		NewItemWidget->InventoryIndex = Index;
 		//그리드 5열
@@ -137,52 +137,6 @@ void UVMShopScreen::SetSellMode()
 		Index++;
 	}
 }
-
-//void UVMShopScreen::OnGridItemButtonClicked(const FVMEquipmentInfo& ClickedItemInfo)
-//{
-//	UE_LOG(LogTemp, Log, TEXT("Clicked: %s"), *ClickedItemInfo.ItemName);
-//	TArray<UObject*> Items = ShopListView->GetListItems();
-//	bool bIsFind = false;
-//
-//	// 아이템이 이미 리스트에 추가되어있는지 확인
-//	for (UObject* ItemObject : Items)
-//	{
-//		UVMShopItemDataObject* ItemData = Cast<UVMShopItemDataObject>(ItemObject);
-//		if (ItemData != nullptr)
-//		{
-//			if (ItemData->EquipmentInfo->ItemID == ClickedItemInfo.ItemID)
-//			{
-//				bIsFind = true;
-//				//추가 되어있다면 새로 만들지말고 기존 아이템 Count 증가
-//				if (ItemData->ChangeItemCount(true))
-//				{
-//					//추가 성공 했으면 Count 증가
-//					++AllItemCount;
-//				}
-//				break;
-//			}
-//		}
-//	}
-//
-//	//추가되어 있지않다며 새로 아이템 추가
-//	if (!bIsFind)
-//	{
-//		UVMShopItemDataObject* NewShopItemDataObject = NewObject<UVMShopItemDataObject>(this);
-//		NewShopItemDataObject->EquipmentInfo = &ClickedItemInfo;
-//		NewShopItemDataObject->ParentInterface = this; //인터페이스 타입으로 자기자신을 넘김
-//		ShopListView->AddItem(NewShopItemDataObject);
-//		++AllItemCount;
-//	}
-//
-//	//만약 판매 화면이면 그리드 패널 클릭시 아이템 삭제
-//	if (!bIsBuy)
-//	{
-//
-//	}
-//
-//
-//	UpdateAllPriceText(AllItemPrice + ClickedItemInfo.ItemLevel * 2000);
-//}
 
 void UVMShopScreen::OnGridItemButtonClicked(UVMShopItemWidget* ChildGridWidget)
 {
@@ -285,9 +239,9 @@ void UVMShopScreen::RemoveListItem(int32 Price, UVMShopItemDataObject* ListObjec
 
 	UE_LOG(LogTemp, Log, TEXT("deldte : %s"), *ListObject->EquipmentInfo->ItemName);
 	//그리드 뷰에 아이템 추가
-	
+
 	UVMShopItemWidget* NewItemWidget = CreateWidget<UVMShopItemWidget>(this, ShopItemWidgetClass);
-	NewItemWidget->SetUp(*(ListObject->EquipmentInfo));
+	NewItemWidget->Setup(*(ListObject->EquipmentInfo));
 
 	NewItemWidget->ShopScreen = this;
 	int32 NowIndex = ListObject->InventoryIndexes[0];
@@ -445,14 +399,18 @@ void UVMShopScreen::OnExitClicked()
 	PC->SetInputMode(InputMode);
 
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (PlayerCharacter != nullptr)
+	if (PlayerCharacter == nullptr)
 	{
-		AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(PlayerCharacter);
-		if (Player != nullptr)
-		{
-			Player->ChangeInputMode(EInputMode::Default);
-		}
+		UE_LOG(LogTemp, Log, TEXT("ACharacter is nullptr"));
+		return;
 	}
+	AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(PlayerCharacter);
+	if (Player == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("AVMCharacterHeroBase is nullptr"));
+		return;
+	}
+	Player->ChangeInputMode(EInputMode::Default);
 
 	//ShopComponent nullptr로 초기화
 	ShopListView->ClearListItems();
@@ -460,6 +418,16 @@ void UVMShopScreen::OnExitClicked()
 	UpdateAllPriceText(0);
 	ShopComponent->SetTestValues(CurrentMoney, InventoryCurrentCapacity, InventoryMaxCapacity);
 	ShopComponent = nullptr;
+
+	//시점 다시 돌리기
+	PC->SetViewTargetWithBlend(PC->GetPawn(), 0.5f);
+
+	//인벤토리 UI 갱신
+	Player->GetInventory()->UpdateUI();
+	UE_LOG(LogTemp, Log, TEXT("인벤토리 갱신"));
+
+	//Player Money 갱신
+	Player->GetInventory()->SetMoney(CurrentMoney);
 }
 
 void UVMShopScreen::UpdateButtonStyle()
@@ -494,7 +462,7 @@ void UVMShopScreen::RepackShopGrid()
 		UVMShopItemWidget* ItemWidget = Cast<UVMShopItemWidget>(Children[i]);
 		if (ItemWidget)
 		{
-			ItemWidget->InventoryIndex = i; 
+			ItemWidget->InventoryIndex = i;
 		}
 		UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(ShopGridPanel->AddChild(Children[i]));
 		if (GridSlot != nullptr)

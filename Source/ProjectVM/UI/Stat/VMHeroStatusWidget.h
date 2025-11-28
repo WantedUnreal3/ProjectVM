@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,6 +17,11 @@ class PROJECTVM_API UVMHeroStatusWidget : public UUserWidget
 public:
 	UVMHeroStatusWidget(const FObjectInitializer& ObjectInitializer);
 
+	void UpdateMaxHealthPoint(int InMaxHealthPoint);
+	void UpdateCurrentHealthPoint(int InCurrentHealthPoint);
+	void UpdateMaxManaPoint(int InMaxManaPoint);
+	void UpdateCurrentManaPoint(int InCurrentManaPoint);
+
 	void RefreshHealthPointBar(float Percentage);
 	void RefreshManaPointBar(float Percentage);
 
@@ -24,9 +29,25 @@ protected:
 	virtual void NativeConstruct() override;
 	
 protected:
-	UPROPERTY()
-	TObjectPtr<class UProgressBar> HealthPointBar;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UProgressBar> HealthPoint;
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UProgressBar> ManaPoint;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UTextBlock> HealthPointText;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UTextBlock> ManaPointText;
+
 	UPROPERTY()
-	TObjectPtr<class UProgressBar> ManaPointBar;
+	int MaxHealthPoint;
+	UPROPERTY()
+	int CurrentHealthPoint;
+
+	UPROPERTY()
+	int MaxManaPoint;
+	UPROPERTY()
+	int CurrentManaPoint;
 };

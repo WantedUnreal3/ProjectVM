@@ -97,6 +97,7 @@ void UBTTask_HealAllMinionsAndBoss::OnTaskFinished(UBehaviorTreeComponent& Owner
 	{
 		return;
 	}
+
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
 		AActor* Enemy = *It;
@@ -107,7 +108,7 @@ void UBTTask_HealAllMinionsAndBoss::OnTaskFinished(UBehaviorTreeComponent& Owner
 		IEnemyHealInterface* ieh = Cast<IEnemyHealInterface>(Enemy);
 		if (ieh)
 		{
-			ieh->OnHealHp(1.f);
+			ieh->OnHealHp(100.f);
 		}
 	}
 

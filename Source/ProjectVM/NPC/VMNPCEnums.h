@@ -25,3 +25,10 @@ enum class ENPCOption : uint8
     Accept      UMETA(DisplayName = "수락"),
     Decline     UMETA(DisplayName = "거절")
 };
+
+UENUM(BlueprintType)
+enum class ENPCState : uint8
+{
+    Idle	UMETA(DisplayName = "Idle"),
+    Talk	UMETA(DisplayName = "Talk")
+};

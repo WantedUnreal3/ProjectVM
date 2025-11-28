@@ -4,6 +4,7 @@
 #include "UI/Character/VMCharacterHeroHUD.h"
 #include "UI/Inventory/VMInteractionWidget.h"
 #include "UI/Inventory/VMMainMenu.h"
+#include "UI/Inventory/VMInventoryPanel.h"
 
 AVMCharacterHeroHUD::AVMCharacterHeroHUD()
 {
@@ -28,6 +29,17 @@ void AVMCharacterHeroHUD::BeginPlay()
 		InteractionWidget = CreateWidget<UVMInteractionWidget>(GetWorld(), InteractionWidgetClass);
 		InteractionWidget->AddToViewport(-1);
 		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+
+	if (InventoryPanelClass)
+	{
+		InventoryPanel = CreateWidget<UVMInventoryPanel>(GetWorld(), InventoryPanelClass);
+		if (InventoryPanel)
+		{
+			InventoryPanel->AddToViewport();
+			// 처음에는 숨겨두고 싶으면 여기서 SetVisibility(Collapsed) 같은 것도 가능
+		}
 	}
 
 }

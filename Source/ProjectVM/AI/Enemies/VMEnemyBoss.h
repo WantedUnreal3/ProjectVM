@@ -7,13 +7,17 @@
 
 #include "Interface/VMSummonInterface.h"
 #include "Interface/EnemyHealInterface.h"
+#include "Interface/VMStatChangeable.h"
 
 #include "VMEnemyBoss.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FHealthPointPercentageHandler, float /* HPPercentage */);
 
 UCLASS()
 class PROJECTVM_API AVMEnemyBoss : public ACharacter
 	//, public IVMSummonInterface
 	, public IEnemyHealInterface
+	, public IVMStatChangeable
 {
 	GENERATED_BODY()
 
@@ -57,22 +61,54 @@ public:
 	void ActivateSummonMinion();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
-	float MaxHp = 200;
+	float MaxHp = 1500;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
-	float CurrentHp = 1;
+	float PhaseMaxHp = 1500;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
+	float PhaseMinHp;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
+	float CurrentHp = 1500;
+
+
+	virtual void HealthPointChange(float Amount, AActor* Causer) override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UAnimMontage> SummonMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UAnimMontage> MoveMontage;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
 	TArray<TSubclassOf<class AVMEnemySpawnBase>> EnemySpawnArray;
 
+	 
+public:
+	FHealthPointPercentageHandler OnHealthPointPercentageChanged;
 
 	void SaveAllSpawner();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
 	TArray<class AActor*> Spawners;
+
+	TArray<float> HPPhase;
+	int32 PhaseIndex;
+
+	void UpdatePhase();
+
+public:
+	void ClearDelegate();
+
+	// Phase 2 돌입 시 사용할 변수
+	UPROPERTY()
+	TObjectPtr<class ABossWall> BossWall;
+
+	UPROPERTY()
+	TObjectPtr<class ABossWater> BossWater;
 };

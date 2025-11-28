@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Item/Equipment/VMEquipment.h"
 #include "VMInventoryItemSlot.generated.h"
 
 
 
 class UVMInventoryTooltip;
-class UDragItemVisual;
+class UVMDragItemVisual;
 class UVMEquipment;
+class UVMEquipmentInfo;
 class UTextBlock;
 class UBorder;
 class UImage;
@@ -23,27 +25,33 @@ class PROJECTVM_API UVMInventoryItemSlot : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE void SetItemReference(UVMEquipment* ItemIn) { ItemReference = ItemIn; };
 	FORCEINLINE UVMEquipment* GetItemReference() const { return ItemReference; };
+	void SetItemReference(UVMEquipment* ItemIn);
 
-protected:
-	//UPROPERTY(EditDefaultsOnly, Category = "Inventory Slot")
-	//TSubclassOf<UDragItemVisual> DragItemVisualClass;
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory Slot")
+	TSubclassOf<UVMDragItemVisual> DragItemVisualClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Slot")
 	TSubclassOf<UVMInventoryTooltip> TooltipClass;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot")
-	UVMEquipment* ItemReference;
+	TObjectPtr<UVMEquipment> ItemReference;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
-	UBorder* ItemBorder;
+	TObjectPtr<UBorder> ItemBorder;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
-	UImage* ItemIcon;
+	TObjectPtr<UImage> ItemIcon;
 
+	UPROPERTY()
+	TObjectPtr<class UMaterialInstanceDynamic> ItemMaterialInstance;
+
+	void SetUp(const FVMEquipmentInfo& Info);
 	//UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
 	//TObjectPtr<UTextBlock> ItemQuantity;
+
+	void RefreshFromItem();
 
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;

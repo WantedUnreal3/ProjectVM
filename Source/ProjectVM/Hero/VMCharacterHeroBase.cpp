@@ -11,17 +11,27 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "VMAnimInstance.h"
 
 #include "Hero/VMHeroStatComponent.h"
 #include "Hero/VMHeroSkillComponent.h"
 
 #include "NPC/VMNPC.h"
 #include "Quest/VMQuestManager.h"
+#include "Core/InteractionManager.h"
 
 #include "UI/Character/VMCharacterHeroHUD.h"
 #include "Inventory/VMPickup.h"
 #include "Inventory/VMInventoryComponent.h"
 
+#include "Components/PawnNoiseEmitterComponent.h"
+
+#include "Interface/VMStatChangeable.h"
+#include "AOE/VMAOEHeal.h"
+#include "Game/VMRPGPlayerController.h"
+
+#include "AI/Allies/VMAllyBase.h"
+#include "Core/VMLevelManager.h"
 
 
 AVMCharacterHeroBase::AVMCharacterHeroBase()
@@ -65,6 +75,12 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	if (InputMappingContextRef.Succeeded())
 	{
 		InputMappingContext = InputMappingContextRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DeadStateInputMappingContextRef(TEXT("/Game/Project/Input/IMC_Dead.IMC_Dead"));
+	if (DeadStateInputMappingContextRef.Succeeded())
+	{
+		DeadStateInputMappingContext = DeadStateInputMappingContextRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DialogueMappingContextRef(TEXT("/Game/Project/Input/IMC_Dialogue.IMC_Dialogue"));
@@ -137,6 +153,16 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	Skills = CreateDefaultSubobject<UVMHeroSkillComponent>(TEXT("Skills"));
 
 
+#pragma region 나희영 손 묻음 ㅈㅅ
+	ConstructorHelpers::FObjectFinder<UInputAction> SpawnAllyActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Project/Input/Actions/IA_SpawnAlly.IA_SpawnAlly'"));
+	if (SpawnAllyActionRef.Object)
+	{
+		SpawnAllyAction = SpawnAllyActionRef.Object;
+	}
+	PawnNoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitterComponent"));
+#pragma endregion
+
+
 	// 인벤토리 관련
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ToggleActionRef(TEXT("/Game/Project/Input/Actions/IA_ToggelMenu.IA_ToggelMenu"));
@@ -150,9 +176,12 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	PlayerInventory = CreateDefaultSubobject<UVMInventoryComponent>(TEXT("PlayerInventory"));
 
 	InteractionCheckFrequency = 0.1;
-	InteractionCheckDistance = 225.0f;
+	InteractionCheckDistance = 300.0f;
 
 	BaseEyeHeight = 74.0f;
+
+	// Todo: 나중에 변경해야 함.
+	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void AVMCharacterHeroBase::HealthPointChange(float Amount, AActor* Causer)
@@ -168,8 +197,7 @@ void AVMCharacterHeroBase::ChangeInputMode(EInputMode NewMode)
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (PC)
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
 			// 현재 등록된 모든 매핑 제거
 			Subsystem->ClearAllMappings();
@@ -183,6 +211,8 @@ void AVMCharacterHeroBase::ChangeInputMode(EInputMode NewMode)
 			case EInputMode::Dialogue:
 				Subsystem->AddMappingContext(DialogueMappingContext, 0);
 				break;
+			case EInputMode::Dead:
+				Subsystem->AddMappingContext(DeadStateInputMappingContext, 0);
 			default:
 				break;
 			}
@@ -221,11 +251,26 @@ void AVMCharacterHeroBase::BeginPlay()
 	HUD = HUDPtr;
 
 	Stat->OnSpeedChanged.AddUObject(this, &AVMCharacterHeroBase::ApplySpeed);
+	Stat->OnCurrentHealthPointZero.AddUObject(this, &AVMCharacterHeroBase::Die);
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+
+
+	//인벤토리
+	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AVMCharacterHeroBase::BeginInteract);
+	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AVMCharacterHeroBase::EndInteract);
+
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
@@ -242,15 +287,16 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	
 	
 	EnhancedInputComponent->BindAction(ToggleAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::ToggleMenu);
+	EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started,this, &AVMCharacterHeroBase::ToggleInventory);
 	
 	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BeginInteract);
 	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::EndInteract);
 
+	// Spawn Ally
+	EnhancedInputComponent->BindAction(SpawnAllyAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::SpawnAllyActor);
+
 	//다이얼로그
 	EnhancedInputComponent->BindAction(NextTalkAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::NextTalk);
-
-	//인벤토리
-
 
 }
 
@@ -278,15 +324,45 @@ void AVMCharacterHeroBase::Look(const FInputActionValue& Value)
 
 void AVMCharacterHeroBase::ApplySpeed(int32 SpeedStat)
 {
-	GetCharacterMovement()->MaxAcceleration = 500.f + SpeedStat;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f + SpeedStat;
+	GetCharacterMovement()->MaxAcceleration = SpeedStat;
+	GetCharacterMovement()->MaxWalkSpeed = SpeedStat;
+}
+
+void AVMCharacterHeroBase::Die()
+{
+	UE_LOG(LogTemp, Log, TEXT("Test : Die"));
+	CurState = EHeroState::Dead;
+
+	ChangeInputMode(EInputMode::Dead);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
+	
+	OnHeroDeath.Broadcast();
+}
+
+void AVMCharacterHeroBase::Resurrect()
+{
+	UE_LOG(LogTemp, Log, TEXT("Test : Resurrect"));
+	CurState = EHeroState::Idle;
+
+	ChangeInputMode(EInputMode::Default);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("VMHeroCollision"));
+	
+	UVMLevelManager* LevelManager = GetGameInstance()->GetSubsystem<UVMLevelManager>();
+	LevelManager->DeleteLevel(FName("BossMap"));
+
+	SetActorLocation(FVector(-3700.0f, 1400.0f, 200.0f));
+	Stat->RecoverHealth(100);
+	Stat->RecoverMana(100);
+
+	OnHeroResurrect.Broadcast();
 }
 
 void AVMCharacterHeroBase::BasicSkill(const FInputActionValue& Value)
 {
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
-	
+
+	CurState = EHeroState::Skill;
 	Skills->ExecuteBasicSkill(this, Stat);
 }
 
@@ -316,17 +392,21 @@ void AVMCharacterHeroBase::UltimateSkill(const FInputActionValue& Value)
 
 void AVMCharacterHeroBase::Interact(const FInputActionValue& Value)
 {
-	if (CurrentNPC != nullptr)
+	UGameInstance* GI = GetGameInstance();
+	if (GI == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("input E, show ui : %s"), *CurrentNPC->GetName());
-		CurrentNPC->Interact();
+		UE_LOG(LogTemp, Log, TEXT("GameInstance is nullptr"));
+	}
 
-		ChangeInputMode(EInputMode::Dialogue);
-	}
-	else
+	UInteractionManager* InteractionManager = GI->GetSubsystem<UInteractionManager>();
+	if (InteractionManager == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("input E, cannot interact"));
+		UE_LOG(LogTemp, Log, TEXT("Interaction Manager is nullptr"));
+		return;
 	}
+
+	//상호작용 시작
+	InteractionManager->Interact();
 }
 
 void AVMCharacterHeroBase::NextTalk(const FInputActionValue& Value)
@@ -351,7 +431,6 @@ void AVMCharacterHeroBase::DebuggingTest(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Input Test Key"));
 
-	//FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
 	GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(EMonsterName::Warrior);
 }
 
@@ -370,7 +449,7 @@ void AVMCharacterHeroBase::PerformInteractionCheck()
 	if (LookDirection > 0)
 	{
 
-		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
@@ -394,6 +473,29 @@ void AVMCharacterHeroBase::PerformInteractionCheck()
 				}
 			}
 		}
+
+	/*	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *TraceHit.GetActor()->GetName());
+
+			if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UVMInteractionInterface::StaticClass()))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Implements IVMInteractionInterface!"));
+
+				const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+				UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), Distance);
+
+
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Actor does NOT implement interface"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LineTrace hit nothing"));
+		}*/
 	}
 
 
@@ -449,25 +551,61 @@ void AVMCharacterHeroBase::NoInteractableFound()
 
 void AVMCharacterHeroBase::BeginInteract()
 {
-	//verify nothing has changed with the interactable state since beginning interaction
+	////verify nothing has changed with the interactable state since beginning interaction
+	//PerformInteractionCheck();
+
+	//if (InteractionData.CurrentInteractable)
+	//{
+	//	if (IsValid(TargetInteractable.GetObject()))
+	//	{
+	//		TargetInteractable->BeginInteract();
+
+	//		if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+	//		{
+	//			BeingInteract();
+	//		}
+	//		else
+	//		{
+	//			GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, &AVMCharacterHeroBase::BeingInteract,
+	//				TargetInteractable->InteractableData.InteractionDuration, false);
+	//		}
+	//	}
+	//}
+	UE_LOG(LogTemp, Warning, TEXT("BeginInteract called"));
+
 	PerformInteractionCheck();
 
 	if (InteractionData.CurrentInteractable)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentInteractable is set: %s"),
+			*InteractionData.CurrentInteractable->GetName());
+
 		if (IsValid(TargetInteractable.GetObject()))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("TargetInteractable is valid, calling BeginInteract on target"));
 			TargetInteractable->BeginInteract();
 
 			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("InteractionDuration ~ 0, calling BeingInteract immediately"));
 				BeingInteract();
 			}
 			else
 			{
-				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, &AVMCharacterHeroBase::BeingInteract,
-					TargetInteractable->InteractableData.InteractionDuration, false);
+				UE_LOG(LogTemp, Warning, TEXT("Setting timer for BeingInteract, duration: %f"),
+					TargetInteractable->InteractableData.InteractionDuration);
+				GetWorldTimerManager().SetTimer(
+					TimerHandle_Interaction,
+					this,
+					&AVMCharacterHeroBase::BeingInteract,
+					TargetInteractable->InteractableData.InteractionDuration,
+					false);
 			}
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BeginInteract: CurrentInteractable is nullptr"));
 	}
 }
 
@@ -525,10 +663,26 @@ void AVMCharacterHeroBase::DropItem(UVMEquipment* ItemToDrop, const int32 Quanti
 	}
 }
 
+void AVMCharacterHeroBase::SetCurrentNPC(AVMNPC* NewNPC)
+{
+	CurrentNPC = NewNPC;
+}
+
 void AVMCharacterHeroBase::ToggleMenu()
 {
 	UE_LOG(LogTemp, Log, TEXT("QWER "));
 	HUD->ToggleMenu();
+}
+
+void AVMCharacterHeroBase::ToggleInventory(const FInputActionValue& Value)
+{
+	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetController());
+	if (!PC) return;
+
+	if (bInventoryIsOpen)
+		PC->CloseInventory();
+	else
+		PC->OpenInventory();
 }
 
 
@@ -548,7 +702,181 @@ void AVMCharacterHeroBase::OnHitExplosionByAOE(AActor* Target, FVector Explosion
 
 	float LaunchStrength = 1500.f;
 	FVector LaunchVelocity = Direction * LaunchStrength;
-	LaunchVelocity.Z = 500.f;
+	LaunchVelocity.Z = 1000.f;
 
 	LaunchCharacter(LaunchVelocity, true, true);
 }
+
+void AVMCharacterHeroBase::OnHitMeteorByAOE(AActor* Target, float InDamage)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[OnHitMeteorByAOE]: %s damage: %f"), *Target->GetName(), InDamage);
+
+	// 데미지 입히기.
+	HealthPointChange(InDamage, this);
+}
+
+void AVMCharacterHeroBase::OnHitFrozenByAOE(AActor* Target, float InDamage)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[OnHitFrozenByAOE]: %s damage: %f"), *Target->GetName(), InDamage);
+
+	ApplySlowDown();
+
+	if (!GetWorld()->GetTimerManager().IsTimerActive(FrozenTimerHandle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			FrozenTimerHandle,
+			this,
+			&AVMCharacterHeroBase::ClearSlowDown,
+			10.0f,
+			false
+		);
+	}
+
+	HealthPointChange(InDamage, this);
+}
+
+void AVMCharacterHeroBase::ApplySlowDown()
+{
+	if (SlowFlag == true)
+	{
+		return;
+	}
+	SlowFlag = true;
+	GetCharacterMovement()->MaxWalkSpeed = 200;
+}
+
+void AVMCharacterHeroBase::ClearSlowDown()
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+	SlowFlag = false;
+}
+
+void AVMCharacterHeroBase::OnHitThunderByAOE(AActor* Target, float InDamage)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[OnHitThunderByAOE]: %s damage: %f"), *Target->GetName(), InDamage);
+
+	GetCharacterMovement()->Velocity = FVector::Zero();
+	GetCharacterMovement()->MovementMode = MOVE_None;
+
+	//TWeakObjectPtr<AVMCharacterHeroBase> WeakHero = HeroPawn;
+	GetWorld()->GetTimerManager().ClearTimer(StunTimerHandle);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		StunTimerHandle,
+		[this]()
+		{
+			GetCharacterMovement()->MovementMode = MOVE_Walking;
+		},
+		10.0f,
+		false
+	);
+
+	// 데미지 입히기.
+	HealthPointChange(InDamage, this);
+}
+
+void AVMCharacterHeroBase::OnHitDotByAOE(AActor* Target)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	// DOT 카운트 증가
+	FireDotCount++;
+
+	// 데미지 타이머가 안 돌고 있으면 시작
+	if (!GetWorld()->GetTimerManager().IsTimerActive(DamageHandle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			DamageHandle,
+			this,
+			&AVMCharacterHeroBase::ApplyFireDotDamage,
+			1.0f,        // 1초마다 실행
+			true
+		);
+	}
+
+	// 10초 디버프 갱신 타이머 리셋
+	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(
+		FireTimerHandle,
+		this,
+		&AVMCharacterHeroBase::ClearFireDot,
+		10.0f,
+		false
+	);
+
+	UE_LOG(LogTemp, Warning, TEXT("Fire DOT Hit! Count = %d"), FireDotCount);
+}
+
+void AVMCharacterHeroBase::ApplyFireDotDamage()
+{
+	// 예: DOT 수 × 5 데미지
+	int Damage = FireDotCount * 5;
+
+	UE_LOG(LogTemp, Warning, TEXT("Fire DOT Damage: %d"), Damage);
+
+	HealthPointChange(Damage, this);
+	//DamageHandle.Invalidate();
+	// 여기에 실제 데미지 입히는 코드 넣으면 됨
+	// ApplyDamage(this, Damage, ...);
+}
+
+void AVMCharacterHeroBase::ClearFireDot()
+{
+	FireDotCount = 0;
+
+	GetWorld()->GetTimerManager().ClearTimer(DamageHandle);
+
+	UE_LOG(LogTemp, Warning, TEXT("Fire DOT expired! Count reset to 0"));
+}
+
+#pragma region 필요해서 넣었습니다
+#include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Character.h"  // 기본 플레이어 캐릭터
+#include "AI/VMEnemyBase.h"
+
+void AVMCharacterHeroBase::SpawnAllyActor()
+{
+	
+	// 1. SpawnActor 알아보기.
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// 스폰 위치와 회전 지정
+		FVector SpawnLocation = GetActorLocation() + FVector(100, 0, 0);
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		// 스폰 파라미터 설정
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		// 실제 스폰
+		AVMAllyBase* AllySpawnedActor = World->SpawnActor<AVMAllyBase>(AVMAllyBase::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		if (AllySpawnedActor)
+		{
+			AllySpawnedActor->SetOwnerTarget(this);
+			UE_LOG(LogTemp, Warning, TEXT("스폰 성공!"));
+		}
+	}
+}
+
+#pragma endregion

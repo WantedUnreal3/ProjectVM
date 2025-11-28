@@ -10,6 +10,7 @@
 #include "VMPickup.generated.h"
 
 class UVMEquipment;
+class UVMEquipmentInfo;
 class UDataTable;
 
 UCLASS()
@@ -32,6 +33,12 @@ public:
 		return EquipmentInfo;
 	}
 
+	FORCEINLINE void SetEquipmentInfo(const FVMEquipmentInfo InEquipmentInfo)
+	{
+		EquipmentInfo = InEquipmentInfo;
+	}
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -46,6 +53,9 @@ protected:
 	UFUNCTION()
 	void TakePickup(const AVMCharacterHeroBase* Taker);
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif	
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Components")

@@ -3,7 +3,10 @@
 
 #include "AI/Allies/VMAllyBase.h"
 
-#include "AI/VMAIController.h"
+#include "AI/Allies/VMAllyAIController.h"
+
+#include "Hero/VMCharacterHeroBase.h"
+#include "Hero/VMHeroStatComponent.h"
 
 #include "Perception/PawnSensingComponent.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -14,7 +17,6 @@
 #include "Components/CapsuleComponent.h"
 
 #include "ProjectVmCharacter.h"
-#include "Game/VMPlayer.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -22,6 +24,8 @@
 #include "NiagaraComponent.h" 
 #include "NiagaraFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
+
+
 
 
 // Sets default values
@@ -34,7 +38,7 @@ AVMAllyBase::AVMAllyBase()
 	//GetMesh()->SetHiddenInGame(true);
 
 	// AIControlelr 클래스 설정.
-	AIControllerClass = AVMAIController::StaticClass();
+	AIControllerClass = AVMAllyAIController::StaticClass();
 
 	// 맵에서 로드되거나 런타임에 스폰되는 모든 경우에 미리 지정한 AIController에 빙의되도록 설정.
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -176,8 +180,7 @@ void AVMAllyBase::HealOwnerHp()
 		return;
 	}
 
-	// TODO: 인터페이스로 바꿔야 함.
-	AVMPlayer* OwnerCharacterPtr = Cast<AVMPlayer>(OwnerActor);
+	AVMCharacterHeroBase* OwnerCharacterPtr = Cast<AVMCharacterHeroBase>(OwnerActor);
 	if (OwnerCharacterPtr == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[AVMAllyBase::HealOwnerHp] OwnerCharacterPtr is nullptr"));
@@ -185,7 +188,7 @@ void AVMAllyBase::HealOwnerHp()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("주인의 체력을 회복 시도합니다."));
-	OwnerCharacterPtr->HealHp(1);
+	OwnerCharacterPtr->GetStatComponent()->RecoverHealth(200);
 }
 
 void AVMAllyBase::HealOwnerMp()
@@ -197,8 +200,7 @@ void AVMAllyBase::HealOwnerMp()
 		return;
 	}
 
-	// TODO: 인터페이스로 바꿔야 함.
-	AVMPlayer* OwnerCharacterPtr = Cast<AVMPlayer>(OwnerActor);
+	AVMCharacterHeroBase* OwnerCharacterPtr = Cast<AVMCharacterHeroBase>(OwnerActor);
 	if (OwnerCharacterPtr == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[AVMAllyBase::HealOwnerMp] OwnerCharacterPtr is nullptr"));
@@ -206,7 +208,7 @@ void AVMAllyBase::HealOwnerMp()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("주인의 마나를 회복 시도합니다."));
-	OwnerCharacterPtr->HealMp(1);
+	OwnerCharacterPtr->GetStatComponent()->RecoverMana(200);
 }
 
 void AVMAllyBase::ActivateHpParticle()
@@ -240,15 +242,15 @@ void AVMAllyBase::ApplyOwnerDamageBuff()
 	}
 
 	// TODO: 인터페이스로 바꿔야 함.
-	AVMPlayer* OwnerCharacterPtr = Cast<AVMPlayer>(OwnerActor);
+
+	AVMCharacterHeroBase* OwnerCharacterPtr = Cast<AVMCharacterHeroBase>(OwnerActor);
 	if (OwnerCharacterPtr == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[AVMAllyBase::ApplyOwnerDamageBuff] OwnerCharacterPtr is nullptr"));
 		return;
 	}
-	OwnerCharacterPtr->AddAttackDamage(3.0f);
 
-	UE_LOG(LogTemp, Log, TEXT("주인의 데미지를 임시로 올립니다."));
+	UE_LOG(LogTemp, Log, TEXT("주인의 데미지를 임시로 올립니다. 윤성님 코드 보고 해야 함."));
 }
 
 void AVMAllyBase::ActivateDamageBuffParticle()
@@ -274,7 +276,7 @@ AActor* AVMAllyBase::GetEnemyTarget() const
 void AVMAllyBase::SetOwnerTarget(AActor* InOwnerTarget)
 {
 	OwnerTarget = InOwnerTarget;
-	AVMAIController* AIControllerPtr = Cast<AVMAIController>(GetController());
+	AVMAllyAIController* AIControllerPtr = Cast<AVMAllyAIController>(GetController());
 	if (AIControllerPtr)
 	{
 		UBlackboardComponent* BBCompPtr = AIControllerPtr->GetBlackboardComponent();

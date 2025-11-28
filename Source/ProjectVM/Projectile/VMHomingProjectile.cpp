@@ -14,6 +14,9 @@
 #include "ProjectVMCharacter.h"
 #include "AI/VMEnemyBase.h"
 
+#include "Interface/VMStatChangeable.h"
+#include "Hero/VMCharacterHeroBase.h"
+
 // Sets default values
 AVMHomingProjectile::AVMHomingProjectile()
 {
@@ -148,18 +151,15 @@ void AVMHomingProjectile::HitAndDestroy(UPrimitiveComponent* HitComponent, AActo
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Hit.ImpactPoint);
 
 
-	AProjectVMCharacter* Me = Cast<AProjectVMCharacter>(OtherActor);
-	// TODO: 데미지 주는 거 필요. 일단 Base에 넣는걸로 하자.
-	if (Me != nullptr)
+	AVMCharacterHeroBase* Stat = Cast<AVMCharacterHeroBase>(OtherActor);
+	if (Stat == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Me 아야 ㅠㅠ"));
-	}
-	AVMEnemyBase* Enemy = Cast<AVMEnemyBase>(OtherActor);
-	if (Enemy != nullptr)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Enemy아야 ㅠㅠ"));
+		Destroy();
+		return;
 	}
 
+	// TODO: this가 맞을 지 쏜 애가 맞을지?
+	Stat->HealthPointChange(10, this);
 	// 객체 파괴
 	Destroy();
 }

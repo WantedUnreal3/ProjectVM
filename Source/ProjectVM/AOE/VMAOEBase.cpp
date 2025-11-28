@@ -60,13 +60,13 @@ void AVMAOEBase::SpawnAOESphere()
 	FVector Center = GetActorLocation();
 	UE_LOG(LogTemp, Log, TEXT("Center is (%f, %f, %f)"), Center.X, Center.Y, Center.Z);
 
-#pragma region Debug용 코드
-	if (bDrawDebugSphere == true)
-	{
-		Color = FColor::Green;
-		DrawDebugSphere(World, Center, Radius, 16, Color, false, 10.0f, 0, 1.0f);
-	}
-#pragma endregion 
+//#pragma region Debug용 코드
+//	if (bDrawDebugSphere == true)
+//	{
+//		Color = FColor::Green;
+//		DrawDebugSphere(World, Center, Radius, 16, Color, false, 10.0f, 0, 1.0f);
+//	}
+//#pragma endregion 
 
 	// 충돌 채널 설정
 	TArray<FOverlapResult> Overlaps;

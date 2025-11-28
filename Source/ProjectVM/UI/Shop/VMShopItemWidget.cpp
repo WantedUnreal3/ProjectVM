@@ -9,7 +9,10 @@
 #include "Materials/MaterialInstanceDynamic.h"  
 #include "UI/Shop/VMShopScreen.h"
 
-void UVMShopItemWidget::SetUp(const FVMEquipmentInfo& Info)
+
+
+
+void UVMShopItemWidget::Setup(const FVMEquipmentInfo& Info)
 {
 	// 다이나믹 머터리얼 생성
 	if (ItemImage && ItemImage->GetBrush().GetResourceObject())
@@ -38,6 +41,9 @@ void UVMShopItemWidget::SetUp(const FVMEquipmentInfo& Info)
 	{
 		ItemPriceText->SetText(FText::AsNumber(EquipmentInfo->ItemLevel * 2000));
 	}
+
+
+	//this->SetToolTipText(FText::FromString(Info.ItemName));
 }
 
 void UVMShopItemWidget::NativeConstruct()

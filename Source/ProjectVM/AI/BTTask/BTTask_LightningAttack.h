@@ -27,6 +27,6 @@ private:
 	void FireOneCircleProjectile(UBehaviorTreeComponent* OwnerComp, AVMEnemyBoss* BossPtr);
 
 	FTimerHandle ThunderTimer;
-	int32 SpawnTotalCount = 20;
+	int32 SpawnTotalCount = 1;
 	int32 SpawnFinishedCount = 0;
 };

@@ -49,14 +49,31 @@ EBTNodeResult::Type UBTTask_TeleportToOwner::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Failed;
 	}
 
-	FVector TargetPos = PlayerPtr->GetActorLocation();
-	TargetPos.Z += 200;
+	/*FVector TargetPos = PlayerPtr->GetActorLocation();
 	UCharacterMovementComponent* MoveComp = Cast<UCharacterMovementComponent>(PawnPtr->GetMovementComponent());
 	if (MoveComp)
 	{
 		MoveComp->StopMovementImmediately();
 	}
-	PawnPtr->SetActorLocation(TargetPos);
+	PawnPtr->SetActorLocation(TargetPos);*/
+
+	FVector TargetPos = PlayerPtr->GetActorLocation();
+	FVector MyPos = PawnPtr->GetActorLocation();
+
+	// 내가 있는 위치에서 → Player 방향 벡터
+	FVector Dir = (TargetPos - MyPos).GetSafeNormal();
+
+	// Player 위치에서 100cm 뒤로 밀린 지점
+	FVector OffsetPos = TargetPos - Dir * 100.0f;
+
+	UCharacterMovementComponent* MoveComp = Cast<UCharacterMovementComponent>(PawnPtr->GetMovementComponent());
+	if (MoveComp)
+	{
+		MoveComp->StopMovementImmediately();
+	}
+
+	// 최종 위치 이동
+	PawnPtr->SetActorLocation(OffsetPos);
 
 	return EBTNodeResult::Succeeded;
 }

@@ -66,7 +66,7 @@ void UBTService_EnemyDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 
 	// 2. 왜 overlap이면 반응을 안하는게 맞나.
 
-	UE_LOG(LogTemp, Warning, TEXT("OverlapMultiByChannel returned: %s, Count: %d"), bResult ? TEXT("True") : TEXT("False"), OverlapResults.Num());
+	//UE_LOG(LogTemp, Warning, TEXT("OverlapMultiByChannel returned: %s, Count: %d"), bResult ? TEXT("True") : TEXT("False"), OverlapResults.Num());
 	// 충돌이 감지됐으면,
 	if (bResult)
 	{

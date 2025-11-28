@@ -57,8 +57,7 @@ EBTNodeResult::Type UBTTask_MeteorAttack::SpawnMeteorToTarget(UBehaviorTreeCompo
 
     // 초기화
     SpawnFinishedCount = 0;
-
-
+    SpawnTotalCount = FMath::RandRange(5, 10);
 
     // 나머지는 타이머로 순차 발사
     World->GetTimerManager().SetTimer(MeteorTimer,
@@ -115,7 +114,7 @@ EBTNodeResult::Type UBTTask_MeteorAttack::SpawnMeteorToTarget(UBehaviorTreeCompo
                 FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
             }
         },
-        0.3f,
+        1.0f,
         true
     );
 

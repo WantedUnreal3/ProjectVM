@@ -8,6 +8,7 @@
 #include "Interface/VMSummonInterface.h"
 #include "Interface/EnemyHealInterface.h"
 #include "Interface/VMStatChangeable.h"
+#include "Interface/VMAIEnemyBaseInterface.h"
 
 #include "VMEnemyBoss.generated.h"
 
@@ -18,6 +19,7 @@ class PROJECTVM_API AVMEnemyBoss : public ACharacter
 	//, public IVMSummonInterface
 	, public IEnemyHealInterface
 	, public IVMStatChangeable
+	, public IVMAIEnemyBaseInterface
 {
 	GENERATED_BODY()
 
@@ -101,6 +103,23 @@ public:
 	int32 PhaseIndex;
 
 	void UpdatePhase();
+
+	virtual float GetAIMoveSpeed() const
+	{
+		return 2.0;
+	}
+	virtual float GetAIAttackRange() const
+	{
+		return 2.0;
+	}
+	virtual float GetAITurnSpeed() const{ return 2.0; }
+	virtual float GetAIAttackRadius() const{ return 2.0; }
+	virtual float GetAINormalAttackDamage() const { return 2.0; }
+	virtual float GetAIAttackSpeed() const { return 2.0; }
+
+	virtual void NormalAttack() {}
+	virtual void NormalAttackCheck() {}
+
 
 public:
 	void ClearDelegate();

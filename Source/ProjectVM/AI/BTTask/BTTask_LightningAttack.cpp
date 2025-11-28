@@ -56,9 +56,7 @@ EBTNodeResult::Type UBTTask_LightningAttack::SpawnThunderToTarget(UBehaviorTreeC
 
     // 초기화
     SpawnFinishedCount = 0;
-    //TotalShots = 30;
-
-    
+    SpawnTotalCount = FMath::RandRange(5, 10);
 
     // 나머지는 타이머로 순차 발사
     World->GetTimerManager().SetTimer(ThunderTimer,
@@ -115,7 +113,7 @@ EBTNodeResult::Type UBTTask_LightningAttack::SpawnThunderToTarget(UBehaviorTreeC
                 FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
             }
         },
-        0.3f,
+        1.0f,
         true
     );
 

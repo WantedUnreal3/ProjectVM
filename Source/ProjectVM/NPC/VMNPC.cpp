@@ -188,7 +188,43 @@ void AVMNPC::AddDialogueOption(ENPCOption NewNPCOption)
 
 	UVMDialogueOption* NewOption = NewObject<UVMDialogueOption>(this);
 	NewOption->OptionType = NewNPCOption;
-	NewOption->OptionText = StaticEnum<ENPCOption>()->GetDisplayNameTextByValue((int64)NewNPCOption).ToString();
+
+	switch (NewNPCOption)
+	{
+	case ENPCOption::Talk:
+		NewOption->OptionText = TEXT("대화하기");
+		break;
+
+	case ENPCOption::Quest:
+		NewOption->OptionText = TEXT("퀘스트 받기");
+		break;
+
+	case ENPCOption::QuestClear:
+		NewOption->OptionText = TEXT("퀘스트 완료");
+		break;
+
+	case ENPCOption::Shop:
+		NewOption->OptionText = TEXT("상점");
+		break;
+
+	case ENPCOption::Exit:
+		NewOption->OptionText = TEXT("나가기");
+		break;
+
+	case ENPCOption::Accept:
+		NewOption->OptionText = TEXT("수락");
+		break;
+
+	case ENPCOption::Decline:
+		NewOption->OptionText = TEXT("거절");
+		break;
+
+	default:
+		NewOption->OptionText = TEXT("Unknown");
+		break;
+	}
+
+	//NewOption->OptionText = StaticEnum<ENPCOption>()->GetDisplayNameTextByValue((int64)NewNPCOption).ToString();
 	NewOption->OwnerNPC = this;
 	Dialogue->DialogueOptionList->AddItem(NewOption);
 

@@ -258,7 +258,7 @@ void AVMNPC::TalkSetting(FString TalkType)
 			UE_LOG(LogTemp, Log, TEXT("Talk Row Not Found: %s"), *TalkTag.ToString());
 			break;
 		}
-		DialogueTexts.Add(VMNPCTalk);
+		DialogueTexts.Add(*VMNPCTalk);
 	} while (!VMNPCTalk->bIsLastLine);
 }
 
@@ -358,7 +358,7 @@ bool AVMNPC::NextDialogue()
 
 	if (CurrentDialogueIndex < DialogueTexts.Num())
 	{
-		Dialogue->SetNPCText(FText::FromString(DialogueTexts[CurrentDialogueIndex]->Dialogue));
+		Dialogue->SetNPCText(FText::FromString(DialogueTexts[CurrentDialogueIndex].Dialogue));
 		++CurrentDialogueIndex;
 
 		if (DialogueTexts.Num() == CurrentDialogueIndex)

@@ -56,49 +56,15 @@ private:
 		return RowData;
 	}
 
-	////모든 데이터 로드해서 맵으로 반환하는 템플릿 함수
-	//template<typename T>
-	//TMap<FName, T> GetTableMap(UDataTable*& Table, const TCHAR* TablePath, const TCHAR* TableName)
-	//{
-	//	TMap<FName, T> Result;
-	//	// 테이블이 로드되지 않은 경우 로드 시도
-	//	if (Table == nullptr)
-	//	{
-	//		Table = LoadObject<UDataTable>(nullptr, TablePath);
-	//		if (Table != nullptr)
-	//		{
-	//			UE_LOG(LogTemp, Log, TEXT("%s Loaded Successfully"), TableName);
-	//		}
-	//		else
-	//		{
-	//			UE_LOG(LogTemp, Error, TEXT("Failed to Load %s"), TableName);
-	//			return Result;
-	//		}
-	//	}
-
-	//	// 모든 Row 가져오기
-	//	static const FString ContextString(TEXT("GetTableMap"));
-	//	for (const auto& Pair : Table->GetRowMap())
-	//	{
-	//		FName RowName = Pair.Key;
-	//		T* RowData = reinterpret_cast<T*>(Pair.Value);
-
-	//		if (RowData)
-	//		{
-	//			Result.Add(RowName, *RowData); // 구조체 복사
-
-
-	//		}
-	//	}
-
-	//	UE_LOG(LogTemp, Log, TEXT("%s table loaded with %d rows"), TableName, Result.Num());
-	//	return Result;
-	//}
-
 private:
+
+	UPROPERTY()
 	class UDataTable* NPCTalkDataTable;
+	UPROPERTY()
 	class UDataTable* NPCDataTable;
+	UPROPERTY()
 	class UDataTable* QuestDataTable;
+	UPROPERTY()
 	class UDataTable* EquipmentInfoTable;
 
 	//데이터	테이블 경로

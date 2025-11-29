@@ -2,7 +2,7 @@
 
 #define NOCOLLISION TEXT("NoCollision")
 
-#define VM_Ally_PAWN TEXT("VMAllyPawn")
+#define VM_ALLY_COLLISION TEXT("VMAllyCollision")
 #define VM_HERO_COLLISION TEXT("VMHeroCollision")
 #define VM_ENEMY_COLLISION TEXT("VMEnemyCollision")
 

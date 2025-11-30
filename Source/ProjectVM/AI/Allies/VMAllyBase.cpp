@@ -23,17 +23,12 @@
 #include "NiagaraFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 
+#include "Macro/VMPhysics.h"
 
-
-
-// Sets default values
 AVMAllyBase::AVMAllyBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	// 시작할 때는 메시를 안보여주도록 설정.
-	//GetMesh()->SetHiddenInGame(true);
 
 	// AIControlelr 클래스 설정.
 	AIControllerClass = AVMAllyAIController::StaticClass();
@@ -41,25 +36,22 @@ AVMAllyBase::AVMAllyBase()
 	// 맵에서 로드되거나 런타임에 스폰되는 모든 경우에 미리 지정한 AIController에 빙의되도록 설정.
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	// 스켈레탈 메시
-	// Todo :기본 매시 사용중 -> 나중에 변경 필요.
-
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AllyPawn"));
+	GetCapsuleComponent()->SetCollisionProfileName(VM_ALLY_COLLISION);
 
 #pragma region 스켈레탈메시
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletonMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonSerath/Characters/Heroes/Serath/Meshes/Serath.Serath'"));
-	if (SkeletonMeshRef.Object)
+	if (SkeletonMeshRef.Object != nullptr)
 	{
 		GetMesh()->SetSkeletalMesh(SkeletonMeshRef.Object);
 	}
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetMesh()->SetCollisionProfileName(NOCOLLISION);
 
-	//// 애니메이션 입히기
+	// 애니메이션 입히기
 	ConstructorHelpers::FClassFinder<UAnimInstance> AnimRef(TEXT("/Script/Engine.AnimBlueprint'/Game/ParagonSerath/Characters/Heroes/Serath/Serath_AnimBlueprint.Serath_AnimBlueprint_C'"));
-	if (AnimRef.Class)
+	if (AnimRef.Class != nullptr)
 	{
 		GetMesh()->SetAnimClass(AnimRef.Class);
 	}

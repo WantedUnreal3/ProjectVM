@@ -24,6 +24,8 @@ DECLARE_MULTICAST_DELEGATE(FHeroDeathHandler);
 
 class UVMEquipment;
 class UVMHeroStatComponent;
+class UVMEquipmentComponent;
+
 
 // 인벤토리 관련 구조체
 USTRUCT()
@@ -69,13 +71,10 @@ public:
 	void UpdateInteractionWidget() const;
 	void DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop);
 
-	void UnequipItem(UVMEquipment* Item);
-
 	void SetCurrentNPC(AVMNPC* NewNPC);
 
 protected:
 	virtual void BeginPlay() override;
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -87,14 +86,10 @@ protected:
 	void MovementSkill(const FInputActionValue& Value);
 	void UltimateSkill(const FInputActionValue& Value);
 
-
 	//상호작용
 	void Interact(const FInputActionValue& Value);
-
 	//대화 넘기기
 	void NextTalk(const FInputActionValue& Value);
-	
-
 	void DebuggingTest(const FInputActionValue& Value);
 
 	// 인벤토리 관련 함수
@@ -102,16 +97,11 @@ protected:
 	void FoundInteractable(AActor* NewInteractable);
 	void NoInteractableFound();
 	void BeginInteract();
-	/*void EndInteract();
-	void BeingInteract();*/
 	void ToggleMenu();
-
 
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
 
 	// 죄송합니다. 손 좀 대겠습니다.
 public:
@@ -129,8 +119,6 @@ public:
 	void ClearSlowDown();
 	float MaxWalkSpeed;
 
-
-
 	UFUNCTION()
 	void OnHitThunderByAOE(AActor* Target, float InDamage);
 
@@ -146,27 +134,14 @@ public:
 	int32 FireDotCount = 0;
 	
 	FTimerHandle FireTimerHandle;
-
 	FTimerHandle FrozenTimerHandle;
-
 	FTimerHandle DamageHandle;
 
 	UFUNCTION()
 	void ToggleInventory(const FInputActionValue& Value);
 
-	UFUNCTION()
-	void EquipFromInventory(UVMEquipment* Item);
-
 	UPROPERTY()
 	TObjectPtr<AVMCharacterHeroHUD> HUD;
-
-	UFUNCTION(BlueprintCallable, Category = "Equipment")
-	UVMEquipment* GetEquippedWeapon() const { return EquippedWeapon; }
-
-
-
-	// 장비에 따른 스탯 갱신 함수
-	void RecalculateStatsFromEquipment();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -224,6 +199,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UVMHeroSkillComponent> Skills;
 
+	// 인벤토리 관련 변수
+	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+	TObjectPtr<UVMInventoryComponent> PlayerInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
+	TScriptInterface<IVMInteractionInterface> TargetInteractable;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill, Meta = (AllowPrivateAccess = "true"))
 	EHeroState CurState;
 
@@ -232,15 +214,6 @@ protected:
 	bool bCanInteract = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact")
 	class AVMNPC* CurrentNPC = nullptr;
-
-	// 인벤토리 관련 변수
-	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
-	TScriptInterface<IVMInteractionInterface> TargetInteractable;
-
-	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
-	//UVMInventoryComponent* PlayerInventory;
-	TObjectPtr<UVMInventoryComponent> PlayerInventory;
-
 	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -251,43 +224,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
 	bool bInventoryIsOpen = false;
-
-	// 무기 장착 관련 변수
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	UVMEquipment* EquippedItem;
-
-	// 장착 시 능력치 적용 (예: 공격력, 방어력 등)
-	void ApplyEquipmentStats(const FVMEquipmentInfo& Info);
-
-	// 장착 해제 시 능력치 제거
-	void RemoveEquipmentStats(const FVMEquipmentInfo& Info);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentAttack = 0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentDefense;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentHealth;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentMana;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentManaRegen;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentSpeed;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-	int32 CurrentLifeSteal;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	TObjectPtr<UVMEquipment> EquippedWeapon;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stat")
-	UVMHeroStatComponent* VMHeroStatComponent;
 
 
 #pragma region 나희영_손 묻음 ㅈㅅ
@@ -300,10 +236,8 @@ protected:
 	TObjectPtr<class UPawnNoiseEmitterComponent> PawnNoiseEmitter;
 #pragma endregion
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
-
 
 	float InteractionCheckFrequency;
 	float InteractionCheckDistance;

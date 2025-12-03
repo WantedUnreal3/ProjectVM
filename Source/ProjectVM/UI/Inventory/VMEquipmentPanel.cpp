@@ -9,6 +9,7 @@
 #include "Item/Equipment/VMEquipment.h"
 #include "Hero/VMCharacterHeroBase.h"
 #include "UI/Character/VMCharacterHeroHUD.h"
+#include "Hero/VMHeroStatComponent.h"
 
 #include "Components/WrapBox.h"
 #include "Components/WrapBoxSlot.h"
@@ -170,10 +171,8 @@ void UVMEquipmentPanel::ClearAllSlots()
 
 void UVMEquipmentPanel::HandleEquipmentSlotDoubleClicked(UVMEquipment* Item)
 {
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("EquipmentPanel::HandleEquipmentSlotDoubleClicked CALLED, Item=%s"),
-        Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
+    UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel::HandleEquipmentSlotDoubleClicked CALLED, Item=%s"), Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
+    
     if (!Item)
     {
         UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel: DoubleClick but Item is NULL"));
@@ -185,15 +184,13 @@ void UVMEquipmentPanel::HandleEquipmentSlotDoubleClicked(UVMEquipment* Item)
 
     // 1) PlayerController / Hero 가져오기
     APlayerController* PC = GetOwningPlayer();
-    if (!PC)
-        return;
+    if (!PC) return;
 
     AVMCharacterHeroBase* Hero = Cast<AVMCharacterHeroBase>(PC->GetPawn());
-    if (!Hero)
-        return;
+    if (!Hero) return;
 
     // 2) 캐릭터에서 장비 해제 (스탯 제거 포함)
-    Hero->UnequipItem(Item);
+    Hero->GetStatComponent()->RemoveEquipmentStats(Item);
 
     // 3) Hero의 인벤토리 가져오기
     UVMInventoryComponent* Inventory = Hero->GetInventory();

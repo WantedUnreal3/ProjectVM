@@ -79,6 +79,8 @@ void UVMHeroStatComponent::RemoveEquipmentStats(UVMEquipment* Equipment)
 {
 	if (!Equipment) return;
 
+	FVMEquipmentInfo EquipmentInfo = Equipment->GetEquipmentInfo();
+
 	EquipmentStats.AttackPower -= EquipmentInfo.AttackPower;
 	EquipmentStats.DefensivePower -= EquipmentInfo.DefensivePower;
 	EquipmentStats.HealthPoint -= EquipmentInfo.HealthPoint;

@@ -8,6 +8,7 @@
 #include "Inventory/VMInventoryComponent.h"
 #include "Hero/VMCharacterHeroBase.h"
 #include "UI/Character/VMCharacterHeroHUD.h"
+#include "Hero/VMHeroStatComponent.h"
 
 
 #include "Components/WrapBox.h"
@@ -88,7 +89,10 @@ void UVMInventoryPanel::HandleItemDoubleClicked(UVMEquipment* Item)
     if (!Hero) return;
 
     // 1) 스탯 적용
-    Hero->EquipFromInventory(Item);
+    Hero->GetStatComponent()->ApplyEquipmentStats(Item);
+
+    UE_LOG(LogTemp, Log, TEXT("Attack : [%d]"), Hero->GetStatComponent()->GetFinalStat().AttackPower);
+    UE_LOG(LogTemp, Log, TEXT("HP : [%d]"), Hero->GetStatComponent()->GetFinalStat().HealthPoint);
 
     // 2) 장비 패널 UI
     if (LinkedEquipmentPanel)

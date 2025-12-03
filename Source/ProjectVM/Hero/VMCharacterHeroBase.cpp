@@ -612,23 +612,6 @@ void AVMCharacterHeroBase::DropItem(UVMEquipment* ItemToDrop, const int32 Quanti
 	}
 }
 
-void AVMCharacterHeroBase::UnequipItem(UVMEquipment* Item)
-{
-	if (!Item || !Stat)
-		return;
-
-	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
-
-	// 지금 예제에서는 무기 한 개만 있다고 가정
-	if (EquippedWeapon == Item)
-	{
-		RemoveEquipmentStats(Info);
-		EquippedWeapon = nullptr;
-		EquippedItem = nullptr;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Hero: Unequipped %s"), *Info.ItemName);
-}
 
 void AVMCharacterHeroBase::SetCurrentNPC(AVMNPC* NewNPC)
 {
@@ -683,90 +666,6 @@ void AVMCharacterHeroBase::ToggleInventory(const FInputActionValue& Value)
 		PC->SetInputMode(FInputModeGameAndUI());
 		PC->bShowMouseCursor = true;
 	}
-}
-
-//void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)
-//{
-//	if (!Item)
-//		return;
-//
-//	if (!Stat)
-//	{
-//		UE_LOG(LogTemp, Error, TEXT("EquipFromInventory: Stat is NULL"));
-//		return;
-//	}
-//
-//	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
-//	UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
-//
-//	// 1) 기존 장비 능력치 제거
-//	if (EquippedWeapon)
-//	{
-//		RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
-//	}
-//
-//
-//	// 2) 새 장비 장착
-//	EquippedWeapon = Item;
-//	EquippedItem = Item; // 둘 중 하나만 쓸 거면 하나로 통일해도 됨
-//
-//	// 3) 새 장비 능력치 적용
-//	Stat->ApplyEquipmentStats(Item);
-//
-//	// 4) 디버그 출력
-//	UE_LOG(LogTemp, Warning,
-//		TEXT("[Equip] Atk=%d Def=%d HP=%d Mana=%d Speed=%d"),
-//		Stat->CurStats.AttackPower,
-//		Stat->CurStats.DefensivePower,
-//		Stat->CurStats.HealthPoint,
-//		Stat->CurStats.ManaPoint,
-//		Stat->CurStats.Speed
-//	);
-//}
-
-//void AVMCharacterHeroBase::RecalculateStatsFromEquipment()
-//{
-//}
-
-void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)
-{
-	if (!Item)
-	{
-		return;
-	}
-
-	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
-    UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
-
-    // 기존 장비 능력치 제거
-    if (EquippedWeapon)
-    {
-        RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
-    }
-
-    // 새 장비 장착
-    EquippedWeapon = Item;
-	
-	RecalculateStatsFromEquipment();
-
-
-}
-
-void AVMCharacterHeroBase::RecalculateStatsFromEquipment()
-{
-	int32 NewAttack = 0;
-
-	if (EquippedWeapon)
-	{
-		const FVMEquipmentInfo& Info = EquippedWeapon->GetEquipmentInfo();
-		NewAttack += Info.AttackPower;
-	}
-
-	CurrentAttack = NewAttack;
-
-	UE_LOG(LogTemp, Warning, TEXT("RecalculateStats: Atk=%d"), CurrentAttack);
-
-
 }
 
 

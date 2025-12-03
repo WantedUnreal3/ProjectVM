@@ -109,7 +109,7 @@ public:
 
 	UFUNCTION(Category = "Inventory")
 
-	FORCEINLINE TArray<UVMEquipment*> GetInventoryContents() const { return InventoryContents; };
+	TArray<UVMEquipment*>& GetInventoryContents() { return InventoryContents; };
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void RemoveItem(UVMEquipment* Item);

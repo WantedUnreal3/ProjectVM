@@ -67,12 +67,13 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	CameraBoom->bDoCollisionTest = false;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 200.0f), FRotator(-30.0f, 0.0f, 0.0f));
+	FollowCamera->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(-30.0f, 0.0f, 0.0f));
 	FollowCamera->bUsePawnControlRotation = false;
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Game/Project/Input/IMC_Shoulder.IMC_Shoulder"));
@@ -361,8 +362,8 @@ void AVMCharacterHeroBase::BasicSkill(const FInputActionValue& Value)
 {
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
-
-	CurState = EHeroState::Skill;
+	if (CurState == EHeroState::Skill) return;
+	
 	Skills->ExecuteBasicSkill(this, Stat);
 }
 
@@ -370,6 +371,7 @@ void AVMCharacterHeroBase::AdvancedSkill(const FInputActionValue& Value)
 {
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
+	if (CurState == EHeroState::Skill) return;
 	
 	Skills->ExecuteAdvancedSkill(this, Stat);
 }
@@ -378,6 +380,7 @@ void AVMCharacterHeroBase::MovementSkill(const FInputActionValue& Value)
 {
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
+	if (CurState == EHeroState::Skill) return;
 	
 	Skills->ExecuteMovementSkill(this, Stat);
 }
@@ -386,6 +389,7 @@ void AVMCharacterHeroBase::UltimateSkill(const FInputActionValue& Value)
 {
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
+	if (CurState == EHeroState::Skill) return;
 	
 	Skills->ExecuteUltimateSkill(this, Stat);
 }

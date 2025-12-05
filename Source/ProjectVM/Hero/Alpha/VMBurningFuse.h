@@ -20,6 +20,8 @@ public:
 	virtual void ActivateSkill(class AVMCharacterHeroBase* InOwner, class UVMHeroStatComponent* StatComp) override;
 
 private:
+	void StartHeroFollowCamera();
+	void EndHeroFollowCamera();
 	void SpawnProjectile();
 
 private:

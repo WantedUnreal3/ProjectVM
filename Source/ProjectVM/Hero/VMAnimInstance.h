@@ -22,6 +22,8 @@ public:
 	UVMAnimInstance();
 
 	FSkillHandler OnSkillMotionStart;
+	FSkillHandler OnSpawnProjectile;
+	FSkillHandler OnAttackTiming;
 	FSkillHandler OnSkillMotionEnd;
 
 protected:
@@ -30,6 +32,11 @@ protected:
 
 	UFUNCTION()
 	void AnimNotify_SkillMotionStart();
+	UFUNCTION()
+	void AnimNotify_SpawnProjectile();
+	UFUNCTION()
+	void AnimNotify_AttackTiming();
+	UFUNCTION()
 	void AnimNotify_SkillMotionEnd();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
@@ -37,6 +44,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
 	TObjectPtr<class UCharacterMovementComponent> Movement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	FVector LocalVelocity;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector Velocity;
@@ -58,7 +68,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsFalling : 1;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	EHeroState HeroState;
 };

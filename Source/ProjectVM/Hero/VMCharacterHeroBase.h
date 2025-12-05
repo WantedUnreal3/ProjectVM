@@ -60,6 +60,7 @@ public:
 	FORCEINLINE class UVMHeroStatComponent* GetStatComponent() { return Stat; }
 	FORCEINLINE class UVMHeroSkillComponent* GetSkillComponent() { return Skills; }
 	FORCEINLINE EHeroState GetHeroState() { return CurState; }
+	FORCEINLINE void SetHeroState(EHeroState InState) { CurState = InState; }
 	void Resurrect();
 	
 	void ChangeInputMode(EInputMode NewMode);

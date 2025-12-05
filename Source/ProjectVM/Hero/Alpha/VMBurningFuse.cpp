@@ -4,6 +4,7 @@
 #include "Hero/Alpha/VMBurningFuse.h"
 
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Hero/VMAnimInstance.h"
 #include "Hero/Alpha/VMBurningFuseProjectile.h"
 #include "Hero/VMCharacterHeroBase.h"
@@ -47,8 +48,24 @@ void UVMBurningFuse::ActivateSkill(AVMCharacterHeroBase* InOwner, UVMHeroStatCom
 	}
 	else
 	{
-		AnimInstance->OnSkillMotionStart.AddUObject(this, &UVMBurningFuse::SpawnProjectile);
+		AnimInstance->OnSkillMotionStart.AddUObject(this, &UVMBurningFuse::StartHeroFollowCamera);
+		AnimInstance->OnSpawnProjectile.AddUObject(this, &UVMBurningFuse::SpawnProjectile);
+		AnimInstance->OnSkillMotionEnd.AddUObject(this, &UVMBurningFuse::EndHeroFollowCamera);
 	}
+}
+
+void UVMBurningFuse::StartHeroFollowCamera()
+{
+	Owner->SetHeroState(EHeroState::Skill);
+	Owner->GetCharacterMovement()->bOrientRotationToMovement = false;
+	Owner->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+}
+
+void UVMBurningFuse::EndHeroFollowCamera()
+{
+	Owner->SetHeroState(EHeroState::Idle);
+	Owner->GetCharacterMovement()->bOrientRotationToMovement = true;
+	Owner->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 }
 
 void UVMBurningFuse::SpawnProjectile()
@@ -57,8 +74,10 @@ void UVMBurningFuse::SpawnProjectile()
 	FVector ProjectileDirection = CameraForward;
 	ProjectileDirection.Z = 0;
 	ProjectileDirection.Normalize();
+
+	FVector SpawnLocation = Owner->GetMesh()->GetSocketLocation(TEXT("SkillSpawnLocation"));
 	
-	AVMBurningFuseProjectile* Projectile = Owner->GetWorld()->SpawnActor<AVMBurningFuseProjectile>(AVMBurningFuseProjectile::StaticClass(), Owner->GetActorLocation(), ProjectileDirection.Rotation());
+	AVMBurningFuseProjectile* Projectile = Owner->GetWorld()->SpawnActor<AVMBurningFuseProjectile>(AVMBurningFuseProjectile::StaticClass(), SpawnLocation, ProjectileDirection.Rotation());
 	if (Projectile != nullptr && Projectile->IsValidLowLevel())
 	{
 		Projectile->InitProjectile(Owner, ProjectileDamage);
